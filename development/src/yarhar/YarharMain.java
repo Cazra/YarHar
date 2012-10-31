@@ -8,6 +8,11 @@ import pwnee.*;
 /** The main window for this Pwnee game example. */
 public class YarharMain extends JFrame implements WindowListener, WindowFocusListener {
     
+    JPanel borderPanel = new JPanel(new BorderLayout());
+    ToolsPanel toolsPanel;
+    SpriteLibraryPanel spriteLibPanel;
+    EditorPanel editorPanel;
+    
     public YarharMain() {
         super("YarHar!");
         int screenX = 640;    
@@ -22,6 +27,18 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         // Create main window panel and add it into the window.
     //    helloPanel = new HelloPanel();
     //    this.add(helloPanel);
+        
+        this.add(borderPanel);
+        
+        toolsPanel = new ToolsPanel(this);
+        borderPanel.add(toolsPanel, BorderLayout.NORTH);
+        
+        spriteLibPanel = new SpriteLibraryPanel(this);
+        borderPanel.add(spriteLibPanel, BorderLayout.EAST);
+        
+        editorPanel = new EditorPanel(this);
+        borderPanel.add(editorPanel, BorderLayout.CENTER);
+        editorPanel.start();
         
         // finishing touches on Game window
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
