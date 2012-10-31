@@ -42,10 +42,6 @@ public class EditorPanel extends GamePanel {
         // Zoom out by scrolling the mouse wheel down.
         if(mouse.wheel > 0)
            camera.zoomAtScreen(0.75, mouse.position);
-            
-        // Hold spacebar to rotate the camera around the last point you clicked.
-        if(keyboard.isPressed(KeyEvent.VK_SPACE))
-           camera.angle += 3;
     }
     
     public void paint(Graphics g) {
@@ -84,7 +80,6 @@ public class EditorPanel extends GamePanel {
         // display instructions.
         g2D.drawString("Move the camera by dragging the mouse.", 10,62);
         g2D.drawString("Use the mouse wheel to zoom in and out.", 10,77);
-        g2D.drawString("Hold spacebar to rotate the camera.", 10,92);
     }
     
     public void paintTestGrid(Graphics2D g) {

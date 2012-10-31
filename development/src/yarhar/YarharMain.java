@@ -12,6 +12,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
     ToolsPanel toolsPanel;
     SpriteLibraryPanel spriteLibPanel;
     EditorPanel editorPanel;
+    JSplitPane splitPane;
     
     public YarharMain() {
         super("YarHar!");
@@ -34,17 +35,21 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         borderPanel.add(toolsPanel, BorderLayout.NORTH);
         
         spriteLibPanel = new SpriteLibraryPanel(this);
-        borderPanel.add(spriteLibPanel, BorderLayout.EAST);
-        
         editorPanel = new EditorPanel(this);
-        borderPanel.add(editorPanel, BorderLayout.CENTER);
-        editorPanel.start();
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, spriteLibPanel);
+        splitPane.setContinuousLayout(true);
+        splitPane.setResizeWeight(1.0);
+        splitPane.setDividerLocation(0.9);
+        borderPanel.add(splitPane, BorderLayout.CENTER);
+        
         
         // finishing touches on Game window
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         
         System.err.println("Game Window successfully created!!!");
+        
+        editorPanel.start();
     }
      
     
