@@ -48,6 +48,7 @@ bin, lib, and other folders.</echo>
 		<property name="build.resources" value="${build.base}/resources"/>
 		<property name="build.jar"		value="yarhar.jar"/>
 		<property name="build.latest"	value="${build.base}/latest"/>
+        <property name="build.main"		value="yarhar.YarharMain"/>
 		<echo level="info">Using Java at ${env.JAVA_HOME}.</echo>
 		<path id="build.classpath">
 			<pathelement path="${java.class.path}"/>
@@ -144,6 +145,7 @@ bin, lib, and other folders.</echo>
 			<fileset dir="${build.resources}"/>
 			<manifest>
 				<attribute name="Build-Date" value="${DSTAMP}"/>
+                <attribute name="Main-Class" value="${build.main}"/>
 			</manifest>
 		</jar>
 		<echo level="info">New ${build.jar} built in ${build.latest}.</echo>

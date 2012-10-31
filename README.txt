@@ -29,10 +29,10 @@ README
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ======================================================================*/
 
-Yarhar is a 2D map editor developed with Java, but designed for creating maps usable in any language.
-This is possible because all maps created with Yarhar are saved as JSON text. Yarhar supports multiple 
-layers, tiled sprites, grouped sprite libraries, and layer opacity. Yarhar is powered by the Pwnee2D 
-Java game engine.
+Yarhar is a 2D map editor developed with Java, but designed for creating maps usable in 
+any language. This is possible because all maps created with Yarhar are saved as JSON text. 
+Yarhar supports multiple layers, tiled sprites, grouped sprite libraries, and layer opacity. 
+Yarhar is powered by the Pwnee2D Java game engine.
 
 This project is in currently undergoing initial development and is not yet stable. I would not 
 recommend actually using it to create maps for your games until this paragraph is removed.
@@ -40,9 +40,9 @@ recommend actually using it to create maps for your games until this paragraph i
 I'll eventually get around to expanding this README and creating some example applications. 
 Hang in there until then!
 
-All components and examples of Yarhar unless otherwise specified, have been developed and tested
-on a 64-bit computer running Windows 7, but it should also be able to run on any computer 
-with at least Java 6 properly installed.
+All components and examples of Yarhar unless otherwise specified, have been developed and 
+tested on a 64-bit computer running Windows 7, but it should also be able to run on any 
+computer with at least Java 6 properly installed.
 
 
 
@@ -75,6 +75,16 @@ The executable jar file for the example will be created in its "latest" director
 
 Frequently Asked Questions:
 ----------------
+
+Q: What's with the weird name for this project?
+A: It's a map editor. Pirates use treasure maps. Since you are using this 
+   map editing program, you might be a pirate!
+   
+   ~Yar! Har! Fiddle dee dee! Being a pirate is alright to be!
+   Do what you want 'cause a pirate is free!
+   YOU are a PIRATE!~
+   
+   So yeah, I really just gave the name "Yarhar" to make a lame pirate joke.
 
 Q: Is it done yet? 
 A: No.
