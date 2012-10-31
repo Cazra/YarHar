@@ -13,6 +13,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         int screenX = 640;    
         int screenY = 480;
         this.setSize(screenX,screenY);
+        this.setJMenuBar(new YarharMenuBar(this));
         
         this.addWindowListener(this);
         this.addWindowFocusListener(this);
@@ -70,7 +71,13 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         System.err.println("Window lost focus");
     }
     
-    
+    public void close() {
+        // do some cleaning up.
+        System.err.println("cleaning up before closing...");
+        
+        // terminate.
+        System.exit(0);
+    }
     
     
     /** Creates the game window and makes it fullscreen if the user provided the argument "fullscreen". */
