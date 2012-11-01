@@ -8,11 +8,11 @@ import pwnee.*;
 /** The main window for this Pwnee game example. */
 public class YarharMain extends JFrame implements WindowListener, WindowFocusListener {
     
-    JPanel borderPanel = new JPanel(new BorderLayout());
-    ToolsPanel toolsPanel;
-    SpriteLibraryPanel spriteLibPanel;
-    EditorPanel editorPanel;
-    JSplitPane splitPane;
+    public JPanel borderPanel = new JPanel(new BorderLayout());
+    public ToolsPanel toolsPanel;
+    public SpriteLibraryPanel spriteLibPanel;
+    public EditorPanel editorPanel;
+    public JSplitPane splitPane;
     
     public YarharMain() {
         super("YarHar!");
@@ -93,12 +93,19 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         System.err.println("Window lost focus");
     }
     
+    /** Cleans up the application (possibly asking the user if they want to save their changes) and then exits it. */
     public void close() {
         // do some cleaning up.
         System.err.println("cleaning up before closing...");
+        editorPanel.clean();
         
         // terminate.
         System.exit(0);
+    }
+    
+    /** Append the current working map's name to the window's title. */
+    public void updateTitle(String mapName) {
+        this.setTitle("YarHar! - " + mapName);
     }
     
     

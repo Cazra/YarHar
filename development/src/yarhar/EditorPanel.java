@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.event.KeyEvent;
 import pwnee.*;
+import yarhar.map.*;
 
 public class EditorPanel extends GamePanel {
     
@@ -19,9 +20,18 @@ public class EditorPanel extends GamePanel {
         
         // Create the camera
         camera = new Camera(this);
+        
+        // start with a blank LevelMap.
+        changeLevel("new");
+    }
+    
+    public void clean() {
+        curLevel.clean();
     }
     
     public void logic() {
+        super.logic();
+        
         // update our Camera's state
         camera.update();
         
@@ -42,18 +52,27 @@ public class EditorPanel extends GamePanel {
         // Zoom out by scrolling the mouse wheel down.
         if(mouse.wheel > 0)
            camera.zoomAtScreen(0.75, mouse.position);
+        
+        // Set the swing sprite library to use the library of the currently loaded map.
+        LevelMap curMap = (LevelMap) curLevel;
+        if(curMap != null)
+            frame.spriteLibPanel.setLibrary(curMap.spriteLib);
     }
     
     public void paint(Graphics g) {
+        if(curLevel == null)
+            return;
+            
+        LevelMap curMap = (LevelMap) curLevel;
+        
         // set the background color to white.
-        this.setBackground(new Color(0xFFFFFF));
+        this.setBackground(new Color(curMap.bgColor));
         
         // clear the panel with the background color.
         super.paint(g);
         
         // cast our Graphics as a Graphics2D, since it has more features and g is actually a Graphics2D anyways.
         Graphics2D g2D = (Graphics2D) g;
-        
         
         // Save the original transform
         AffineTransform origTrans = g2D.getTransform();
@@ -62,7 +81,7 @@ public class EditorPanel extends GamePanel {
         g2D.setTransform(camera.trans);
         
         // render the scene
-        paintTestGrid(g2D);
+        curLevel.render(g2D);
         
         // restore our original transform
         g2D.setTransform(origTrans);
@@ -93,5 +112,24 @@ public class EditorPanel extends GamePanel {
         g.setColor(new Color(0xFF0000));
         g.drawLine(-320,0,320,0);
         g.drawLine(0,-320,0,320);
+    }
+    
+    
+    /** Changing levels either starts a new level or opens a level from a file. */
+    public Level makeLevelInstance(String levelName) {
+        if(levelName == "new")
+            return new LevelMap(this);
+        else
+            return null;
+    }
+    
+    
+    public void resetCamera() {
+        camera.x = 0;
+        camera.y = 0;
+        camera.focalX = 0;
+        camera.focalY = 0;
+        camera.zoom = 1.0;
+        camera.update();
     }
 }

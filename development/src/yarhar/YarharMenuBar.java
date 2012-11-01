@@ -17,6 +17,7 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
     JMenu editMenu = new JMenu("Edit");
         
     JMenu viewMenu = new JMenu("View");
+        JMenuItem resetCamItem = new JMenuItem("Reset Camera");
     
     JMenu helpMenu = new JMenu("Help");
     
@@ -50,7 +51,9 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
         this.add(viewMenu);
         viewMenu.setMnemonic(KeyEvent.VK_V);
-        viewMenu.addActionListener(this);
+            viewMenu.add(resetCamItem);
+            resetCamItem.addActionListener(this);
+            resetCamItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -65,8 +68,10 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
         if(source == fileMenu)
             System.err.println("fileMenu fired.");
-        if(source == newItem)
+        if(source == newItem) {
             System.err.println("File -> newItem fired.");
+            yarhar.editorPanel.changeLevel("new");
+        }
         if(source == openItem)
             System.err.println("File -> openItem fired.");
         if(source == saveItem)
@@ -74,6 +79,12 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == exitItem) {
             System.err.println("File -> exitItem fired.");
             yarhar.close();
+        }
+        
+        if(source == resetCamItem) {
+            System.err.println("View -> resetCamItem fired.");
+            yarhar.editorPanel.resetCamera();
+            
         }
         
     }
