@@ -8,6 +8,7 @@ import java.awt.geom.AffineTransform;
 import javax.swing.border.LineBorder;
 import pwnee.image.ImageLoader;
 import pwnee.image.ImageEffects;
+import yarhar.*;
 import yarhar.map.*;
 
 /** A dialog that allows the user to create a new SpriteType. */
@@ -32,9 +33,14 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     JSlider zoomSlider;
     JLabel zoomLabel = new JLabel("Zoom: x1");
     
-    public NewSpriteTypeDialog(Frame owner) {
+    JLabel mousePosLabel = new JLabel("Mouse: 0,0");
+    JLabel focalPointLabel = new JLabel("Focal point: 0,0");
+    JLabel dimsLabel = new JLabel("Size: 32,32");
+    
+    public NewSpriteTypeDialog(YarharMain owner) {
+        super(owner);
         constructComponents();
-        this.setSize(new Dimension(400,200));
+        this.setSize(new Dimension(500,400));
         
         setTitle("New Sprite");
         show();
@@ -51,17 +57,15 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         previewPanel = new JPanel(new BorderLayout());
         previewPanel.add(new JLabel("Preview image: "), BorderLayout.NORTH);
-        curImg = loadImageIconFromFile("BadImg.png");
-        curImgLabel = new SpriteLabel(curImg);
+        initSpriteLabel();
         imgScrollPane = new JScrollPane(curImgLabel);
-        imgScrollPane.setMinimumSize(new Dimension(200,200));
         previewPanel.add(imgScrollPane, BorderLayout.CENTER);
         previewPanel.add(makePreviewUtilsPanel(), BorderLayout.SOUTH);
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fieldsPanel, previewPanel);
         splitPane.setContinuousLayout(true);
-        splitPane.setResizeWeight(1.0);
-        splitPane.setDividerLocation(0.3);
+        splitPane.setResizeWeight(0.0);
+        splitPane.setDividerLocation(0.5);
         topPanel.add(splitPane, BorderLayout.CENTER);
         
         
@@ -108,10 +112,22 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         return result;
     }
     
+    /** Initializes our SpriteLabel. */
+    public void initSpriteLabel() {
+        curImg = loadImageIconFromFile("BadImg.png");
+        curImgLabel = new SpriteLabel(curImg);
+        curImgLabel.mousePosLabel = mousePosLabel;
+        curImgLabel.focalPointLabel = focalPointLabel;
+        curImgLabel.dimsLabel = dimsLabel;
+    }
+    
     /** Creates a JPanel to house the shiny buttons for the previewPanel. */
     public JPanel makePreviewUtilsPanel() {
         JPanel result = makeVerticalFlowPanel();
         result.add(makeZoomSliderPanel());
+        result.add(mousePosLabel);
+        result.add(focalPointLabel);
+        result.add(dimsLabel);
         return result;
     }
     
@@ -152,7 +168,6 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         }
         catch(Exception e) {
             JOptionPane.showMessageDialog(this, "Bad integer values");
-            System.err.println("Bad integer values");
         }
         
     }
@@ -164,6 +179,8 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         ImageIcon result = new ImageIcon(img);
         return result;
     }
+    
+    
     
     
     public void actionPerformed(ActionEvent e) {
@@ -222,6 +239,10 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
     public int cropCurX = 0;
     public int cropCurY = 0;
     
+    JLabel mousePosLabel = null;
+    JLabel focalPointLabel = null;
+    JLabel dimsLabel = null;
+    
     public SpriteLabel(Icon image) {
         super(image);
         addMouseListener(this);
@@ -246,22 +267,20 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
     public void mousePressed(MouseEvent e) {
         int button = e.getButton();
         
+        Point mouseWorld = mouseImgPos(e);
         
         if(button == MouseEvent.BUTTON1) {
             // Left button: set the focus point
             
             isSettingFocus = true;
-            focalX = e.getX()/scale - previewOffset;
-            focalY = e.getY()/scale - previewOffset;
-            System.err.println(focalX + ", " + focalY);
-            
+            setFocus(mouseWorld.x, mouseWorld.y);
         }
         else if(button == MouseEvent.BUTTON3) {
             // Right button: begin crop
             
             isCropping = true;
-            cropStartX = cropCurX = e.getX()/scale - previewOffset;
-            cropStartY = cropCurY = e.getY()/scale - previewOffset;
+            cropStartX = cropCurX = mouseWorld.x;
+            cropStartY = cropCurY = mouseWorld.y;
         }
         
         repaint();
@@ -292,28 +311,37 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
     }
     
     public void mouseMoved(MouseEvent e) {
-        // DO nothing
+        updateMouseLabel(e);
     }
     
     public void mouseDragged(MouseEvent e) {
         int button = e.getButton();
         
+        updateMouseLabel(e);
+        Point mouseWorld = mouseImgPos(e);
+        
         // Left drag to place focus point
         if(isSettingFocus) {
-            focalX = e.getX()/scale - previewOffset;
-            focalY = e.getY()/scale - previewOffset;
-            System.err.println(focalX + ", " + focalY);
+            setFocus(mouseWorld.x, mouseWorld.y);
         }
         
         // Right drag to crop
         if(isCropping) {
-            cropCurX = e.getX()/scale - previewOffset;
-            cropCurY = e.getY()/scale - previewOffset;
-            System.err.println("cropping");
+            cropCurX = mouseWorld.x;
+            cropCurY = mouseWorld.y;
         }
         
         repaint();
     }
+    
+    /** Obtains the mouse's position relative to the preview image. */
+    public Point mouseImgPos(MouseEvent e) {
+        int x = e.getX()/scale - previewOffset;
+        int y = e.getY()/scale - previewOffset;
+        
+        return new Point(x,y);
+    }
+    
     
     /** Updates the size of this label to be the scaled image's current size with a buffer around all sides. */
     public void updateSize() {
@@ -321,7 +349,40 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
         Dimension iconSize = new Dimension(curImg.getIconWidth(), curImg.getIconHeight());
         Dimension labelSize = new Dimension((iconSize.width + previewOffset*2) * scale , (iconSize.height + previewOffset*2) * scale);
         setPreferredSize(labelSize);
+        
+        if(dimsLabel != null) {
+            dimsLabel.setText("Size: " + iconSize.width + ", " + iconSize.height);
+        }
     }
+    
+    public void setFocus(int x, int y) {
+        focalX = x;
+        focalY = y;
+        updateFocusLabel();
+    }
+    
+    
+    /** Updates the label for displaying the mouse position. */
+    public void updateMouseLabel(MouseEvent e) {
+        if(mousePosLabel != null) {
+            Point mouseWorld = mouseImgPos(e);
+            mousePosLabel.setText("Mouse: " + mouseWorld.x + ", " + mouseWorld.y);
+        }
+    }
+    
+    /** Updates the label for displaying the focus point. */
+    public void updateFocusLabel() {
+        if(focalPointLabel != null) {
+            focalPointLabel.setText("Focus point: " + focalX + ", " + focalY);
+        }
+    }
+    
+    
+    public void setIcon(Icon icon) {
+        super.setIcon(icon);
+        updateSize();
+    }
+    
     
     /** Crops the current image. */
     public void crop(int x, int y, int w, int h) {
@@ -332,13 +393,15 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
         setIcon(new ImageIcon(img));
         focalX -= x;
         focalY -= y;
+        updateFocusLabel();
+        
+        updateSize();
         
         repaint();
     }
     
     
     public void paint(Graphics gg) {
-        System.err.println("Paint SpriteLabel");
         Graphics2D g = (Graphics2D) gg;
         AffineTransform origTrans = g.getTransform();
         Composite origComp = g.getComposite();

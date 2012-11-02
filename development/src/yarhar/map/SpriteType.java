@@ -56,9 +56,23 @@ public class SpriteType {
     
     /** Creates a SpriteType with the given name and image. */
     public SpriteType(String n, String path) {
+        this(n, path, 0, 0, -1, -1);
+    }
+    
+    /** Creates a SpriteType with the given name, image, and crop data. */
+    public SpriteType(String n, String path, int cx, int cy, int cw, int ch) {
+        if(cw > 0 && ch > 0)
+            isCropped = true;
+        cropX = cx;
+        cropY = cy;
+        cropW = cw;
+        cropH = ch;
+        
         this.name = n;
         this.imgPath = path;
         loadImage();
+        
+        
     }
     
     /** Loads and crops the SpriteType's image. */
