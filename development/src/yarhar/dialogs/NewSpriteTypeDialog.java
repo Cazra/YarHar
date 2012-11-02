@@ -20,9 +20,11 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     JButton okBtn = new JButton("OK");
     JButton cancelBtn = new JButton("Cancel");
+    JButton browseBtn = new JButton("Browse");
     JButton cropBtn = new JButton("Crop");
     
     JTextField nameFld = new JTextField("Untitled",15);
+    JTextField browseFld = new JTextField("",15);
     JTextField cropXFld = new JTextField("0",5);
     JTextField cropYFld = new JTextField("0",5);
     JTextField cropWFld = new JTextField("32",5);
@@ -53,6 +55,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         fieldsPanel = makeVerticalFlowPanel();
         fieldsPanel.add(makeLabelFieldPanel(new JLabel("Name: "), nameFld));
+        fieldsPanel.add(constructBrowsePanel());
         fieldsPanel.add(constructCroppingPanel());
         
         previewPanel = new JPanel(new BorderLayout());
@@ -79,8 +82,20 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
     }
     
+    
+    /** Constructs the panel with the open file thingy. */
+    public JPanel constructBrowsePanel() {
+        JPanel result = new JPanel();
+        result.add(browseFld);
+        result.add(browseBtn);
+        browseFld.setEditable(false);
+        browseBtn.addActionListener(this);
+        return result;
+    }
+    
+    
     /** Constructs the subpanel with fields for cropping the sprite's image. */
-    private JPanel constructCroppingPanel() {
+    public JPanel constructCroppingPanel() {
         JPanel cropPanel = makeVerticalFlowPanel();
         cropPanel.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createTitledBorder("Image Cropping"),
