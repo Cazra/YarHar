@@ -1,22 +1,33 @@
 package yarhar;
 
+import java.util.HashMap;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.LineBorder;
 import yarhar.map.*;
-import java.util.HashMap;
+import yarhar.dialogs.*;
 
+
+/** The panel housing our current Sprite Library. */
 public class SpriteLibraryPanel extends JPanel implements ActionListener {
     
+    /** A reference back to our YarharMain */
     public YarharMain frame;
     
-    public JButton testButton = new JButton("test");
+    /** Button used to create a new SpriteType in the currently selected SpriteTypeGroup. */
+    public JButton newSpriteBtn = new JButton("New Sprite");
+    
+    /** The combo box containing our library's list of SpriteTypeGroups. */
     public JComboBox groupList = new JComboBox();
+    
+    /** Set this to false to temporarily disable ActionEvents coming from groupList. */
     public boolean groupListIsActive = true;
     
+    /** Our current SpriteTypeGroup's list of SpriteTypes. These can be dragged and dropped onto the editor to place new sprite instances. */
     public JList spriteList = new JList();
     
+    /** A reference to our loaded LevelMap's SpriteLibrary. */
     public SpriteLibrary spriteLib = null;
     
     
@@ -28,7 +39,10 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
         this.setBackground(new Color(0xDDDDDD));
         this.setBorder(new LineBorder(new Color(0xBBBBBB), 2));
         
-        this.add(testButton);
+        this.add(new JLabel("Sprite Library"));
+        
+        this.add(newSpriteBtn);
+        newSpriteBtn.addActionListener(this);
         
         this.add(groupList);
         groupList.setMaximumSize(new Dimension(150, 20)); 
@@ -51,14 +65,17 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
             System.err.println("SpriteLibraryPanel -> groupList fired : " + selGroup);
             updateSpriteList(selGroup);
         }
+        if(source == newSpriteBtn) {
+            NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame);
+        }
     }
     
-    
+    /** Sets our spriteLib reference. */
     public void setLibrary(SpriteLibrary spriteLib) {
         this.spriteLib = spriteLib;
     }
     
-    
+    /** updates groupList to reflect the groups currently contained in our internal SpriteLibrary. */
     public void updateGroupList() {
         // update the group selector combo box
         String selGroup = (String) groupList.getSelectedItem();
@@ -78,7 +95,7 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
         
     }
     
-    
+    /** Updates spriteList to reflect the SpriteTypes currently contained in the selected SpriteTypeGroup. */
     public void updateSpriteList(String groupName) {
         if(groupName == null)
             groupName = "default";
@@ -104,7 +121,7 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
 
 
 
-
+/** Custom renderer for SpriteTypes in the SpriteLibraryPanel's spriteList. */
 class SpriteTypeRenderer extends JLabel implements ListCellRenderer {
     
     public SpriteTypeRenderer() {
@@ -123,7 +140,7 @@ class SpriteTypeRenderer extends JLabel implements ListCellRenderer {
         this.setHorizontalTextPosition(JLabel.CENTER);
         
         if(isSelected) {
-            background = Color.RED;
+            background = Color.BLUE;
             foreground = Color.WHITE;
         }
         else {
