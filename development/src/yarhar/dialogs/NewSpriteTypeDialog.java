@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import pwnee.image.ImageLoader;
 import pwnee.image.ImageEffects;
 import yarhar.*;
@@ -13,6 +14,10 @@ import yarhar.map.*;
 
 /** A dialog that allows the user to create a new SpriteType. */
 public class NewSpriteTypeDialog extends JDialog implements ActionListener, ChangeListener {
+    
+    SpriteLibrary library;
+    String libGroup;
+    
     
     JPanel fieldsPanel;
     JPanel previewPanel;
@@ -32,6 +37,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     SpriteLabel curImgLabel;
     ImageIcon curImg;
+    String imgPath = "";
     JSlider zoomSlider;
     JLabel zoomLabel = new JLabel("Zoom: x1");
     
@@ -39,14 +45,19 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     JLabel focalPointLabel = new JLabel("Focal point: 0,0");
     JLabel dimsLabel = new JLabel("Size: 32,32");
     
-    public NewSpriteTypeDialog(YarharMain owner) {
-        super(owner);
+    public NewSpriteTypeDialog(YarharMain owner, SpriteLibrary library, String group) {
+        super(owner, true);
         constructComponents();
         this.setSize(new Dimension(500,400));
         
         setTitle("New Sprite");
-        show();
+        
+        this.library = library;
+        this.libGroup = group;
+        System.err.println(library + " " + group);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        show();
     }
     
     /** Constructs the dialog's top JPanel. */
@@ -74,6 +85,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         JPanel okPanel = new JPanel();
         okPanel.add(okBtn);
+        okBtn.addActionListener(this);
         okPanel.add(cancelBtn);
         cancelBtn.addActionListener(this);
         topPanel.add(okPanel, BorderLayout.SOUTH);
@@ -129,7 +141,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     /** Initializes our SpriteLabel. */
     public void initSpriteLabel() {
-        curImg = loadImageIconFromFile("BadImg.png");
+        curImg = loadImageIconFromResource("BadImg.png");
         curImgLabel = new SpriteLabel(curImg);
         curImgLabel.mousePosLabel = mousePosLabel;
         curImgLabel.focalPointLabel = focalPointLabel;
@@ -187,8 +199,12 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
     }
     
+    
+    
+    
+    
     /** Loads an ImageIcon from a file or URL. */
-    public ImageIcon loadImageIconFromFile(String path) {
+    public ImageIcon loadImageIconFromResource(String path) {
         ImageLoader imgLoader = new ImageLoader();
         Image img = imgLoader.loadFromFile(path);
         ImageIcon result = new ImageIcon(img);
@@ -196,13 +212,14 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     }
     
     
-    
-    
+    /** Event listener for buttons */
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         
         if(source == okBtn) {
             // TODO: Add the new SpriteType to our library's current SpriteTypeGroup.
+            SpriteType result = curImgLabel.toSpriteType(nameFld.getText(), imgPath);
+            library.addSpriteType(libGroup, result);
             
             this.dispose();
         }
@@ -212,9 +229,38 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         if(source == cropBtn) {
             tryCropImage();
         }
+        if(source == browseBtn) {
+            JFileChooser openDia = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter ("bmp, gif, jpg, or png file", "bmp", "gif", "jpg", "png");
+            openDia.setFileFilter(filter);
+            
+            int retVal = openDia.showOpenDialog(this);
+            
+            // If successful, load the file as our preview image.
+            if(retVal == JFileChooser.APPROVE_OPTION) {
+                String path = "Could not load image.";
+                try {
+                    path = openDia.getSelectedFile().getPath();
+                    curImg = new ImageIcon(path);
+                    imgPath = path;
+                }
+                catch (Exception ex) {
+                    curImg = loadImageIconFromResource("BadImg.png");
+                    imgPath = "";
+                }
+                
+                browseFld.setText(path);
+                curImgLabel.setIcon(curImg);
+                curImgLabel.resetCropData();
+                imgScrollPane.updateUI();
+            }
+            
+            
+        }
     }
     
     
+    /** Event listener for the zoom slider */
     public void stateChanged(ChangeEvent e) {
         Object source = e.getSource();
         if(source == zoomSlider) {
@@ -253,6 +299,11 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
     public int cropStartY = 0;
     public int cropCurX = 0;
     public int cropCurY = 0;
+    
+    public int cropOffX = 0;
+    public int cropOffY= 0;
+    public int cropW = 0;
+    public int cropH = 0;
     
     JLabel mousePosLabel = null;
     JLabel focalPointLabel = null;
@@ -361,7 +412,11 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
     /** Updates the size of this label to be the scaled image's current size with a buffer around all sides. */
     public void updateSize() {
         Icon curImg = getIcon();
-        Dimension iconSize = new Dimension(curImg.getIconWidth(), curImg.getIconHeight());
+        
+        cropW = curImg.getIconWidth();
+        cropH = curImg.getIconHeight();
+        
+        Dimension iconSize = new Dimension(cropW, cropH);
         Dimension labelSize = new Dimension((iconSize.width + previewOffset*2) * scale , (iconSize.height + previewOffset*2) * scale);
         setPreferredSize(labelSize);
         
@@ -396,6 +451,7 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
     public void setIcon(Icon icon) {
         super.setIcon(icon);
         updateSize();
+        setFocus(0,0);
     }
     
     
@@ -405,6 +461,9 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
         Image img = curImg.getImage();
         img = ImageEffects.crop(img, x, y, w, h);
         
+        cropOffX += x;
+        cropOffY += y;
+        
         setIcon(new ImageIcon(img));
         focalX -= x;
         focalY -= y;
@@ -413,6 +472,21 @@ class SpriteLabel extends JLabel implements MouseListener, MouseMotionListener {
         updateSize();
         
         repaint();
+    }
+    
+    
+    public void resetCropData() {
+        cropOffX = 0;
+        cropOffY = 0;
+    }
+    
+    
+    /** Creates a SpriteType from this */
+    public SpriteType toSpriteType(String name, String path) {
+        SpriteType result = new SpriteType(name, path, cropOffX, cropOffY, cropW, cropH);
+        result.focalX = focalX;
+        result.focalY = focalY;
+        return result;
     }
     
     

@@ -1,5 +1,6 @@
 package yarhar.map;
 
+import java.util.LinkedList;
 import yarhar.*;
 import java.awt.*;
 import pwnee.*;
@@ -13,7 +14,7 @@ public class Layer {
     public int order = 0;
     
     /** The list of sprites populating this layer. */
-    // public ArrayList<YHSprite> sprites = new ArrayList<YHSprite>();
+    public LinkedList<SpriteInstance> sprites = new LinkedList<SpriteInstance>();
     
     /** The opacity for this layer */
     public double opacity = 1.0;
@@ -23,7 +24,7 @@ public class Layer {
     
     
     public Layer() {
-        
+        this("Untitled");
     }
     
     public Layer(String n) {
@@ -40,7 +41,9 @@ public class Layer {
         // Use an AlphaComposite to apply semi-transparency to the Sprite's image.
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacity));
         
-        // TODO: loop over sprites and render them.
+        for(SpriteInstance sprite : sprites) {
+            sprite.render(g);
+        }
         
         g.setComposite(oldComp);
     }
@@ -52,6 +55,12 @@ public class Layer {
         if(op < 0.0)
             op = 0.0;
         opacity = op;
+    }
+    
+    
+    /** Adds a sprite to this layer. */
+    public void addSprite(SpriteInstance sprite) {
+        sprites.add(sprite);
     }
 }
 

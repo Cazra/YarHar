@@ -62,11 +62,12 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
         
         if(source == groupList && groupListIsActive) {
             String selGroup = (String) groupList.getSelectedItem();
-            System.err.println("SpriteLibraryPanel -> groupList fired : " + selGroup);
             updateSpriteList(selGroup);
         }
         if(source == newSpriteBtn) {
-            NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame);
+            String selGroup = (String) groupList.getSelectedItem();
+            System.err.println(spriteLib + " " + selGroup);
+            NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selGroup);
         }
     }
     

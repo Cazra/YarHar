@@ -4,6 +4,9 @@ import yarhar.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import java.io.File;
 import pwnee.*;
 import pwnee.image.*;
 
@@ -77,19 +80,32 @@ public class SpriteType {
     
     /** Loads and crops the SpriteType's image. */
     public void loadImage() {
-        ImageLoader imgLoader = new ImageLoader();
         
+        ImageLoader imgLoader = new ImageLoader(new JPanel());
         if(imgPath == "") {
             curImg = imgLoader.loadFromFile("BadImg.png");
         }
         else {
-            curImg = imgLoader.loadFromFile(imgPath);
-            if(isCropped) {
-                curImg = ImageEffects.crop(curImg, cropX, cropY, cropW, cropH);
+            try {
+                curImg = ImageIO.read(new File(imgPath));
+            }
+            catch (Exception e) {
+                curImg = imgLoader.loadFromFile("BadImg.png");
             }
         }
-        
+
         // wait for the image's dimensions to become available.
+        while(width == -1)
+            width = curImg.getWidth(null);
+        while(height == -1)
+            height = curImg.getHeight(null);
+            
+        if(isCropped) {
+            curImg = ImageEffects.crop(curImg, cropX, cropY, cropW, cropH);
+        }
+        imgLoader.addImage(curImg);
+        imgLoader.waitForAll();
+        
         while(width == -1)
             width = curImg.getWidth(null);
         while(height == -1)

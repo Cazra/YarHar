@@ -133,3 +133,17 @@ public class EditorPanel extends GamePanel {
         camera.update();
     }
 }
+
+
+/*
+class EditorTransferHandler extends TransferHandler {
+    
+    public boolean canImport(TransferHandler.TransferSupport support) {
+        return false;
+    }
+    
+}
+*/
+
+
+

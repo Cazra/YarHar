@@ -72,6 +72,39 @@ public class SpriteLibrary {
         updatePeerComponent();
     }
     
+    /** Renames a SpriteTypeGroup in this library */
+    public void renameGroup(String groupName, String newName) {
+        // avoid renaming nonexistent groups or the "default" group.
+        if(!groupNames.contains(groupName) || groupName == "default") {
+            return;
+        }
+        SpriteTypeGroup group = groups.get(groupName);
+        
+        // If newName is already in our groups, increment our new name to avoid a name collision.
+        if(groupNames.contains(newName))
+            newName = renameGroupRepeat(newName, 2);
+        
+        // rename the group
+        groups.remove(groupName);
+        group.name = newName;
+        groups.put(newName,group);
+        
+        // update the library swing panel.
+        this.isModified = true;
+        updatePeerComponent();
+    }
+    
+    /** Generates a new group name that avoids collisions with group names already in this library. */
+    private String renameGroupRepeat(String baseNewName, int index) {
+        String newName = baseNewName + index;
+        if(!groupNames.contains(newName)) {
+            return newName;
+        }
+        else {
+            return renameGroupRepeat(baseNewName, index + 1);
+        }
+    }
+    
     
     public void updatePeerComponent() {
         SpriteLibraryPanel spriteLibPanel = ((EditorPanel) levelMap.game).frame.spriteLibPanel;

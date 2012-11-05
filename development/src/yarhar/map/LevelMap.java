@@ -15,10 +15,10 @@ public class LevelMap extends Level {
     /** the background color displayed in the YarHar editor for this map. */
     public int bgColor = 0xFFFFFF;
     
-    // This map's Sprite library.
+    /** This map's Sprite library. */
     public SpriteLibrary spriteLib;
     
-    // The list of this map's layers in order from top to bottom.
+    /** The list of this map's layers in order from top to bottom. */
     public ArrayList<Layer> layers = new ArrayList<Layer>();
     
     /** a short description of this map's intended use. */
