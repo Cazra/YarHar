@@ -19,6 +19,12 @@ public class SpriteLibrary {
     /** The set of group names in this library. */
     public TreeSet<String> groupNames = new TreeSet<String>();
     
+    /** Our library's SpriteTypes, not divided into groups. This is our actual library. */
+    public HashMap<String, SpriteType> sprites = new HashMap<String, SpriteType>();
+    
+    /** The set of sprite names in this library. */
+    public TreeSet<String> spriteNames = new TreeSet<String>();
+    
     
     /** True if this SpriteLibrary's Swing component peer needs to be updated. */
     public boolean isModified = false;
@@ -64,13 +70,21 @@ public class SpriteLibrary {
     
     /** Adds a new SpriteType to a group (or replaces any existing SpriteType with the same name). */
     public void addSpriteType(String groupName, SpriteType spriteType) {
-        if(!groupNames.contains(groupName) || spriteType == null)
-            return;
+        if(!groupNames.contains(groupName))
+            groupName = "default";
         
         groups.get(groupName).addSpriteType(spriteType);
+        sprites.put(spriteType.name, spriteType);
         
         updatePeerComponent();
     }
+    
+    public void addSpriteType(SpriteType spriteType) {
+        addSpriteType("default", spriteType);
+    }
+    
+    
+    /** Checks if this library contains a sprite type. */
     
     /** Renames a SpriteTypeGroup in this library */
     public void renameGroup(String groupName, String newName) {

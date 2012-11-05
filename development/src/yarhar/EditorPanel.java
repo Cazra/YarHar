@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.event.KeyEvent;
+import java.awt.datatransfer.*;
+import javax.swing.*;
 import pwnee.*;
 import yarhar.map.*;
 
@@ -17,6 +19,7 @@ public class EditorPanel extends GamePanel {
         frame = yarhar;
         
         this.setPreferredSize(new Dimension(640, 480));
+        this.setTransferHandler(transferHandler);
         
         // Create the camera
         camera = new Camera(this);
@@ -93,25 +96,12 @@ public class EditorPanel extends GamePanel {
         g2D.drawString("" + timer.fpsCounter, 10,32);
         
         // display the mouse's world coordinates.
-        Point2D mouseWorld = camera.screenToWorld(mouse.position);
+        Point2D mouseWorld = getMouseWorld();
         g2D.drawString("Mouse world coordinates: (" + mouseWorld.getX() + ", " + mouseWorld.getY() + ")",10, 47);
         
         // display instructions.
         g2D.drawString("Move the camera by dragging the mouse.", 10,62);
         g2D.drawString("Use the mouse wheel to zoom in and out.", 10,77);
-    }
-    
-    public void paintTestGrid(Graphics2D g) {
-        g.setColor(new Color(0xFFAAAA));
-        
-        for(int i = -320; i <= 320; i+=32) {
-            g.drawLine(i,-320,i,320);
-            g.drawLine(-320,i,320,i);
-        }
-        
-        g.setColor(new Color(0xFF0000));
-        g.drawLine(-320,0,320,0);
-        g.drawLine(0,-320,0,320);
     }
     
     
@@ -124,6 +114,15 @@ public class EditorPanel extends GamePanel {
     }
     
     
+    public Point getMouseWorld() {
+        Point2D mouseWorld = camera.screenToWorld(mouse.position);
+        int mx = (int) mouseWorld.getX();
+        int my = (int) mouseWorld.getY();
+        
+        return new Point(mx,my);
+    }
+    
+    
     public void resetCamera() {
         camera.x = 0;
         camera.y = 0;
@@ -132,18 +131,46 @@ public class EditorPanel extends GamePanel {
         camera.zoom = 1.0;
         camera.update();
     }
-}
-
-
-/*
-class EditorTransferHandler extends TransferHandler {
     
-    public boolean canImport(TransferHandler.TransferSupport support) {
-        return false;
+    
+    /** Creates an instance of a SpriteType that is dragged from the library into the editor. */
+    public void dropSpriteType(SpriteType spriteType) {
+        
     }
     
+    
+    /** transfer handler for importing SpriteTypes dragged over from the library. */
+    private TransferHandler transferHandler = new TransferHandler() {
+        public boolean canImport(TransferHandler.TransferSupport info) {
+            return true;
+        }
+        
+        public boolean importData(TransferHandler.TransferSupport info) {
+            if(!canImport(info))
+                return false;
+            
+            Transferable t = info.getTransferable();
+            
+            try {
+                SpriteType spriteType = (SpriteType) t.getTransferData(SpriteType.flavor);
+                dropSpriteType(spriteType);
+                System.err.println("EditorPanel drag and drop successful! " + spriteType.name);
+                return true;
+            }
+            catch(Exception e) {
+                System.err.println("EditorPanel drag and drop not successful.");
+            }
+            
+            return false;
+            
+        }
+    };
+    
+    
 }
-*/
+
+
+
 
 
 

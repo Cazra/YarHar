@@ -217,9 +217,10 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         Object source = e.getSource();
         
         if(source == okBtn) {
-            // TODO: Add the new SpriteType to our library's current SpriteTypeGroup.
             SpriteType result = curImgLabel.toSpriteType(nameFld.getText(), imgPath);
             library.addSpriteType(libGroup, result);
+            
+            
             
             this.dispose();
         }

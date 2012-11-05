@@ -12,10 +12,6 @@ public class SpriteTypeGroup {
     /** This group's unique name in its SpriteLibrary */ 
     public String name = "";
     
-    /** Our library is actually divided into groups of SpriteTypes indexed by name. 
-    Inside these groups, the SpriteTypes themselves are then indexed by name. */
-    public HashMap<String, SpriteType> spriteTypes = new HashMap<String, SpriteType>();
-    
     /** The set of group names in this library. */
     public TreeSet<String> typeNames = new TreeSet<String>();
     
@@ -37,7 +33,6 @@ public class SpriteTypeGroup {
         if(spriteType == null)
             return;
         
-        spriteTypes.put(spriteType.name, spriteType);
         typeNames.add(spriteType.name);
         
         isModified = true;

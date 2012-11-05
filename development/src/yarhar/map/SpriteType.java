@@ -2,6 +2,7 @@ package yarhar.map;
 
 import yarhar.*;
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -10,7 +11,7 @@ import java.io.File;
 import pwnee.*;
 import pwnee.image.*;
 
-public class SpriteType {
+public class SpriteType implements Transferable {
     /** The unique name given to this SpriteType. */
     public String name = "Untitled";
     
@@ -46,6 +47,8 @@ public class SpriteType {
     public int width = -1;
     public int height = -1;
     
+    
+    public static DataFlavor flavor = new DataFlavor(SpriteType.class, SpriteType.class.getSimpleName());
     
     /** Creates an Untitled sprite type with an undefined image. */
     public SpriteType() {
@@ -131,5 +134,31 @@ public class SpriteType {
         
         icon = new ImageIcon(iconImg);
     }
+    
+    
+    /** Creates an SpriteInstance from this SpriteType. */
+    public SpriteInstance createInstance(double x, double y) {
+        return new SpriteInstance(x,y,this);
+    }
+    
+    
+    /** Used for drag and drop */
+    public Object getTransferData(DataFlavor flavor) {
+        if(flavor.equals(SpriteType.flavor))
+            return this;
+        else
+            return null;
+    }
+    
+    /** Used for drag and drop */
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[] {SpriteType.flavor};
+    }
+    
+    /** Used for drag and drop */
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+        return flavor.equals(SpriteType.flavor);
+    }
+    
 }
 

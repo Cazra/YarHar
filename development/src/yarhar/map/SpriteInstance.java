@@ -28,6 +28,10 @@ public class SpriteInstance extends Sprite {
         this.focalY = type.focalY;
     }
     
+    public SpriteInstance(SpriteType type) {
+        this(0,0,type);
+    }
+    
     
     public void draw(Graphics2D g) {
         this.focalX = type.focalX;

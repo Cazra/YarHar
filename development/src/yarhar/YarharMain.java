@@ -24,11 +24,6 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         this.addWindowListener(this);
         this.addWindowFocusListener(this);
         
-
-        // Create main window panel and add it into the window.
-    //    helloPanel = new HelloPanel();
-    //    this.add(helloPanel);
-        
         this.add(borderPanel);
         
         toolsPanel = new ToolsPanel(this);
@@ -36,7 +31,10 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         
         spriteLibPanel = new SpriteLibraryPanel(this);
         editorPanel = new EditorPanel(this);
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, spriteLibPanel);
+        JSplitPane sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JPanel(), spriteLibPanel);
+        sidePane.setContinuousLayout(true);
+        sidePane.setDividerLocation(0.2);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, sidePane);
         splitPane.setContinuousLayout(true);
         splitPane.setResizeWeight(1.0);
         splitPane.setDividerLocation(0.9);

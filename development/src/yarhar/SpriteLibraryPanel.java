@@ -2,6 +2,7 @@ package yarhar;
 
 import java.util.HashMap;
 import javax.swing.*;
+import java.awt.datatransfer.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.LineBorder;
@@ -49,6 +50,8 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
         groupList.addActionListener(this);
         
         spriteList.setCellRenderer(new SpriteTypeRenderer());
+        spriteList.setDragEnabled(true);
+        spriteList.setTransferHandler(transferHandler);
         
         JScrollPane scrollpane = new JScrollPane(spriteList);
         scrollpane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -111,11 +114,33 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
             return;
         
         for(String name : group.typeNames) {
-            listModel.addElement(group.spriteTypes.get(name));
+            listModel.addElement(spriteLib.sprites.get(name));
         }
         
         spriteList.setModel(listModel);
     }
+    
+    
+    
+    /** The SpriteLibrary's TransferHandler for drag and drop into the editor. */
+    private TransferHandler transferHandler =  new TransferHandler() {
+        
+        /** I say COPY_OR_MOVE here, but we'll just treat move like copy. */
+        public int getSourceActions(JComponent c) {
+            return TransferHandler.COPY_OR_MOVE;
+        }
+        
+        /** We just need the name of our exported SpriteType so we can look it up later. */
+        public Transferable createTransferable(JComponent c) {
+            Object selected = spriteList.getSelectedValue();
+            if(selected instanceof SpriteType) {
+                SpriteType sprite = (SpriteType) spriteList.getSelectedValue();
+                return sprite;
+            } 
+            else
+                return new StringSelection("");
+        }
+    };
     
 }
 
