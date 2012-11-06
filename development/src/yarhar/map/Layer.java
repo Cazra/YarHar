@@ -1,6 +1,7 @@
 package yarhar.map;
 
 import java.util.LinkedList;
+import java.util.Collections;
 import yarhar.*;
 import java.awt.*;
 import pwnee.*;
@@ -32,6 +33,7 @@ public class Layer {
     }
     
     
+    /** Rendering a layer causes all the sprites contained inside it to be rendered. */
     public void render(Graphics2D g) {
         if(!isVisible || opacity == 0.0)
             return;
@@ -69,8 +71,28 @@ public class Layer {
         addSprite(sprite);
     }
     
+    /** Layers are only equal by address. */
     public boolean equals(Object o) {
         return (this == o);
+    }
+    
+    /** Checks if a sprite in this layer has been clicked, with topmost sprites having priority. If one has, that sprite is returned. Else null is returned. */
+    public SpriteInstance tryClickSprite(Point mouseScr) {
+        LinkedList<SpriteInstance> revList = (LinkedList<SpriteInstance>) sprites.clone();
+        Collections.reverse(revList);
+        
+        for(SpriteInstance sprite : revList) {
+            if(sprite.isClicked(mouseScr))
+                return sprite;
+        }
+        
+        return null;
+    }
+    
+    /** Selects or unselects all sprites in this layer. */
+    public void selectAll(boolean flag) {
+        for(SpriteInstance sprite : sprites)
+            sprite.isSelected = flag;
     }
 }
 

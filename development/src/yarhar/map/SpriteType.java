@@ -105,14 +105,11 @@ public class SpriteType implements Transferable {
             
         if(isCropped) {
             curImg = ImageEffects.crop(curImg, cropX, cropY, cropW, cropH);
+            width = cropW;
+            height = cropH;
         }
         imgLoader.addImage(curImg);
         imgLoader.waitForAll();
-        
-        while(width == -1)
-            width = curImg.getWidth(null);
-        while(height == -1)
-            height = curImg.getHeight(null);
         
         createIcon();
     }

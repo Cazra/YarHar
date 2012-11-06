@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.event.KeyEvent;
 import java.awt.datatransfer.*;
+import java.util.LinkedList;
 import javax.swing.*;
 import pwnee.*;
 import yarhar.map.*;
@@ -38,14 +39,17 @@ public class EditorPanel extends GamePanel {
         // update our Camera's state
         camera.update();
         
-        // Drag the camera while the left mouse button is held.
-        if(mouse.isLeftPressed) {
-           camera.drag(mouse.position);
-           this.requestFocusInWindow();
+        // Run the current map's logic.
+        curLevel.logic();
+        
+        // Pan the camera while the right mouse button is held.
+        if(mouse.isRightPressed) {
+            camera.drag(mouse.position);
+            this.requestFocusInWindow();
         }
            
-        // Stop dragging the camera when we release the left mouse button.
-        if(mouse.justLeftClicked)
+        // Stop dragging the camera when we release the left or right mouse button.
+        if(mouse.justRightClicked || mouse.justLeftClicked)
            camera.endDrag();
             
         // Zoom in by scrolling the mouse wheel up.
@@ -108,7 +112,7 @@ public class EditorPanel extends GamePanel {
             return null;
     }
     
-    
+    /** Obtains the mouse's current world coordinates in integer form. */
     public Point getMouseWorld() {
         Point mouseScr = getMousePosition();
         if(mouseScr == null)
@@ -120,7 +124,7 @@ public class EditorPanel extends GamePanel {
         return new Point(mx,my);
     }
     
-    
+    /** Custom camera reset. */
     public void resetCamera() {
         camera.x = 0;
         camera.y = 0;

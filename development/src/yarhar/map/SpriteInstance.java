@@ -26,6 +26,8 @@ public class SpriteInstance extends Sprite {
         this.type = type;
         this.focalX = type.focalX;
         this.focalY = type.focalY;
+        this.width = type.width;
+        this.height = type.height;
     }
     
     public SpriteInstance(SpriteType type) {
@@ -59,6 +61,9 @@ public class SpriteInstance extends Sprite {
         
         double mx = mouseRel.getX();
         double my = mouseRel.getY();
+        
+        System.err.println(mx + ", " + my); 
+        
         return (mx >= 0 && my >= 0 && mx < width && my < height);
     }
 }

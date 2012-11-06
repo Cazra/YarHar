@@ -13,13 +13,16 @@ import javax.swing.border.LineBorder;
 import yarhar.map.*;
 import yarhar.dialogs.*;
 
-
+/** The panel that houses the Layers UI */
 public class LayersPanel extends JPanel implements ActionListener {
 
     /** A reference back to our YarharMain */
     public YarharMain frame;
     
+    /** Used to create a new layer. */
     public JButton newBtn = new JButton("New layer");
+    
+    /** The scrollable list of layers. */
     public LayerList layerList;
     
     public LayersPanel(YarharMain yarhar) {
@@ -38,7 +41,7 @@ public class LayersPanel extends JPanel implements ActionListener {
         add(layerList);
     }
     
-    
+    /** Makes this panel use the layers of a particular LevelMap. */
     public void setMap(LevelMap map) {
         layerList.setMap(map);
     }
@@ -49,7 +52,7 @@ public class LayersPanel extends JPanel implements ActionListener {
         layerList.updateList();
     }
     
-    
+    /** Gets the currently selected Layer. */
     public Layer getSelectedLayer() {
         return layerList.map.selectedLayer;
     }
@@ -57,6 +60,7 @@ public class LayersPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         
+        // Create a new layer.
         if(source == newBtn) {
             String layerName = JOptionPane.showInputDialog(this, "New Layer Name");
             if(layerName != "" && layerName != null) {
@@ -74,6 +78,8 @@ class LayerList extends JScrollPane {
     
     public YarharMain frame;
     public LevelMap map;
+    
+    /** A list of the LayerCells associated with the layers, in order from top to bottom. */
     public LinkedList<LayerCell> cellsList = new LinkedList<LayerCell>();
     
     /** The panel containing our "list" of LayerCells. */
@@ -82,9 +88,13 @@ class LayerList extends JScrollPane {
     /** If true, we are currently reordering the layers with drag-and-drop */
     public boolean isDnD = false;
     
+    /** Reference to the LayerCell being dragged while isDnD is true. */
     public LayerCell draggedLayer = null;
     
+    /** The x-offset of the drag-ghost effect */
     public int dragOffX = 0;
+    
+    /** The y-offset of the drag-ghost effect */
     public int dragOffY = 0;
     
     
@@ -103,12 +113,13 @@ class LayerList extends JScrollPane {
     }
     
     
+    /** Makes this panel use the layers of a particular LevelMap. */
     public void setMap(LevelMap map) {
         this.map = map;
         updateList();
     }
     
-    /** Clears the list and repopulates it. */
+    /** Clears the list and repopulates it to reflect our map's layers list. */
     public void updateList() {
         panel.removeAll();
         cellsList = new LinkedList<LayerCell>();
@@ -131,6 +142,7 @@ class LayerList extends JScrollPane {
         selectLayer(layer);
     }
     
+    /** Sets the map's currently selected layer. */
     public void selectLayer(Layer layer) {
         if(!map.layers.contains(layer)) {
             return;
@@ -140,18 +152,8 @@ class LayerList extends JScrollPane {
     
     /** Moves a layer to a new index and updates this list. */
     public void moveLayer(Layer layer, int destIndex) {
-        int index = map.layers.indexOf(layer);
-        
-        System.err.println("Moved layer " + layer.name + " from " + index + " to " + destIndex);
-        
-        map.layers.remove(layer);
-        
-        map.layers.add(destIndex, layer);
-        
+        map.moveLayer(layer, destIndex);
         updateList();
-        selectLayer(layer);
-        
-        
     }
     
     /** Starts the custom drag and drop for a layer. */
@@ -175,39 +177,50 @@ class LayerList extends JScrollPane {
         if(mousePos == null) 
             return;
         
+        // figure out where we're dropping the layer by finding out which LayerCell the mouse is hovering over. 
         for(LayerCell cell : cellsList) {
+            // Get the y of the bottom border of our cell.
             Point cellPos = cell.getLocation();
             int cellY = cellPos.y + cell.getSize().height;
             
+            // use the first LayerCell whose bottom edge's y is greater than the mouse's local y.
             if(mousePos.y <= cellY) {
                 targetLayer = cell.layer;
                 break;
             }
         }
+        
+        // Move the layer to its new location.
         int destIndex = map.layers.indexOf(targetLayer);
         moveLayer(draggedLayer.layer, destIndex);
     }
     
     
     
-    
+    /** Custom paint that draws a ghost of the LayerCell currently being dragged if drag and drop is happening. */
     public void paint(Graphics gg) {
         super.paint(gg);
         
         if(isDnD) {
             Graphics2D g = (Graphics2D) gg;
+            
+            // save original graphics state. 
             Composite origComp = g.getComposite();
             AffineTransform origTrans = g.getTransform();
             
+            // apply translucency
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
             
+            // get the mouse's local position.
             Point mousePos = getMousePosition();
             if(mousePos == null)
                 mousePos = new Point(0,0);
             
+            // draw the ghost image of the cell currently being dragged.
             g.translate(mousePos.x - dragOffX, mousePos.y - dragOffY);
             g.drawImage(draggedLayer.image,0,0,null);
             
+            // restore original graphics state.
             g.setComposite(origComp);
             g.setTransform(origTrans);
         }
@@ -216,15 +229,22 @@ class LayerList extends JScrollPane {
     
 }
 
-
+/** A JPanel representing a Layer in the LayerList. */
 class LayerCell extends JPanel implements MouseListener, MouseMotionListener, ActionListener {
     
+    /** The LayerList containing this cell. */
     public LayerList parent;
+    
+    /** The Layer this cell represents. */
     public Layer layer;
     
+    /** Label with the layer's name. */
     public JLabel nameLbl;
+    
+    /** Button for toggling this layer's visibility. */
     public JButton visBtn;
     
+    /** Stores the last rendered image of this cell for the LayerList's drag-ghost painting effect. */
     public BufferedImage image;
     
     public LayerCell(LayerList parent, Layer layer) {
@@ -261,6 +281,7 @@ class LayerCell extends JPanel implements MouseListener, MouseMotionListener, Ac
         int button = e.getButton();
         Object source = e.getSource();
         
+        // clicking a cell causes its layer to become selected.
         if(button == MouseEvent.BUTTON1) {
             parent.selectLayer(layer);
             parent.repaint();
@@ -280,7 +301,9 @@ class LayerCell extends JPanel implements MouseListener, MouseMotionListener, Ac
         
     }
    
+    
     public void mouseReleased(MouseEvent e) {
+        // End any drag and drop going on in the parent LayerList.
         if(parent.isDnD) {
             parent.endDnD();
         }
@@ -290,12 +313,14 @@ class LayerCell extends JPanel implements MouseListener, MouseMotionListener, Ac
     }
     
     public void mouseDragged(MouseEvent e) {
+        // start or continue drag and drop with this cell.
         parent.startDnD(this, e.getX(), e.getY());
     }
     
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         
+        // toggle this layer's visibility.
         if(source == visBtn) {
             layer.isVisible = !layer.isVisible;
             updateButton();
