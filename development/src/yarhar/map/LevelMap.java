@@ -3,7 +3,7 @@ package yarhar.map;
 import yarhar.*;
 import java.awt.*;
 import pwnee.*;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.io.File;
 
 /** The top level object for a map being manipulated with the YarHar UI. */
@@ -19,7 +19,7 @@ public class LevelMap extends Level {
     public SpriteLibrary spriteLib;
     
     /** The list of this map's layers in order from top to bottom. */
-    public ArrayList<Layer> layers = new ArrayList<Layer>();
+    public LinkedList<Layer> layers = new LinkedList<Layer>();
     
     /** a short description of this map's intended use. */
     public String desc = "";
@@ -57,13 +57,17 @@ public class LevelMap extends Level {
         
         if(file == null) {
             spriteLib = new SpriteLibrary(this);
+            layers.add(new Layer("Foreground"));
             layers.add(new Layer());
+            layers.add(new Layer("Background"));
         }
         else {
             // TODO : Construct the entire map from the JSON in file.
         }
         
         ((EditorPanel) game).frame.updateTitle(name);
+        ((EditorPanel) game).frame.layersPanel.setMap(this);
+        ((EditorPanel) game).frame.spriteLibPanel.setLibrary(this.spriteLib);
     }
     
     

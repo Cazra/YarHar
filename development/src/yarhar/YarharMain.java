@@ -11,6 +11,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
     public JPanel borderPanel = new JPanel(new BorderLayout());
     public ToolsPanel toolsPanel;
     public SpriteLibraryPanel spriteLibPanel;
+    public LayersPanel layersPanel;
     public EditorPanel editorPanel;
     public JSplitPane splitPane;
     
@@ -30,14 +31,15 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         borderPanel.add(toolsPanel, BorderLayout.NORTH);
         
         spriteLibPanel = new SpriteLibraryPanel(this);
+        layersPanel = new LayersPanel(this);
         editorPanel = new EditorPanel(this);
-        JSplitPane sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JPanel(), spriteLibPanel);
+        JSplitPane sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, layersPanel, spriteLibPanel);
         sidePane.setContinuousLayout(true);
-        sidePane.setDividerLocation(0.2);
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, sidePane);
+        sidePane.setDividerLocation(0.4);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePane, editorPanel);
         splitPane.setContinuousLayout(true);
-        splitPane.setResizeWeight(1.0);
-        splitPane.setDividerLocation(0.9);
+        splitPane.setResizeWeight(0.0);
+        splitPane.setDividerLocation(0.1);
         borderPanel.add(splitPane, BorderLayout.CENTER);
         
         

@@ -55,11 +55,6 @@ public class EditorPanel extends GamePanel {
         // Zoom out by scrolling the mouse wheel down.
         if(mouse.wheel > 0)
            camera.zoomAtScreen(0.75, mouse.position);
-        
-        // Set the swing sprite library to use the library of the currently loaded map.
-        LevelMap curMap = (LevelMap) curLevel;
-        if(curMap != null)
-            frame.spriteLibPanel.setLibrary(curMap.spriteLib);
     }
     
     public void paint(Graphics g) {
@@ -135,7 +130,9 @@ public class EditorPanel extends GamePanel {
     
     /** Creates an instance of a SpriteType that is dragged from the library into the editor. */
     public void dropSpriteType(SpriteType spriteType) {
+        Point mouseWorld = getMouseWorld();
         
+        LevelMap curMap = (LevelMap) curLevel;
     }
     
     
