@@ -99,18 +99,20 @@ public class LevelMap extends Level {
     }
     
     public void render(Graphics2D g) {
-        // render each of the layers in order of descending index. (The last layer is rendered on the bottom and the first layer is rendered on top)
-        for(int i = layers.size() - 1; i >= 0; i--) {
-            layers.get(i).render(g);
+        synchronized(this) {
+            // render each of the layers in order of descending index. (The last layer is rendered on the bottom and the first layer is rendered on top)
+            for(int i = layers.size() - 1; i >= 0; i--) {
+                layers.get(i).render(g);
+            }
+            
+            // render the grid with translucency
+            Composite oldComp = g.getComposite();
+            
+            // Use an AlphaComposite to apply semi-transparency to the Sprite's image.
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.25));
+            renderGrid(g);
+            g.setComposite(oldComp);
         }
-        
-        // render the grid with translucency
-        Composite oldComp = g.getComposite();
-        
-        // Use an AlphaComposite to apply semi-transparency to the Sprite's image.
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.25));
-        renderGrid(g);
-        g.setComposite(oldComp);
     }
     
     

@@ -35,6 +35,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         editorPanel = new EditorPanel(this);
         JSplitPane sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, layersPanel, spriteLibPanel);
         sidePane.setContinuousLayout(true);
+        sidePane.setResizeWeight(0.5);
         sidePane.setDividerLocation(0.4);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePane, editorPanel);
         splitPane.setContinuousLayout(true);

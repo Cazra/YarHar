@@ -68,5 +68,9 @@ public class Layer {
         SpriteInstance sprite = spriteType.createInstance(mouseWorld.x, mouseWorld.y);
         addSprite(sprite);
     }
+    
+    public boolean equals(Object o) {
+        return (this == o);
+    }
 }
 

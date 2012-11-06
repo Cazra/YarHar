@@ -155,7 +155,7 @@ public class EditorPanel extends GamePanel {
             try {
                 SpriteType spriteType = (SpriteType) t.getTransferData(SpriteType.flavor);
                 dropSpriteType(spriteType);
-                System.err.println("EditorPanel drag and drop successful! " + spriteType.name);
+            //    System.err.println("EditorPanel drag and drop successful! " + spriteType.name);
                 return true;
             }
             catch(Exception e) {
