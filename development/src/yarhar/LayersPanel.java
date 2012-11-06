@@ -98,6 +98,8 @@ class LayerList extends JScrollPane implements MouseListener, MouseMotionListene
             panel.add(new LayerCell(this, layer));
         }
         
+        selectedLayer = map.selectedLayer;
+        
         updateUI();
     }
     
@@ -108,6 +110,15 @@ class LayerList extends JScrollPane implements MouseListener, MouseMotionListene
         
         updateList();
         selectedLayer = layer;
+    }
+    
+    public void selectLayer(Layer layer) {
+        if(!map.layers.contains(layer)) {
+            return;
+        }
+        
+        selectedLayer = layer;
+        map.selectedLayer = layer;
     }
     
     // Mouse events
@@ -184,7 +195,7 @@ class LayerCell extends JPanel implements MouseListener, ActionListener {
         Object source = e.getSource();
         
         if(button == MouseEvent.BUTTON1) {
-            parent.selectedLayer = layer;
+            parent.selectLayer(layer);
             parent.repaint();
         }
     }

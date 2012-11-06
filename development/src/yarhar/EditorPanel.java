@@ -110,7 +110,10 @@ public class EditorPanel extends GamePanel {
     
     
     public Point getMouseWorld() {
-        Point2D mouseWorld = camera.screenToWorld(mouse.position);
+        Point mouseScr = getMousePosition();
+        if(mouseScr == null)
+            mouseScr = mouse.position;
+        Point2D mouseWorld = camera.screenToWorld(mouseScr);
         int mx = (int) mouseWorld.getX();
         int my = (int) mouseWorld.getY();
         
@@ -133,6 +136,7 @@ public class EditorPanel extends GamePanel {
         Point mouseWorld = getMouseWorld();
         
         LevelMap curMap = (LevelMap) curLevel;
+        curMap.dropSpriteType(spriteType,mouseWorld);
     }
     
     

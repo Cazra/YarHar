@@ -21,6 +21,8 @@ public class LevelMap extends Level {
     /** The list of this map's layers in order from top to bottom. */
     public LinkedList<Layer> layers = new LinkedList<Layer>();
     
+    public Layer selectedLayer = null;
+    
     /** a short description of this map's intended use. */
     public String desc = "";
     
@@ -57,9 +59,9 @@ public class LevelMap extends Level {
         
         if(file == null) {
             spriteLib = new SpriteLibrary(this);
-            layers.add(new Layer("Foreground"));
-            layers.add(new Layer());
-            layers.add(new Layer("Background"));
+            addLayer(new Layer("Foreground"));
+            addLayer(new Layer());
+            addLayer(new Layer("Background"));
         }
         else {
             // TODO : Construct the entire map from the JSON in file.
@@ -83,6 +85,17 @@ public class LevelMap extends Level {
     
     public void logic() {
     
+    }
+    
+    
+    public void addLayer(Layer layer) {
+        layers.add(layer);
+        selectedLayer = layer;
+    }
+    
+    
+    public void dropSpriteType(SpriteType spriteType, Point mouseWorld) {
+        selectedLayer.dropSpriteType(spriteType, mouseWorld);
     }
     
     public void render(Graphics2D g) {
