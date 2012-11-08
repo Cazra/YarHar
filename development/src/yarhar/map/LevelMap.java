@@ -151,8 +151,13 @@ public class LevelMap extends Level {
         }
         
         // Press Delete to delete the currently selected sprites.
-        
+        if(selectedSprite != null && keyboard.justPressed(KeyEvent.VK_DELETE)) {
+            deleteSprite(selectedSprite);
+            selectedSprite = null;
+        }
     }
+    
+    
     
     
     /** Obtains the mouse's current world coordinates in integer form. */
@@ -223,6 +228,11 @@ public class LevelMap extends Level {
         sprite.y = sprite.startDragY + mdy;
     }
     
+    
+    /** Deletes a sprite from the current layer. Returns true if the sprite was deleted successfully. */
+    public boolean deleteSprite(SpriteInstance sprite) {
+        return selectedLayer.removeSprite(sprite);
+    }
     
     
     /** Renders the map */

@@ -65,6 +65,12 @@ public class Layer {
         sprites.add(sprite);
     }
     
+    /** Removes a sprite from this layer. Returns true if the sprite was contained in this layer. */
+    public boolean removeSprite(SpriteInstance sprite) {
+        return sprites.remove(sprite);
+    }
+    
+    
     /** Uses a SpriteType to drop an instance of a sprite at a point in the layer. */
     public SpriteInstance dropSpriteType(SpriteType spriteType, Point mouseWorld) {
         SpriteInstance sprite = spriteType.createInstance(mouseWorld.x, mouseWorld.y);
