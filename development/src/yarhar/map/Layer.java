@@ -66,9 +66,10 @@ public class Layer {
     }
     
     /** Uses a SpriteType to drop an instance of a sprite at a point in the layer. */
-    public void dropSpriteType(SpriteType spriteType, Point mouseWorld) {
+    public SpriteInstance dropSpriteType(SpriteType spriteType, Point mouseWorld) {
         SpriteInstance sprite = spriteType.createInstance(mouseWorld.x, mouseWorld.y);
         addSprite(sprite);
+        return sprite;
     }
     
     /** Layers are only equal by address. */

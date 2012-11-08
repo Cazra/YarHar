@@ -98,6 +98,12 @@ public class GridDialog extends JDialog implements ActionListener, MouseListener
     public void updateColorFld() {
         colorFld.setText("0x" + Integer.toHexString(gridColor.getRGB() & 0x00FFFFFF).toUpperCase());
         colorFld.setBackground(gridColor);
+        
+        int brightness = (gridColor.getRed() + gridColor.getBlue() + gridColor.getGreen())/3;
+        if(brightness < 100)
+            colorFld.setForeground(Color.WHITE);
+        else
+            colorFld.setForeground(Color.BLACK);
     }
     
     

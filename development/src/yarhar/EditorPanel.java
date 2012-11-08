@@ -36,6 +36,11 @@ public class EditorPanel extends GamePanel {
     public void logic() {
         super.logic();
         
+        // Obtain focus in the panel when it is clicked.
+        if(mouse.justAnyPressed) {
+            this.requestFocusInWindow();
+        }
+        
         // update our Camera's state
         camera.update();
         
@@ -141,6 +146,8 @@ public class EditorPanel extends GamePanel {
         
         LevelMap curMap = (LevelMap) curLevel;
         curMap.dropSpriteType(spriteType,mouseWorld);
+        
+        this.requestFocusInWindow();
     }
     
     

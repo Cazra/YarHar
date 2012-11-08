@@ -2,10 +2,12 @@ package yarhar.map;
 
 import yarhar.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import pwnee.*;
 import java.util.LinkedList;
 import java.io.File;
+
 
 /** The top level object for a map being manipulated with the YarHar UI. */
 public class LevelMap extends Level {
@@ -60,8 +62,9 @@ public class LevelMap extends Level {
     /** The currently selected sprite */
     public SpriteInstance selectedSprite = null;
     
-    public double dragOffX = 0;
-    public double dragOffY = 0;
+    public int dragStartX = 0;
+    public int dragStartY = 0;
+    public boolean isDrag = false;
     
     
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
@@ -104,14 +107,31 @@ public class LevelMap extends Level {
     public void logic() {
         Point mouseWorld = getMouseWorld();
         
+        if(mouse.justLeftClicked) {
+            isDrag = false;
+        }
+        
         // Click a sprite.
         if(mouse.justLeftPressed) {
             selectedLayer.selectAll(false);
             
             selectedSprite = selectedLayer.tryClickSprite(mouse.position);
             if(selectedSprite != null) {
-                dragOffX = mouseWorld.x - selectedSprite.x;
-                dragOffY = mouseWorld.y - selectedSprite.y;
+                // if ctrl was held, create a copy of the sprite to move instead of moving the actual sprite.
+                if(keyboard.isPressed(KeyEvent.VK_CONTROL)) {
+                    selectedSprite = dropSpriteType(selectedSprite.type, new Point((int)selectedSprite.x, (int)selectedSprite.y));
+                }
+                
+                // move the sprite with the mouse
+            //    dragOffX = mouseWorld.x - selectedSprite.x;
+            //    dragOffY = mouseWorld.y - selectedSprite.y;
+                dragStartX = mouseWorld.x;
+                dragStartY = mouseWorld.y;
+                
+                selectedSprite.startDragX = selectedSprite.x;
+                selectedSprite.startDragY = selectedSprite.y;
+                
+                
                 selectedSprite.isSelected = true;
             }
             System.err.println(selectedSprite);
@@ -120,12 +140,18 @@ public class LevelMap extends Level {
         
         // Drag the selected sprite.
         if(mouse.isLeftPressed && selectedSprite != null) {
-            selectedSprite.x = (int) (mouseWorld.x - dragOffX);
-            selectedSprite.y = (int) (mouseWorld.y - dragOffY);
-            snapSprite(selectedSprite);
+            if(mouseWorld.x != dragStartX || mouseWorld.y != dragStartY)
+                isDrag = true;
             
-            isModified = true;
+            if(isDrag) {
+                dragSprite(selectedSprite, mouseWorld);
+                snapSprite(selectedSprite);
+                isModified = true;
+            }
         }
+        
+        // Press Delete to delete the currently selected sprites.
+        
     }
     
     
@@ -151,12 +177,7 @@ public class LevelMap extends Level {
             return worldPt;
     }
     
-    public void snapSprite(SpriteInstance sprite) {
-        if(snapToGrid) {
-            sprite.x = ((int)sprite.x/gridSpaceX)*gridSpaceX;
-            sprite.y = ((int)sprite.y/gridSpaceY)*gridSpaceY;
-        }
-    }
+    
     
     
     /** Adds a layer to this map and causes it to become selected. */
@@ -179,13 +200,32 @@ public class LevelMap extends Level {
     }
     
     /** Drops a new sprite into the currently selected layer. */
-    public void dropSpriteType(SpriteType spriteType, Point mouseWorld) {
-        selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
-        
+    public SpriteInstance dropSpriteType(SpriteType spriteType, Point mouseWorld) {
+        SpriteInstance sprite = selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
         isModified = true;
+        return sprite;
+    }
+    
+    /** Snaps a sprite to the grid*/
+    public void snapSprite(SpriteInstance sprite) {
+        if(snapToGrid) {
+            sprite.x = ((int)sprite.x/gridSpaceX)*gridSpaceX;
+            sprite.y = ((int)sprite.y/gridSpaceY)*gridSpaceY;
+        }
+    }
+    
+    /** Drags a sprite with the mouse */
+    public void dragSprite(SpriteInstance sprite, Point mouseWorld) {
+        int mdx = mouseWorld.x - dragStartX;
+        int mdy = mouseWorld.y - dragStartY;
+        
+        sprite.x = sprite.startDragX + mdx;
+        sprite.y = sprite.startDragY + mdy;
     }
     
     
+    
+    /** Renders the map */
     public void render(Graphics2D g) {
         synchronized(this) {
             // render each of the layers in order of descending index. (The last layer is rendered on the bottom and the first layer is rendered on top)

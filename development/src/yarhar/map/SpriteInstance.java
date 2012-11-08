@@ -18,6 +18,8 @@ import pwnee.sprites.*;
 public class SpriteInstance extends Sprite {
     
     public SpriteType type;
+    public double startDragX = 0;
+    public double startDragY = 0;
     
     public boolean isSelected = false;
     
