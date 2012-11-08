@@ -33,6 +33,9 @@ public class LevelMap extends Level {
     /** If true, a grid is displayed in the editor. */
     public boolean displayGrid = true;
     
+    /** If true, the grid snapping for placing and moving sprites will be enabled. */
+    public boolean snapToGrid = false;
+    
     /** The width of the grid displayed under (or above) the map. */
     public int gridW = 640;
     
@@ -46,7 +49,7 @@ public class LevelMap extends Level {
     public int gridSpaceY = 32;
     
     /** The color of the grid's lines */
-    public int gridColor = 0xFF0000;
+    public Color gridColor = new Color(0xFF0000);
     
     /** Flag to tell if the map has been modified. */
     public boolean isModified = false;
@@ -95,7 +98,7 @@ public class LevelMap extends Level {
     }
     
     public void loadData() {
-    
+        
     }
     
     public void logic() {
@@ -119,6 +122,9 @@ public class LevelMap extends Level {
         if(mouse.isLeftPressed && selectedSprite != null) {
             selectedSprite.x = (int) (mouseWorld.x - dragOffX);
             selectedSprite.y = (int) (mouseWorld.y - dragOffY);
+            snapSprite(selectedSprite);
+            
+            isModified = true;
         }
     }
     
@@ -131,6 +137,25 @@ public class LevelMap extends Level {
         int my = (int) mouseWorld.getY();
         
         return new Point(mx,my);
+    }
+    
+    
+    /** Converts a world coordinate point to snapped world coordinates if grid snap is enabled. */
+    public Point getSnappedCoords(Point worldPt) {
+        if(snapToGrid) {
+            int x = (worldPt.x/gridSpaceX)*gridSpaceX;
+            int y = (worldPt.y/gridSpaceY)*gridSpaceY;
+            return new Point(x,y);
+        }   
+        else
+            return worldPt;
+    }
+    
+    public void snapSprite(SpriteInstance sprite) {
+        if(snapToGrid) {
+            sprite.x = ((int)sprite.x/gridSpaceX)*gridSpaceX;
+            sprite.y = ((int)sprite.y/gridSpaceY)*gridSpaceY;
+        }
     }
     
     
@@ -155,7 +180,7 @@ public class LevelMap extends Level {
     
     /** Drops a new sprite into the currently selected layer. */
     public void dropSpriteType(SpriteType spriteType, Point mouseWorld) {
-        selectedLayer.dropSpriteType(spriteType, mouseWorld);
+        selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
         
         isModified = true;
     }
@@ -184,7 +209,7 @@ public class LevelMap extends Level {
         if(!displayGrid)
             return;
         
-        g.setColor(new Color(gridColor));
+        g.setColor(gridColor);
         for(int i = 0; i <= gridW; i += gridSpaceX) {
             g.drawLine(i, 0 , i, gridH);
         }

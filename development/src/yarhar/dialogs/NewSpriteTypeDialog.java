@@ -64,8 +64,8 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     public void constructComponents() {
         JPanel topPanel = new JPanel(new BorderLayout());
         
-        fieldsPanel = makeVerticalFlowPanel();
-        fieldsPanel.add(makeLabelFieldPanel(new JLabel("Name: "), nameFld));
+        fieldsPanel = DialogUtils.makeVerticalFlowPanel();
+        fieldsPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("Name: "), nameFld));
         fieldsPanel.add(constructBrowsePanel());
         fieldsPanel.add(constructCroppingPanel());
         
@@ -108,15 +108,15 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     /** Constructs the subpanel with fields for cropping the sprite's image. */
     public JPanel constructCroppingPanel() {
-        JPanel cropPanel = makeVerticalFlowPanel();
+        JPanel cropPanel = DialogUtils.makeVerticalFlowPanel();
         cropPanel.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createTitledBorder("Image Cropping"),
                         BorderFactory.createEmptyBorder(5,5,5,5)));
         
-        cropPanel.add(makeLabelFieldPanel(new JLabel("crop left X: "), cropXFld));
-        cropPanel.add(makeLabelFieldPanel(new JLabel("crop left Y: "), cropYFld));
-        cropPanel.add(makeLabelFieldPanel(new JLabel("crop width: "), cropWFld));
-        cropPanel.add(makeLabelFieldPanel(new JLabel("crop height: "), cropHFld));
+        cropPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("crop left X: "), cropXFld));
+        cropPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("crop left Y: "), cropYFld));
+        cropPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("crop width: "), cropWFld));
+        cropPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("crop height: "), cropHFld));
         
         cropPanel.add(cropBtn);
         cropBtn.addActionListener(this);
@@ -124,20 +124,6 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         return cropPanel;
     }
     
-    /** Creates a JPanel with a vertically-oriented BoxLayout. */
-    public JPanel makeVerticalFlowPanel() {
-        JPanel result = new JPanel();
-        result.setLayout(new BoxLayout(result,BoxLayout.Y_AXIS));
-        return result;
-    }
-    
-    /** Creates a JPanel with a JLabel followed by a JTextField with a FlowLayout. */
-    public JPanel makeLabelFieldPanel(JLabel label, JTextField field) {
-        JPanel result = new JPanel();
-        result.add(label);
-        result.add(field);
-        return result;
-    }
     
     /** Initializes our SpriteLabel. */
     public void initSpriteLabel() {
@@ -150,7 +136,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     /** Creates a JPanel to house the shiny buttons for the previewPanel. */
     public JPanel makePreviewUtilsPanel() {
-        JPanel result = makeVerticalFlowPanel();
+        JPanel result = DialogUtils.makeVerticalFlowPanel();
         result.add(makeZoomSliderPanel());
         result.add(mousePosLabel);
         result.add(focalPointLabel);

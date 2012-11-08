@@ -2,6 +2,8 @@ package yarhar;
 
 import javax.swing.*;
 import java.awt.event.*;
+import yarhar.dialogs.*;
+import yarhar.map.LevelMap;
 
 /** The menu bar for the YarHar application. */
 class YarharMenuBar extends JMenuBar implements ActionListener {
@@ -18,7 +20,8 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
     JMenu viewMenu = new JMenu("View");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
-    
+        JMenuItem gridItem = new JMenuItem("Grid Setup");
+        
     JMenu helpMenu = new JMenu("Help");
     
     
@@ -54,6 +57,10 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
             viewMenu.add(resetCamItem);
             resetCamItem.addActionListener(this);
             resetCamItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+            
+            viewMenu.add(gridItem);
+            gridItem.addActionListener(this);
+            gridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -84,7 +91,10 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == resetCamItem) {
             System.err.println("View -> resetCamItem fired.");
             yarhar.editorPanel.resetCamera();
-            
+        }
+        if(source == gridItem) {
+            LevelMap curMap = ((LevelMap) yarhar.editorPanel.curLevel);
+            new GridDialog(yarhar, curMap);
         }
         
     }
