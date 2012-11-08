@@ -36,7 +36,7 @@ public class LevelMap extends Level {
     public boolean displayGrid = true;
     
     /** If true, the grid snapping for placing and moving sprites will be enabled. */
-    public boolean snapToGrid = false;
+    public boolean snapToGrid = true;
     
     /** The width of the grid displayed under (or above) the map. */
     public int gridW = 640;
@@ -56,7 +56,7 @@ public class LevelMap extends Level {
     /** Flag to tell if the map has been modified. */
     public boolean isModified = false;
     
-    /** A list of sprites currently selected. */ 
+    /** A list of sprites currently selected. */  
     public LinkedList<SpriteInstance> selectedSprites = new LinkedList<SpriteInstance>();
     
     /** The currently selected sprite */
@@ -113,26 +113,18 @@ public class LevelMap extends Level {
         
         // Click a sprite.
         if(mouse.justLeftPressed) {
-            selectedLayer.selectAll(false);
-            
             selectedSprite = selectedLayer.tryClickSprite(mouse.position);
+            
+            if(!keyboard.isPressed(KeyEvent.VK_SHIFT) && !keyboard.isPressed(KeyEvent.VK_CONTROL) && !selectedSprites.contains(selectedSprite))
+                unselectAll();
+            
             if(selectedSprite != null) {
-                // if ctrl was held, create a copy of the sprite to move instead of moving the actual sprite.
-                if(keyboard.isPressed(KeyEvent.VK_CONTROL)) {
-                    selectedSprite = dropSpriteType(selectedSprite.type, new Point((int)selectedSprite.x, (int)selectedSprite.y));
-                }
-                
                 // move the sprite with the mouse
-            //    dragOffX = mouseWorld.x - selectedSprite.x;
-            //    dragOffY = mouseWorld.y - selectedSprite.y;
                 dragStartX = mouseWorld.x;
                 dragStartY = mouseWorld.y;
-                
-                selectedSprite.startDragX = selectedSprite.x;
-                selectedSprite.startDragY = selectedSprite.y;
-                
-                
-                selectedSprite.isSelected = true;
+
+                selectSprite(selectedSprite);
+                initDragSprites();
             }
             System.err.println(selectedSprite);
             
@@ -140,12 +132,17 @@ public class LevelMap extends Level {
         
         // Drag the selected sprite.
         if(mouse.isLeftPressed && selectedSprite != null) {
-            if(mouseWorld.x != dragStartX || mouseWorld.y != dragStartY)
+            if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
                 isDrag = true;
+                
+                // clone the sprite if we were holding CTRL and begin dragging the clone instead of the original. 
+                if(keyboard.isPressed(KeyEvent.VK_CONTROL)) {
+                    cloneSelectedSprites();
+                }
+            }
             
             if(isDrag) {
-                dragSprite(selectedSprite, mouseWorld);
-                snapSprite(selectedSprite);
+                dragSelectedSprites(mouseWorld);
                 isModified = true;
             }
         }
@@ -204,6 +201,10 @@ public class LevelMap extends Level {
         isModified = true;
     }
     
+    
+    
+    
+    
     /** Drops a new sprite into the currently selected layer. */
     public SpriteInstance dropSpriteType(SpriteType spriteType, Point mouseWorld) {
         SpriteInstance sprite = selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
@@ -211,11 +212,45 @@ public class LevelMap extends Level {
         return sprite;
     }
     
+    
+    
+    
+    /** Selects a sprite and adds it to the list of currently selected sprites */
+    public void selectSprite(SpriteInstance sprite) {
+        sprite.isSelected = true;
+        
+        // prevent duplicates
+        if(selectedSprites.contains(sprite))
+            return;
+        
+        // TODO : order the selectedSprites by their z-index.
+        
+        selectedSprites.add(sprite);
+    }
+    
+    /** unselects all sprites in the current layer and empties our list of selected sprites. */
+    public void unselectAll() {
+        selectedSprites = new LinkedList<SpriteInstance>();
+        selectedLayer.selectAll(false);
+    }
+    
+    
+    
+    
     /** Snaps a sprite to the grid*/
     public void snapSprite(SpriteInstance sprite) {
         if(snapToGrid) {
             sprite.x = ((int)sprite.x/gridSpaceX)*gridSpaceX;
             sprite.y = ((int)sprite.y/gridSpaceY)*gridSpaceY;
+        }
+    }
+    
+    
+    /** Initializes the currently selected sprites for dragging with the mouse */
+    public void initDragSprites() {
+        for(SpriteInstance sprite : selectedSprites) {
+            sprite.startDragX = sprite.x;
+            sprite.startDragY = sprite.y;
         }
     }
     
@@ -226,8 +261,54 @@ public class LevelMap extends Level {
         
         sprite.x = sprite.startDragX + mdx;
         sprite.y = sprite.startDragY + mdy;
+        
+        snapSprite(sprite);
     }
     
+    
+    /** Drags all currently selected sprites with the mouse. */
+    public void dragSelectedSprites(Point mouseWorld) {
+        for(SpriteInstance sprite : selectedSprites) {
+            dragSprite(sprite, mouseWorld);
+        }
+    }
+    
+
+    
+    
+    
+    /** clones a sprite (not in the same sense as Object.clone(). */
+    public SpriteInstance cloneSprite(SpriteInstance sprite) {
+        SpriteInstance clone = new SpriteInstance(sprite.x, sprite.y, sprite.type);
+        
+        clone.angle = sprite.angle;
+        clone.opacity = sprite.opacity;
+        clone.scaleUni = sprite.scaleUni;
+        clone.scaleX = sprite.scaleX;
+        clone.scaleY = sprite.scaleY;
+        clone.transformChanged = true;
+        clone.startDragX = sprite.startDragX;
+        clone.startDragY = sprite.startDragY;
+        
+        selectedLayer.addSprite(clone);
+        return clone;
+    }
+    
+    
+    /** clones all currently selected sprites and sets the clones as the currently selected sprites. The original sprites become unselected. */
+    public void cloneSelectedSprites() {
+        LinkedList<SpriteInstance> newSelSprites = new LinkedList<SpriteInstance>();
+        
+        for(SpriteInstance sprite : selectedSprites) {
+            SpriteInstance clone = cloneSprite(sprite);
+            sprite.isSelected = false;
+            clone.isSelected = true;
+            
+            newSelSprites.add(clone);
+        }
+        
+        selectedSprites = newSelSprites;
+    }
     
     /** Deletes a sprite from the current layer. Returns true if the sprite was deleted successfully. */
     public boolean deleteSprite(SpriteInstance sprite) {
