@@ -56,15 +56,33 @@ public class LevelMap extends Level {
     /** Flag to tell if the map has been modified. */
     public boolean isModified = false;
     
+    
     /** A list of sprites currently selected. */  
     public LinkedList<SpriteInstance> selectedSprites = new LinkedList<SpriteInstance>();
     
     /** The currently selected sprite */
     public SpriteInstance selectedSprite = null;
     
+    /** True if we are currently dragging the mouse to form a selection rectangle. */
+    public boolean isSelRect = false;
+    
+    /** Color of the selection rectangle */
+    public Color selRectColor = new Color(0x007777);
+    
+    
+    /** The mouse's most recently recorded world coordinates */
+    public Point mouseWorld = new Point(0,0);
+    
+    /** The starting world X of the mouse's last drag. */
     public int dragStartX = 0;
+    
+    /** The starting world Y of the mouse's last drag. */
     public int dragStartY = 0;
+    
+    /** True if sprites are currently being dragged. */
     public boolean isDrag = false;
+    
+    /**  */
     
     
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
@@ -105,32 +123,34 @@ public class LevelMap extends Level {
     }
     
     public void logic() {
-        Point mouseWorld = getMouseWorld();
+        mouseWorld = getMouseWorld();
         
         if(mouse.justLeftClicked) {
+            // if we just finished making a selection rectangle, select all the sprites in the selection rectangle.
+            selectionRectangle();
+            
             isDrag = false;
+            isSelRect = false;
         }
         
         // Click a sprite.
         if(mouse.justLeftPressed) {
             selectedSprite = selectedLayer.tryClickSprite(mouse.position);
+            dragStartX = mouseWorld.x;
+            dragStartY = mouseWorld.y;
             
+            // possibly unselect all sprites.
             if(!keyboard.isPressed(KeyEvent.VK_SHIFT) && !keyboard.isPressed(KeyEvent.VK_CONTROL) && !selectedSprites.contains(selectedSprite))
                 unselectAll();
             
+            // if a sprite was click, select it!
             if(selectedSprite != null) {
-                // move the sprite with the mouse
-                dragStartX = mouseWorld.x;
-                dragStartY = mouseWorld.y;
-
                 selectSprite(selectedSprite);
                 initDragSprites();
             }
-            System.err.println(selectedSprite);
-            
         }
         
-        // Drag the selected sprite.
+        // Drag the selected sprite(s).
         if(mouse.isLeftPressed && selectedSprite != null) {
             if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
                 isDrag = true;
@@ -147,10 +167,18 @@ public class LevelMap extends Level {
             }
         }
         
+        
+        // Create a selection rectangle if we drag after clicking in empty space.
+        if(mouse.isLeftPressed && selectedSprite == null) {
+            if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
+                isSelRect = true; 
+                
+            }
+        }
+        
         // Press Delete to delete the currently selected sprites.
         if(selectedSprite != null && keyboard.justPressed(KeyEvent.VK_DELETE)) {
-            deleteSprite(selectedSprite);
-            selectedSprite = null;
+            deleteSelectedSprites();
         }
     }
     
@@ -234,6 +262,19 @@ public class LevelMap extends Level {
         selectedLayer.selectAll(false);
     }
     
+    /** Selects all sprites in the selection rectangle. */
+    public void selectionRectangle() {
+        int x = (int) Math.min(mouseWorld.x, dragStartX);
+        int y = (int) Math.min(mouseWorld.y, dragStartY);
+        int w = (int) Math.abs(mouseWorld.x - dragStartX);
+        int h = (int) Math.abs(mouseWorld.y - dragStartY);
+        
+        for(SpriteInstance sprite : selectedLayer.sprites) {
+            if(sprite.x >= x && sprite.x <= x+w && sprite.y >= y && sprite.y <= y+h) {
+                selectSprite(sprite);
+            }
+        }
+    }
     
     
     
@@ -315,6 +356,15 @@ public class LevelMap extends Level {
         return selectedLayer.removeSprite(sprite);
     }
     
+    /** Deletes all the currently selected sprites. */
+    public void deleteSelectedSprites() {
+        for(SpriteInstance sprite : selectedSprites) {
+            deleteSprite(sprite);
+        }
+        selectedSprites = new LinkedList<SpriteInstance>();
+        selectedSprite = null;
+    }
+    
     
     /** Renders the map */
     public void render(Graphics2D g) {
@@ -330,6 +380,7 @@ public class LevelMap extends Level {
             // Use an AlphaComposite to apply semi-transparency to the Sprite's image.
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.25));
             renderGrid(g);
+            renderSelectionRect(g);
             g.setComposite(oldComp);
         }
     }
@@ -349,6 +400,23 @@ public class LevelMap extends Level {
         }
         
         g.drawRect(0,0,gridW,gridH);
+    }
+    
+    public void renderSelectionRect(Graphics2D g) {
+        if(!isSelRect)
+            return;
+        
+        Stroke origStroke = g.getStroke();
+        g.setStroke(new BasicStroke((float) (3/camera.zoom)));
+        g.setColor(selRectColor);
+        int x = (int) Math.min(mouseWorld.x, dragStartX);
+        int y = (int) Math.min(mouseWorld.y, dragStartY);
+        int w = (int) Math.abs(mouseWorld.x - dragStartX);
+        int h = (int) Math.abs(mouseWorld.y - dragStartY);
+        
+        g.drawRect(x,y, w, h);
+        
+        g.setStroke(origStroke);
     }
     
 }

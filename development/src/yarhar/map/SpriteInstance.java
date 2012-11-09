@@ -64,8 +64,6 @@ public class SpriteInstance extends Sprite {
         double mx = mouseRel.getX();
         double my = mouseRel.getY();
         
-        System.err.println(mx + ", " + my); 
-        
         return (mx >= 0 && my >= 0 && mx < width && my < height);
     }
 }
