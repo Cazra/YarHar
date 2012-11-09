@@ -1,6 +1,7 @@
 package yarhar.map;
 
 import yarhar.*;
+import yarhar.cmds.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
@@ -82,7 +83,9 @@ public class LevelMap extends Level {
     /** True if sprites are currently being dragged. */
     public boolean isDrag = false;
     
-    /**  */
+    /** True if sprites are currently being cloned. */
+    public boolean isCloning = false;
+    
     
     
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
@@ -125,12 +128,26 @@ public class LevelMap extends Level {
     public void logic() {
         mouseWorld = getMouseWorld();
         
+        
+        // When left click is released, resolve any operations associated with the mouse gesture.
         if(mouse.justLeftClicked) {
             // if we just finished making a selection rectangle, select all the sprites in the selection rectangle.
-            selectionRectangle();
+            if(isSelRect)
+                selectionRectangle();
+            
+            // if we finished moving a set of sprites, finish moving them. 
+            if(isDrag && !isCloning) {
+                MoveSpriteEdit cmd = new MoveSpriteEdit(this);
+            }
+            
+            // if we finished cloning a set of sprites, finish cloning them.
+            if(isCloning) {
+                CloneSpriteEdit cmd = new CloneSpriteEdit(this);
+            }
             
             isDrag = false;
             isSelRect = false;
+            isCloning = false;
         }
         
         // Click a sprite.
@@ -158,6 +175,7 @@ public class LevelMap extends Level {
                 // clone the sprite if we were holding CTRL and begin dragging the clone instead of the original. 
                 if(keyboard.isPressed(KeyEvent.VK_CONTROL)) {
                     cloneSelectedSprites();
+                    isCloning = true;
                 }
             }
             
@@ -177,9 +195,11 @@ public class LevelMap extends Level {
         }
         
         // Press Delete to delete the currently selected sprites.
-        if(selectedSprite != null && keyboard.justPressed(KeyEvent.VK_DELETE)) {
-            deleteSelectedSprites();
+        if(keyboard.justPressed(KeyEvent.VK_DELETE) && !selectedSprites.isEmpty()) {
+            DeleteSpriteEdit cmd = new DeleteSpriteEdit(this);
         }
+        
+        
     }
     
     
@@ -235,7 +255,10 @@ public class LevelMap extends Level {
     
     /** Drops a new sprite into the currently selected layer. */
     public SpriteInstance dropSpriteType(SpriteType spriteType, Point mouseWorld) {
-        SpriteInstance sprite = selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
+    //    SpriteInstance sprite = selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
+        DropSpriteEdit cmd = new DropSpriteEdit(this, spriteType, getSnappedCoords(mouseWorld));
+        SpriteInstance sprite = cmd.sprite;
+        
         isModified = true;
         return sprite;
     }
@@ -320,17 +343,7 @@ public class LevelMap extends Level {
     
     /** clones a sprite (not in the same sense as Object.clone(). */
     public SpriteInstance cloneSprite(SpriteInstance sprite) {
-        SpriteInstance clone = new SpriteInstance(sprite.x, sprite.y, sprite.type);
-        
-        clone.angle = sprite.angle;
-        clone.opacity = sprite.opacity;
-        clone.scaleUni = sprite.scaleUni;
-        clone.scaleX = sprite.scaleX;
-        clone.scaleY = sprite.scaleY;
-        clone.transformChanged = true;
-        clone.startDragX = sprite.startDragX;
-        clone.startDragY = sprite.startDragY;
-        
+        SpriteInstance clone = sprite.makeClone();
         selectedLayer.addSprite(clone);
         return clone;
     }
@@ -351,19 +364,7 @@ public class LevelMap extends Level {
         selectedSprites = newSelSprites;
     }
     
-    /** Deletes a sprite from the current layer. Returns true if the sprite was deleted successfully. */
-    public boolean deleteSprite(SpriteInstance sprite) {
-        return selectedLayer.removeSprite(sprite);
-    }
     
-    /** Deletes all the currently selected sprites. */
-    public void deleteSelectedSprites() {
-        for(SpriteInstance sprite : selectedSprites) {
-            deleteSprite(sprite);
-        }
-        selectedSprites = new LinkedList<SpriteInstance>();
-        selectedSprite = null;
-    }
     
     
     /** Renders the map */

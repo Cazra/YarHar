@@ -1,12 +1,13 @@
 package yarhar;
 
 import javax.swing.*;
+import javax.swing.undo.*;
 import java.awt.event.*;
 import yarhar.dialogs.*;
 import yarhar.map.LevelMap;
 
 /** The menu bar for the YarHar application. */
-class YarharMenuBar extends JMenuBar implements ActionListener {
+public class YarharMenuBar extends JMenuBar implements ActionListener {
     
     YarharMain yarhar;
     
@@ -17,6 +18,11 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem exitItem = new JMenuItem("Exit");
     
     JMenu editMenu = new JMenu("Edit");
+        JMenuItem undoItem = new JMenuItem("Undo");
+        JMenuItem redoItem = new JMenuItem("Redo");
+        JMenuItem cutItem = new JMenuItem("Cut");
+        JMenuItem copyItem = new JMenuItem("Copy");
+        JMenuItem pasteItem = new JMenuItem("Paste");
         
     JMenu viewMenu = new JMenu("View");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
@@ -24,11 +30,13 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
     JMenu helpMenu = new JMenu("Help");
     
-    
+    public static UndoManager undoManager = new UndoManager();
     
     public YarharMenuBar(YarharMain yarhar) {
         super();
         this.yarhar = yarhar;
+        
+        undoManager.setLimit(50);
         
         this.add(fileMenu);
         fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -50,7 +58,20 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
         this.add(editMenu);
         editMenu.setMnemonic(KeyEvent.VK_E);
-        editMenu.addActionListener(this);
+            editMenu.add(undoItem);
+            undoItem.addActionListener(this);
+            undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
+            
+            editMenu.add(redoItem);
+            redoItem.addActionListener(this);
+            redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+            
+            
+            editMenu.add(new JSeparator());
+            editMenu.add(cutItem);
+            cutItem.setEnabled(false);
+            editMenu.add(copyItem);
+            editMenu.add(pasteItem);
         
         this.add(viewMenu);
         viewMenu.setMnemonic(KeyEvent.VK_V);
@@ -64,7 +85,6 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
-        helpMenu.addActionListener(this);
     }
     
     
@@ -73,8 +93,7 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
         
         System.err.println("Menu event");
         
-        if(source == fileMenu)
-            System.err.println("fileMenu fired.");
+        // File menu
         if(source == newItem) {
             System.err.println("File -> newItem fired.");
             yarhar.editorPanel.changeLevel("new");
@@ -88,6 +107,25 @@ class YarharMenuBar extends JMenuBar implements ActionListener {
             yarhar.close();
         }
         
+        // Edit menu
+        if(source == undoItem) {
+            try {
+                undoManager.undo();
+            }
+            catch (Exception ex) {
+                System.err.println("no more undos can be done.");
+            }
+        }
+        if(source == redoItem) {
+            try {
+                undoManager.redo();
+            }
+            catch (Exception ex) {
+                System.err.println("no more redos can be done.");
+            }
+        }
+        
+        // View menu
         if(source == resetCamItem) {
             System.err.println("View -> resetCamItem fired.");
             yarhar.editorPanel.resetCamera();

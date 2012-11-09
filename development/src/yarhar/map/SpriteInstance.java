@@ -23,6 +23,8 @@ public class SpriteInstance extends Sprite {
     
     public boolean isSelected = false;
     
+    public boolean isGhost = false;
+    
     public SpriteInstance(double x, double y, SpriteType type) {
         super(x,y);
         this.type = type;
@@ -34,6 +36,30 @@ public class SpriteInstance extends Sprite {
     
     public SpriteInstance(SpriteType type) {
         this(0,0,type);
+    }
+    
+    public SpriteInstance(double x, double y, SpriteType type, boolean ghost) {
+        this(x,y,type);
+        if(ghost) {
+            isGhost = true;
+            opacity = 0.5;
+        }
+    }
+    
+    
+    public SpriteInstance makeClone() {
+        SpriteInstance clone = new SpriteInstance(this.x, this.y, this.type);
+        
+        clone.angle = this.angle;
+        clone.opacity = this.opacity;
+        clone.scaleUni = this.scaleUni;
+        clone.scaleX = this.scaleX;
+        clone.scaleY = this.scaleY;
+        clone.transformChanged = true;
+        clone.startDragX = this.startDragX;
+        clone.startDragY = this.startDragY;
+        
+        return clone;
     }
 
     
