@@ -155,6 +155,11 @@ class SpriteTypeRenderer extends JLabel implements ListCellRenderer {
     }
     
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        if(value == null) {
+            this.setText("I am Error.");
+            return this;
+        }
+        
         SpriteType spriteType = (SpriteType) value;
         
         Color background;

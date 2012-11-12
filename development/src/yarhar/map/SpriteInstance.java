@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.imageio.ImageIO;
 import java.io.File;
+import org.json.*;
 import pwnee.*;
 import pwnee.image.*;
 import pwnee.sprites.*;
@@ -46,6 +47,16 @@ public class SpriteInstance extends Sprite {
         }
     }
     
+    public SpriteInstance(JSONObject spriteJ, SpriteLibrary lib) {
+        super(0,0);
+        loadJSON(spriteJ, lib);
+        this.focalX = type.focalX;
+        this.focalY = type.focalY;
+        this.width = type.width;
+        this.height = type.height;
+        transformChanged = true;
+    }
+    
     
     public SpriteInstance makeClone() {
         SpriteInstance clone = new SpriteInstance(this.x, this.y, this.type);
@@ -78,6 +89,23 @@ public class SpriteInstance extends Sprite {
         
         result += "}";
         return result;
+    }
+    
+    public void loadJSON(JSONObject spriteJ, SpriteLibrary lib) {
+        try {
+            type = lib.sprites.get(spriteJ.getString("type"));
+            x = spriteJ.getDouble("x");
+            y = spriteJ.getDouble("y");
+            angle = spriteJ.getDouble("a");
+            opacity = spriteJ.getDouble("o");
+            scaleUni = spriteJ.getDouble("s");
+            scaleX = spriteJ.getDouble("sx");
+            scaleY = spriteJ.getDouble("sy");
+            
+        }
+        catch(Exception e) {
+            System.err.println("Error reading JSON for sprite instance");
+        }
     }
 
     

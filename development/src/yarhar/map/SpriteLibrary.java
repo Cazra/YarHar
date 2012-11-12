@@ -5,6 +5,7 @@ import java.awt.*;
 import pwnee.*;
 import java.util.HashMap;
 import java.util.TreeSet;
+import org.json.*;
 
 /** Stores all the SpriteTypes used by the map that uses this. */
 public class SpriteLibrary {
@@ -32,7 +33,16 @@ public class SpriteLibrary {
     public SpriteLibrary(LevelMap parent) {
         levelMap = parent;
         
-        testPopulation();
+    //    testPopulation();
+        addGroup("default");
+        updatePeerComponent();
+    }
+    
+    
+    public SpriteLibrary(LevelMap parent, JSONObject json) {
+        levelMap = parent;
+        loadJSON(json);
+        updatePeerComponent();
     }
     
     
@@ -91,6 +101,29 @@ public class SpriteLibrary {
     }
     
     
+    /** Loads this sprite library from json. */
+    public void loadJSON(JSONObject json) {
+        try {
+            JSONArray groupSetJ = json.getJSONArray("groups");
+            for(int i = 0; i < groupSetJ.length(); i++) {
+                JSONObject groupJ = groupSetJ.getJSONObject(i);
+                addGroup(new SpriteTypeGroup(groupJ));
+            }
+            
+            JSONArray spriteSetJ = json.getJSONArray("sprites");
+            for(int i = 0; i < spriteSetJ.length(); i++) {
+                JSONObject spriteJ = spriteSetJ.getJSONObject(i);
+                SpriteType sprite = new SpriteType(spriteJ);
+                sprites.put(sprite.name, sprite);
+                spriteNames.add(sprite.name);
+            }
+        }
+        catch(Exception e) {
+            System.err.println("Error reading JSON for sprite library.");
+        }
+    }
+    
+    
     /** Creates a new blank group in our library, unless a group with the name already exists. */
     public void addGroup(String name) {
         if(groupNames.contains(name))
@@ -98,6 +131,19 @@ public class SpriteLibrary {
         
         groups.put(name, new SpriteTypeGroup(name));
         groupNames.add(name);
+        
+        this.isModified = true;
+        
+        updatePeerComponent();
+    }
+    
+    
+    /** Adds a pre-populated group in our library. If a group with the same name already exists, the groups are merged. */
+    public void addGroup(SpriteTypeGroup group) {
+        groups.put(group.name, group);
+        groupNames.add(group.name);
+        
+        // TODO : merge the existing group.
         
         this.isModified = true;
         

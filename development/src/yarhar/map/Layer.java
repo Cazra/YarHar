@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Collections;
 import yarhar.*;
 import java.awt.*;
+import org.json.*;
 import pwnee.*;
 
 public class Layer {
@@ -32,13 +33,17 @@ public class Layer {
         name = n;
     }
     
+    public Layer(JSONObject layerJ, SpriteLibrary lib) {
+        loadJSON(layerJ, lib);
+    }
+    
     
     /** Creates a JSON string respresenting this layer. */
     public String toJSON() {
         String result = "{";
         
         result += "\"name\":\"" + name + "\",";
-        result += "\"i\":\"" + order + "\",";
+        result += "\"i\":" + order + ",";
         result += "\"sprites\":[";
         boolean isFirst = true;
         for(SpriteInstance sprite : sprites) {
@@ -55,6 +60,25 @@ public class Layer {
         
         result += "}";
         return result;
+    }
+    
+    
+    /** Loads this layer from JSON. */
+    public void loadJSON(JSONObject layerJ, SpriteLibrary lib) {
+        try {
+            name = layerJ.getString("name");
+            order = layerJ.getInt("i");
+            
+            JSONArray spriteSetJ = layerJ.getJSONArray("sprites");
+            for(int i = 0; i < spriteSetJ.length(); i++) {
+                JSONObject spriteJ = spriteSetJ.getJSONObject(i);
+                SpriteInstance sprite = new SpriteInstance(spriteJ, lib);
+                addSprite(sprite);
+            }
+        }
+        catch (Exception e) {
+            System.err.println("Error reading JSON for layer.");
+        }
     }
     
     

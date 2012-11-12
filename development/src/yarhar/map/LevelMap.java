@@ -5,9 +5,12 @@ import yarhar.cmds.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
+import org.json.*;
 import pwnee.*;
 import java.util.LinkedList;
 import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
 
 
 /** The top level object for a map being manipulated with the YarHar UI. */
@@ -99,12 +102,30 @@ public class LevelMap extends Level {
         
         if(file == null) {
             spriteLib = new SpriteLibrary(this);
-            addLayer(new Layer("Foreground"));
             addLayer(new Layer());
-            addLayer(new Layer("Background"));
         }
         else {
-            // TODO : Construct the entire map from the JSON in file.
+            try {
+                FileReader fr = new FileReader(file);
+                BufferedReader br = new BufferedReader(fr);
+                
+                // read the json text from the file.
+                String jsonStr = "";
+                String line = br.readLine();
+                while(line != null) {
+                    jsonStr += line;
+                    line = br.readLine();
+                }
+                
+                // convert the json text into a json object and then construct this map from it.
+                
+                JSONObject json = new JSONObject(jsonStr);
+                JSONObject yarmap = json.getJSONObject("yarmap");
+                loadJSON(yarmap);
+            }
+            catch(Exception e) {
+                System.err.println("Error reading JSON for map.");
+            }
         }
         
         game.frame.updateTitle(name);
@@ -130,7 +151,7 @@ public class LevelMap extends Level {
     public String toJSON() {
         String result = "{";
         result += "\"name\":\"" + name + "\",";
-        result += "\"bgcolor\":" + bgColor + ",";
+        result += "\"bgColor\":" + bgColor + ",";
         result += "\"spriteLib\":" + spriteLib.toJSON() + ",";
         result += "\"layers\":[";
         boolean isFirst = true;
@@ -151,6 +172,32 @@ public class LevelMap extends Level {
         result += "\"gridColor\":" + gridColor.getRGB();
         result += "}";
         return result;
+    }
+    
+    /** Loads this map from a json object. */
+    public void loadJSON(JSONObject yarmap) {
+        try {
+            name = yarmap.getString("name");
+            bgColor = yarmap.getInt("bgColor");
+            spriteLib = new SpriteLibrary(this, yarmap.getJSONObject("spriteLib"));
+            
+            JSONArray layerListJ = yarmap.getJSONArray("layers");
+            for(int i = 0; i < layerListJ.length(); i++) {
+                JSONObject layerJ = layerListJ.getJSONObject(i);
+                Layer layer = new Layer(layerJ, spriteLib);
+                addLayer(layer);
+            }
+            
+            desc = yarmap.getString("desc");
+            gridSpaceX = yarmap.getInt("gridSpaceX");
+            gridSpaceY = yarmap.getInt("gridSpaceY");
+            gridW = yarmap.getInt("gridW");
+            gridH = yarmap.getInt("gridH");
+            gridColor = new Color(yarmap.getInt("gridColor"));
+        }
+        catch(Exception e) {
+            System.err.println("Error reading JSON.");
+        }
     }
     
     
@@ -432,6 +479,7 @@ public class LevelMap extends Level {
         g.drawRect(0,0,gridW,gridH);
     }
     
+    /** Renders the selection rectangle for selecting multiple sprites. */
     public void renderSelectionRect(Graphics2D g) {
         if(!isSelRect)
             return;

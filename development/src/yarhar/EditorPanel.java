@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.event.KeyEvent;
 import java.awt.datatransfer.*;
+import java.io.File;
 import java.util.LinkedList;
 import javax.swing.*;
 import pwnee.*;
@@ -113,8 +114,10 @@ public class EditorPanel extends GamePanel {
     public Level makeLevelInstance(String levelName) {
         if(levelName == "new")
             return new LevelMap(this);
-        else
-            return null;
+        else {
+            File file = new File(levelName);
+            return new LevelMap(this, file);
+        }
     }
     
     

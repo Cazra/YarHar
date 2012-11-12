@@ -2,6 +2,7 @@ package yarhar.map;
 
 import yarhar.*;
 import java.awt.*;
+import org.json.*;
 import pwnee.*;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -28,6 +29,10 @@ public class SpriteTypeGroup {
         name = n;
     }
     
+    public SpriteTypeGroup(JSONObject groupJ) {
+        loadJSON(groupJ);
+    }
+    
     
     /** Creates a JSON string from this group */
     public String toJSON() {
@@ -49,6 +54,20 @@ public class SpriteTypeGroup {
         result += "]";
         result += "}";
         return result;
+    }
+    
+    /** Loads this SpriteTypeGroup from json. */
+    public void loadJSON(JSONObject groupJ) {
+        try {
+            name = groupJ.getString("name");
+            JSONArray spriteSetJ = groupJ.getJSONArray("sprites");
+            for(int i = 0; i < spriteSetJ.length(); i++) {
+                typeNames.add(spriteSetJ.getString(i));
+            }
+        }
+        catch (Exception e) {
+            System.err.println("Error reading JSON for sprite type group.");
+        }
     }
     
     

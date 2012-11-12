@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.imageio.ImageIO;
 import java.io.File;
+import org.json.*;
 import pwnee.*;
 import pwnee.image.*;
 
@@ -77,8 +78,10 @@ public class SpriteType implements Transferable {
         this.name = n;
         this.imgPath = path;
         loadImage();
-        
-        
+    }
+    
+    public SpriteType(JSONObject spriteJ) {
+        loadJSON(spriteJ);
     }
     
     
@@ -87,7 +90,7 @@ public class SpriteType implements Transferable {
         String result = "{";
         
         result += "\"name\":\"" + name + "\",";
-        result += "\"img\":\"" + imgPath + "\",";
+        result += "\"img\":\"" + imgPath.replaceAll("\\\\","\\\\\\\\") + "\",";
         result += "\"cx\":" + cropX + ",";
         result += "\"cy\":" + cropY + ",";
         result += "\"cw\":" + cropW + ",";
@@ -97,6 +100,28 @@ public class SpriteType implements Transferable {
         
         result += "}";
         return result;
+    }
+    
+    /** Loads this sprite type from json. */
+    public void loadJSON(JSONObject spriteJ) {
+        try {
+            name = spriteJ.getString("name");
+            imgPath = spriteJ.getString("img");
+            cropX = spriteJ.getInt("cx");
+            cropY = spriteJ.getInt("cy");
+            cropW = spriteJ.getInt("cw");
+            cropH = spriteJ.getInt("ch");
+            focalX = spriteJ.getInt("fx");
+            focalY = spriteJ.getInt("fy");
+            
+            if(cropW > 0 && cropH > 0)
+                isCropped = true;
+            
+            loadImage();
+        }
+        catch (Exception e) {
+            System.err.println("Error reading JSON for sprite type.");
+        }
     }
     
     
