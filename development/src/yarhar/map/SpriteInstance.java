@@ -117,7 +117,7 @@ public class SpriteInstance extends Sprite {
         
         if(isSelected) {
             g.setColor(new Color(0x00DDDD));
-            g.drawRect(0-(int)focalX, 0-(int)focalY, type.width, type.height);
+            g.drawRect(0, 0, type.width, type.height);
         }
     }
     

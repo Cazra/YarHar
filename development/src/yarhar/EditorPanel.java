@@ -70,6 +70,15 @@ public class EditorPanel extends GamePanel {
     public void paint(Graphics g) {
         if(curLevel == null)
             return;
+        
+        // cast our Graphics as a Graphics2D, since it has more features and g is actually a Graphics2D anyways.
+        Graphics2D g2D = (Graphics2D) g;
+        
+        if(isLoading) {
+            paintLoading(g2D);
+            return;
+        }
+            
             
         LevelMap curMap = (LevelMap) curLevel;
         
@@ -77,10 +86,7 @@ public class EditorPanel extends GamePanel {
         this.setBackground(new Color(curMap.bgColor));
         
         // clear the panel with the background color.
-        super.paint(g);
-        
-        // cast our Graphics as a Graphics2D, since it has more features and g is actually a Graphics2D anyways.
-        Graphics2D g2D = (Graphics2D) g;
+        super.paint(g2D);
         
         // Save the original transform
         AffineTransform origTrans = g2D.getTransform();
@@ -109,6 +115,12 @@ public class EditorPanel extends GamePanel {
         g2D.drawString("Use the mouse wheel to zoom in and out.", 10,77);
     }
     
+    
+    /** Rendering for loading screen */
+    public void paintLoading(Graphics2D g) {
+        this.setBackground(Color.WHITE);
+        super.paint(g);
+    }
     
     /** Changing levels either starts a new level or opens a level from a file. */
     public Level makeLevelInstance(String levelName) {

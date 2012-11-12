@@ -118,7 +118,6 @@ public class LevelMap extends Level {
                 }
                 
                 // convert the json text into a json object and then construct this map from it.
-                
                 JSONObject json = new JSONObject(jsonStr);
                 JSONObject yarmap = json.getJSONObject("yarmap");
                 loadJSON(yarmap);
@@ -133,6 +132,8 @@ public class LevelMap extends Level {
         game.frame.spriteLibPanel.setLibrary(this.spriteLib);
         
         camera = game.camera;
+        
+        isModified = false;
     }
     
     
