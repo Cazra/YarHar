@@ -3,6 +3,7 @@ package yarhar;
 import javax.swing.*;
 import javax.swing.undo.*;
 import java.awt.event.*;
+import java.io.*;
 import yarhar.dialogs.*;
 import yarhar.map.LevelMap;
 
@@ -101,7 +102,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == openItem)
             System.err.println("File -> openItem fired.");
         if(source == saveItem)
-            System.err.println("File -> saveItem fired.");
+            saveMap();
         if(source == exitItem) {
             System.err.println("File -> exitItem fired.");
             yarhar.close();
@@ -133,6 +134,41 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == gridItem) {
             LevelMap curMap = ((LevelMap) yarhar.editorPanel.curLevel);
             new GridDialog(yarhar, curMap);
+        }
+        
+    }
+    
+    
+    
+    /** Saves the currently opened map to a JSON file selected/created with a "save as" dialog. */
+    public void saveMap() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
+        
+        // TODO : remember the last directory yarhar saved/loaded in.
+        
+        int retVal = chooser.showSaveDialog(this);
+        
+        if(retVal == JFileChooser.APPROVE_OPTION) {
+            File selFile = chooser.getSelectedFile();
+            try {
+                
+                if(!selFile.getName().endsWith(".yarmap")) {
+                    selFile = new File(selFile.getPath() + ".yarmap");
+                }
+                
+                // convert our map to a JSON string
+                LevelMap map = yarhar.editorPanel.getCurMap();
+                String jsonStr = "{\"yarmap\":" + map.toJSON() + "}";
+            
+                // save the map to our selected file.
+                FileWriter fw = new FileWriter(selFile);
+                fw.write(jsonStr);
+                fw.close();
+            }
+            catch(Exception e) {
+                JOptionPane.showMessageDialog(this, "Error writing to file " + selFile.getPath());
+            }
         }
         
     }

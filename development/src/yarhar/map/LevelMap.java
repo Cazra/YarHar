@@ -125,6 +125,35 @@ public class LevelMap extends Level {
         
     }
     
+    
+    /** Produces a JSON string representing this map*/
+    public String toJSON() {
+        String result = "{";
+        result += "\"name\":\"" + name + "\",";
+        result += "\"bgcolor\":" + bgColor + ",";
+        result += "\"spriteLib\":" + spriteLib.toJSON() + ",";
+        result += "\"layers\":[";
+        boolean isFirst = true;
+        for(Layer layer : layers) {
+            if(!isFirst)
+                result += ",";
+            else
+                isFirst = false;
+            
+            result += layer.toJSON();
+        }
+        result += "],";
+        result += "\"desc\":\"" + desc + "\",";
+        result += "\"gridSpaceX\":" + gridSpaceX + ",";
+        result += "\"gridSpaceY\":" + gridSpaceY + ",";
+        result += "\"gridW\":" + gridW + ",";
+        result += "\"gridH\":" + gridH + ",";
+        result += "\"gridColor\":" + gridColor.getRGB();
+        result += "}";
+        return result;
+    }
+    
+    
     public void logic() {
         mouseWorld = getMouseWorld();
         

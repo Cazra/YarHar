@@ -33,6 +33,32 @@ public class Layer {
     }
     
     
+    /** Creates a JSON string respresenting this layer. */
+    public String toJSON() {
+        String result = "{";
+        
+        result += "\"name\":\"" + name + "\",";
+        result += "\"i\":\"" + order + "\",";
+        result += "\"sprites\":[";
+        boolean isFirst = true;
+        for(SpriteInstance sprite : sprites) {
+            if(!isFirst)
+                result += ",";
+            else
+                isFirst = false;
+                
+            result += sprite.toJSON();
+        }
+        result += "],";
+        result += "\"opacity\":" + opacity + ",";
+        result += "\"visible\":" + isVisible;
+        
+        result += "}";
+        return result;
+    }
+    
+    
+    
     /** Rendering a layer causes all the sprites contained inside it to be rendered. */
     public void render(Graphics2D g) {
         if(!isVisible || opacity == 0.0)

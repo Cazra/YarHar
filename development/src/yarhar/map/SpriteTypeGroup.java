@@ -28,6 +28,30 @@ public class SpriteTypeGroup {
         name = n;
     }
     
+    
+    /** Creates a JSON string from this group */
+    public String toJSON() {
+        String result = "{";
+        
+        result += "\"name\":\"" + name + "\",";
+        result += "\"sprites\":[";
+        
+        boolean isFirst = true;
+        for(String name : typeNames) {
+            if(!isFirst)
+                result += ",";
+            else
+                isFirst = false;
+            
+            result += "\"" + name + "\"";
+        }
+        
+        result += "]";
+        result += "}";
+        return result;
+    }
+    
+    
     /** Adds a new SpriteType to this group (or replaces any existing SpriteType with the same name). */
     public void addSpriteType(SpriteType spriteType) {
         if(spriteType == null)

@@ -61,6 +61,24 @@ public class SpriteInstance extends Sprite {
         
         return clone;
     }
+    
+    
+    /** Creates a JSON string representing this sprite. */
+    public String toJSON() {
+        String result = "{";
+        
+        result += "\"type\":\"" + type.name + "\",";
+        result += "\"x\":" + x + ",";
+        result += "\"y\":" + y + ",";
+        result += "\"a\":" + angle + ",";
+        result += "\"o\":" + opacity + ",";
+        result += "\"s\":" + scaleUni + ",";
+        result += "\"sx\":" + scaleX + ",";
+        result += "\"sy\":" + scaleY;
+        
+        result += "}";
+        return result;
+    }
 
     
     public void draw(Graphics2D g) {
@@ -76,6 +94,7 @@ public class SpriteInstance extends Sprite {
     }
     
     
+    /** Returns true if the mouse is over this sprite's bounding box. */
     public boolean isClicked(Point mouseScr) {
         AffineTransform curInv;
         try {

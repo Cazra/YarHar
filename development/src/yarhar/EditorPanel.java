@@ -117,6 +117,12 @@ public class EditorPanel extends GamePanel {
             return null;
     }
     
+    
+    /** Returns a reference to the current map. */
+    public LevelMap getCurMap() {
+        return (LevelMap) curLevel;
+    }
+    
     /** Obtains the mouse's current world coordinates in integer form. */
     public Point getMouseWorld() {
         Point mouseScr = getMousePosition();

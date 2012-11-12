@@ -54,12 +54,49 @@ public class SpriteLibrary {
     }
     
     
+    
+    /** Creates a JSON string representing this library. */
+    public String toJSON() {
+        boolean isFirst = true;
+    
+        String result = "{";
+        
+        result += "\"groups\":["; 
+        for(String name : groupNames) {
+            if(!isFirst)
+                result += ",";
+            else
+                isFirst = false;
+            
+            SpriteTypeGroup group = groups.get(name);
+            result += group.toJSON();
+        }
+        isFirst = true;
+        result += "],";
+        result += "\"sprites\":["; 
+        for(String name : spriteNames) {
+            if(!isFirst)
+                result += ",";
+            else
+                isFirst = false;
+            
+            SpriteType sprite = sprites.get(name);
+            result += sprite.toJSON();
+        }
+        isFirst = true;
+        result += "]";
+        result += "}";
+        
+        return result;
+    }
+    
+    
     /** Creates a new blank group in our library, unless a group with the name already exists. */
     public void addGroup(String name) {
         if(groupNames.contains(name))
             return;
         
-        groups.put(name, new SpriteTypeGroup());
+        groups.put(name, new SpriteTypeGroup(name));
         groupNames.add(name);
         
         this.isModified = true;
@@ -75,6 +112,7 @@ public class SpriteLibrary {
         
         groups.get(groupName).addSpriteType(spriteType);
         sprites.put(spriteType.name, spriteType);
+        spriteNames.add(spriteType.name);
         
         updatePeerComponent();
     }

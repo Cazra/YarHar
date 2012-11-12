@@ -81,6 +81,25 @@ public class SpriteType implements Transferable {
         
     }
     
+    
+    /** Creates a JSON string from this sprite type. */
+    public String toJSON() {
+        String result = "{";
+        
+        result += "\"name\":\"" + name + "\",";
+        result += "\"img\":\"" + imgPath + "\",";
+        result += "\"cx\":" + cropX + ",";
+        result += "\"cy\":" + cropY + ",";
+        result += "\"cw\":" + cropW + ",";
+        result += "\"ch\":" + cropH + ",";
+        result += "\"fx\":" + focalX + ",";
+        result += "\"fy\":" + focalY;
+        
+        result += "}";
+        return result;
+    }
+    
+    
     /** Loads and crops the SpriteType's image. */
     public void loadImage() {
         
