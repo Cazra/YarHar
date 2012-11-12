@@ -75,6 +75,9 @@ public class Layer {
                 SpriteInstance sprite = new SpriteInstance(spriteJ, lib);
                 addSprite(sprite);
             }
+            
+            opacity = layerJ.getDouble("opacity");
+            isVisible = layerJ.getBoolean("visible");
         }
         catch (Exception e) {
             System.err.println("Error reading JSON for layer.");
