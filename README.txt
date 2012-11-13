@@ -34,8 +34,9 @@ any language. This is possible because all maps created with Yarhar are saved as
 Yarhar supports multiple layers, tiled sprites, grouped sprite libraries, and layer opacity. 
 Yarhar is powered by the Pwnee2D Java game engine.
 
-This project is in currently undergoing initial development and is not yet stable. I would not 
-recommend actually using it to create maps for your games until this paragraph is removed.
+This project is still undergoing a lot of development, but it is now in a state where it
+is possible to make maps and save/load them as json. If you don't mind the current 
+incompleteness of this application, then feel free to use it.
 
 I'll eventually get around to expanding this README and creating some example applications. 
 Hang in there until then!
@@ -87,7 +88,8 @@ A: It's a map editor. Pirates use treasure maps. Since you are using this
    So yeah, I really just gave the name "Yarhar" to make a lame pirate joke.
 
 Q: Is it done yet? 
-A: No.
+A: Sort of.. You can make maps and save/load them as json at this point, but there's 
+   still a lot of work that needs to be done.
 
 
 
