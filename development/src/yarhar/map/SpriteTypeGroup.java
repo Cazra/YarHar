@@ -16,10 +16,6 @@ public class SpriteTypeGroup {
     /** The set of group names in this library. */
     public TreeSet<String> typeNames = new TreeSet<String>();
     
-    /** True if this SpriteTypeGroup's swing component peer needs to be updated. */
-    public boolean isModified = false;
-    
-    
     public SpriteTypeGroup() {
         this("Untitled");
     }
@@ -77,8 +73,15 @@ public class SpriteTypeGroup {
             return;
         
         typeNames.add(spriteType.name);
-        
-        isModified = true;
+    }
+    
+    
+    /** Removes a SpriteType from this group. */
+    public void removeSpriteType(SpriteType spriteType) {
+        if(spriteType == null)
+            return;
+    
+        typeNames.remove(spriteType.name);
     }
     
 }

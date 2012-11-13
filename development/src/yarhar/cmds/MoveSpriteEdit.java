@@ -26,6 +26,8 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
             oldPoints.add(new Point((int)sprite.startDragX, (int)sprite.startDragY));
             newPoints.add(new Point((int)sprite.x, (int)sprite.y));
         }
+        
+        map.flagModified();
     }
     
     public void undo() {
@@ -36,6 +38,8 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
             sprite.x = oldPt.x;
             sprite.y = oldPt.y;
         }
+        
+        map.flagModified();
     }
     
     public void redo() {
@@ -46,5 +50,7 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
             sprite.x = newPt.x;
             sprite.y = newPt.y;
         }
+        
+        map.flagModified();
     }
 }

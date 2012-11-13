@@ -136,10 +136,9 @@ class LayerList extends JScrollPane {
     /** Prepends a new layer to our map and selects it. */
     public void addLayer(String name) {
         Layer layer = new Layer(name);
-        map.layers.addFirst(layer);
+        map.addLayerFirst(layer);
         
         updateList();
-        selectLayer(layer);
     }
     
     /** Sets the map's currently selected layer. */

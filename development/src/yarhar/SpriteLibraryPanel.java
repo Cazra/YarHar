@@ -8,10 +8,11 @@ import java.awt.event.*;
 import javax.swing.border.LineBorder;
 import yarhar.map.*;
 import yarhar.dialogs.*;
+import yarhar.cmds.*;
 
 
 /** The panel housing our current Sprite Library. */
-public class SpriteLibraryPanel extends JPanel implements ActionListener {
+public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseListener {
     
     /** A reference back to our YarharMain */
     public YarharMain frame;
@@ -30,6 +31,9 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
     
     /** A reference to our loaded LevelMap's SpriteLibrary. */
     public SpriteLibrary spriteLib = null;
+    
+    /** The right-click popup menu for the sprite list. */
+    public SpriteTypeRClickMenu spriteRMenu;
     
     
     public SpriteLibraryPanel(YarharMain yarhar) {
@@ -52,6 +56,8 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
         spriteList.setCellRenderer(new SpriteTypeRenderer());
         spriteList.setDragEnabled(true);
         spriteList.setTransferHandler(transferHandler);
+        spriteList.addMouseListener(this);
+        spriteRMenu = new SpriteTypeRClickMenu(this);
         
         JScrollPane scrollpane = new JScrollPane(spriteList);
         scrollpane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -73,6 +79,39 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
             NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selGroup);
         }
     }
+    
+    
+    public void mouseClicked(MouseEvent e) {
+        Object source = e.getSource();
+        int btn = e.getButton();
+        
+        if(source == spriteList && btn == MouseEvent.BUTTON3) {
+            spriteList.setSelectedIndex(spriteList.locationToIndex(new Point(e.getX(), e.getY())));
+            Point mousePos = spriteList.getMousePosition();
+            spriteRMenu.show(spriteList, mousePos.x, mousePos.y);
+        }   
+    }
+   
+    public void mouseEntered(MouseEvent e) {
+        // Do nothing
+    }
+   
+    public void mouseExited(MouseEvent e) {
+        // Do nothing
+    }
+   
+    public void mousePressed(MouseEvent e) {
+        
+    }
+   
+    public void mouseReleased(MouseEvent e) {
+        
+    }
+    
+    
+    
+    
+    
     
     /** Sets our spriteLib reference. */
     public void setLibrary(SpriteLibrary spriteLib) {
@@ -120,6 +159,18 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener {
         spriteList.setModel(listModel);
     }
     
+    
+    
+    /** Deletes the currently selected SpriteType from our library. */
+    public void deleteSelectedSpriteType() {
+        String selGroup = (String) groupList.getSelectedItem();
+        SpriteType selType = (SpriteType) spriteList.getSelectedValue();
+        if(selType == null || selGroup == null)
+            return;
+            
+        new DeleteSpriteTypeEdit(spriteLib, selGroup, selType);
+        updateSpriteList(selGroup);
+    }
     
     
     /** The SpriteLibrary's TransferHandler for drag and drop into the editor. */
@@ -187,6 +238,36 @@ class SpriteTypeRenderer extends JLabel implements ListCellRenderer {
     }
 }
 
+
+/** Right-click menu for the sprite type list. */
+class SpriteTypeRClickMenu extends JPopupMenu implements ActionListener {
+    
+    public SpriteLibraryPanel slpanel;
+    public SpriteLibrary library;
+    
+    public JMenuItem editItem = new JMenuItem("Edit");
+    public JMenuItem deleteItem = new JMenuItem("Delete");
+    
+    public SpriteTypeRClickMenu(SpriteLibraryPanel slpanel) {
+        super();
+        this.slpanel = slpanel;
+        
+        this.add(editItem);
+        editItem.addActionListener(this);
+        
+        this.add(deleteItem);
+        deleteItem.addActionListener(this);
+    }    
+    
+    
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
+        
+        if(source == deleteItem) {
+            slpanel.deleteSelectedSpriteType();
+        }
+    }
+}
 
 
 

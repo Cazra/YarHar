@@ -34,6 +34,8 @@ public class EditorPanel extends GamePanel {
         curLevel.clean();
     }
     
+    
+    /** The Game Panel's logic handles camera control and then delegates to the current LevelMap's logic. */
     public void logic() {
         super.logic();
         
@@ -128,7 +130,9 @@ public class EditorPanel extends GamePanel {
             return new LevelMap(this);
         else {
             File file = new File(levelName);
-            return new LevelMap(this, file);
+            LevelMap level = new LevelMap(this, file);
+            level.filePath = levelName;
+            return level;
         }
     }
     

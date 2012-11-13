@@ -18,6 +18,8 @@ public class CloneSpriteEdit extends SimpleUndoableEdit {
         
         layer = map.selectedLayer;
         sprites = new LinkedList<SpriteInstance>(map.selectedSprites);
+        
+        map.flagModified();
     }
     
     public void undo() {
@@ -25,6 +27,8 @@ public class CloneSpriteEdit extends SimpleUndoableEdit {
             layer.removeSprite(sprite);
             sprite.isSelected = false;
         }
+        
+        map.flagModified();
     }
     
     public void redo() {
@@ -32,5 +36,7 @@ public class CloneSpriteEdit extends SimpleUndoableEdit {
             layer.addSprite(sprite);
             sprite.isSelected = false;
         }
+        
+        map.flagModified();
     }
 }

@@ -19,6 +19,9 @@ public class LevelMap extends Level {
     /** Same as the filename for this map (just the name, not the whole path or extension). */
     public String name = "New Map";
     
+    /** Stores the last file path this map was saved/loaded to. */
+    public String filePath = "";
+    
     /** the background color displayed in the YarHar editor for this map. */
     public int bgColor = 0xFFFFFF;
     
@@ -138,13 +141,9 @@ public class LevelMap extends Level {
     
     
     public void clean() {
-        if(isModified) {
-            // TODO : halt and prompt user to save the map
-        }
     }
     
     public void loadData() {
-        
     }
     
     
@@ -200,6 +199,13 @@ public class LevelMap extends Level {
             System.err.println("Error reading JSON.");
         }
     }
+    
+    
+    
+    
+    
+    
+    
     
     
     public void logic() {
@@ -258,7 +264,6 @@ public class LevelMap extends Level {
             
             if(isDrag) {
                 dragSelectedSprites(mouseWorld);
-                isModified = true;
             }
         }
         
@@ -281,6 +286,8 @@ public class LevelMap extends Level {
     
     
     
+    
+    //// Coordinates
     
     /** Obtains the mouse's current world coordinates in integer form. */
     public Point getMouseWorld() {
@@ -307,12 +314,29 @@ public class LevelMap extends Level {
     
     
     
-    /** Adds a layer to this map and causes it to become selected. */
+    ////
+    
+    /** Flags this map as modified and puts an asterisk next to the map's name in the window title */
+    public void flagModified() {
+        isModified = true;
+        
+        EditorPanel editor = (EditorPanel) game;
+        editor.frame.updateTitle(name + "*");
+    }
+    
+    
+    //// Layer operations
+    
+    /** Prepends a layer to this map (making the layer be on the top) and causes it to become selected. */
+    public void addLayerFirst(Layer layer) {
+        layers.addFirst(layer);
+        selectedLayer = layer;
+    }
+    
+    /** Appends a layer to this map (making the layer be on the bottom) and causes it to become selected. */
     public void addLayer(Layer layer) {
         layers.add(layer);
         selectedLayer = layer;
-        
-        isModified = true;
     }
     
     /** Moves a layer to another index */
@@ -322,26 +346,27 @@ public class LevelMap extends Level {
         layers.remove(layer);
         layers.add(destIndex, layer);
         selectedLayer = layer;
-        
-        isModified = true;
     }
     
     
     
-    
+    //// Drop sprites
     
     /** Drops a new sprite into the currently selected layer. */
     public SpriteInstance dropSpriteType(SpriteType spriteType, Point mouseWorld) {
     //    SpriteInstance sprite = selectedLayer.dropSpriteType(spriteType, getSnappedCoords(mouseWorld));
         DropSpriteEdit cmd = new DropSpriteEdit(this, spriteType, getSnappedCoords(mouseWorld));
         SpriteInstance sprite = cmd.sprite;
-        
-        isModified = true;
+
         return sprite;
     }
     
     
     
+    
+    
+    
+    //// Selecting sprites
     
     /** Selects a sprite and adds it to the list of currently selected sprites */
     public void selectSprite(SpriteInstance sprite) {
@@ -377,6 +402,9 @@ public class LevelMap extends Level {
     }
     
     
+    
+    
+    //// Moving sprites
     
     /** Snaps a sprite to the grid*/
     public void snapSprite(SpriteInstance sprite) {
@@ -417,6 +445,7 @@ public class LevelMap extends Level {
 
     
     
+    //// Cloning sprites
     
     /** clones a sprite (not in the same sense as Object.clone(). */
     public SpriteInstance cloneSprite(SpriteInstance sprite) {
@@ -442,7 +471,28 @@ public class LevelMap extends Level {
     }
     
     
+    //// Deleting sprites
     
+    /** Deletes all instances of a SpriteType in this map. Returns tuples of the deleted instances and the layers they were deleted from, for the purpose of undos. */
+    public LinkedList<LayerInstTuple> deleteAllInstances(SpriteType type) {
+        LinkedList<LayerInstTuple> delSprites = new LinkedList<LayerInstTuple>();
+        
+        
+        for(Layer layer : layers) {
+            LinkedList<SpriteInstance> sprites = new LinkedList<SpriteInstance>(layer.sprites);
+            for(SpriteInstance inst : sprites) {
+                if(inst.type == type) {
+                    delSprites.add(new LayerInstTuple(layer, inst));
+                    layer.removeSprite(inst);
+                }
+            }
+        }
+        
+        return delSprites;
+    }
+    
+    
+    //// Rendering
     
     /** Renders the map */
     public void render(Graphics2D g) {

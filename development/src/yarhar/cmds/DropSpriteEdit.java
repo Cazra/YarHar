@@ -22,15 +22,21 @@ public class DropSpriteEdit extends SimpleUndoableEdit {
         this.layer = map.selectedLayer;
         
         sprite = layer.dropSpriteType(spriteType, loc);
+        
+        map.flagModified();
     }
     
     public void undo() {
         layer.removeSprite(sprite);
         sprite.isSelected = false;
+        
+        map.flagModified();
     }
     
     public void redo() {
         layer.addSprite(sprite);
         sprite.isSelected = false;
+        
+        map.flagModified();
     }
 }

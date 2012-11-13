@@ -11,6 +11,7 @@ import pwnee.image.ImageLoader;
 import pwnee.image.ImageEffects;
 import yarhar.*;
 import yarhar.map.*;
+import yarhar.cmds.*;
 
 /** A dialog that allows the user to create a new SpriteType. */
 public class NewSpriteTypeDialog extends JDialog implements ActionListener, ChangeListener {
@@ -204,9 +205,9 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         if(source == okBtn) {
             SpriteType result = curImgLabel.toSpriteType(nameFld.getText(), imgPath);
-            library.addSpriteType(libGroup, result);
+            //library.addSpriteType(libGroup, result);
             
-            
+            new NewSpriteTypeEdit(library, libGroup, result);
             
             this.dispose();
         }

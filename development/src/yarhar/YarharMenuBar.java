@@ -96,13 +96,17 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         
         // File menu
         if(source == newItem) {
-            System.err.println("File -> newItem fired.");
+            // if our map has been modified since its last save, give the user the option to save it before opening a map.
+            if(promptModified() == JOptionPane.CANCEL_OPTION)
+                return;
+                
             yarhar.editorPanel.changeLevel("new");
+            undoManager.discardAllEdits();
         }
         if(source == openItem)
             loadMap();
         if(source == saveItem)
-            saveMap();
+            saveMap(false);
         if(source == exitItem) {
             System.err.println("File -> exitItem fired.");
             yarhar.close();
@@ -141,27 +145,38 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     
     
     /** Saves the currently opened map to a JSON file selected/created with a "save as" dialog. */
-    public void saveMap() {
+    public void saveMap(boolean saveAs) {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
         
-        // TODO : remember the last directory yarhar saved/loaded in.
+        LevelMap map = yarhar.editorPanel.getCurMap();
         
-        int retVal = chooser.showSaveDialog(this);
+        int retVal;
+        File selFile;
         
+        System.err.println(map.filePath);
+        
+        // Prompt the user with a save dialog if this map has not ever been saved or if "Save As" was chosen.
+        if(map.filePath == "" || saveAs) {
+            retVal = chooser.showSaveDialog(this);
+            selFile = chooser.getSelectedFile();
+            if(selFile != null && !selFile.getName().endsWith(".yarmap")) {
+                selFile = new File(selFile.getPath() + ".yarmap");
+            }
+        }
+        else {
+            retVal = JFileChooser.APPROVE_OPTION;
+            selFile = new File(map.filePath);
+        }
+        
+        
+        // Proceed to save the map.
         if(retVal == JFileChooser.APPROVE_OPTION) {
             yarhar.editorPanel.isLoading = true;
-        
-            File selFile = chooser.getSelectedFile();
             try {
-                
-                if(!selFile.getName().endsWith(".yarmap")) {
-                    selFile = new File(selFile.getPath() + ".yarmap");
-                }
-                
                 // convert our map to a JSON string
-                LevelMap map = yarhar.editorPanel.getCurMap();
                 map.name = selFile.getName();
+                map.filePath = selFile.getPath();
                 String jsonStr = "{\"yarmap\":" + map.toJSON() + "}";
             
                 // save the map to our selected file.
@@ -175,8 +190,8 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             }
             
             yarhar.editorPanel.isLoading = false;
+            yarhar.updateTitle(map.name);
         }
-        
     }
     
     
@@ -185,19 +200,12 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         LevelMap map = yarhar.editorPanel.getCurMap();
         
         // if our map has been modified since its last save, give the user the option to save it before opening a map.
-        if(map.isModified) {
-            int retVal = JOptionPane.showConfirmDialog(this,"\"" + map.name + "\" has been modified. Save changes?");
-            if(retVal == JOptionPane.CANCEL_OPTION)
-                return;
-            if(retVal == JOptionPane.YES_OPTION)
-                saveMap();
-        }
+        if(promptModified() == JOptionPane.CANCEL_OPTION)
+            return;
         
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
-        
-        // TODO : remember the last directory yarhar saved/loaded in.
-        
+
         int retVal = chooser.showOpenDialog(this);
         
         // load the file.
@@ -207,11 +215,27 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             yarhar.editorPanel.isLoading = true;
             yarhar.editorPanel.changeLevel(selFile.getPath());
             yarhar.editorPanel.isLoading = false;
-            
-            map = yarhar.editorPanel.getCurMap();
-            map.isModified = false;
         }
         
+        undoManager.discardAllEdits();
+    }
+    
+    
+    /** 
+     * If the map has been modified since it was last saved, the user is asked if they want to save their map. 
+     * Returns JOptionPane.CANCEL_OPTION if Cancel was chosen. else JOptionPane.YES_OPTION 
+     */
+    public int promptModified() {
+        LevelMap map = yarhar.editorPanel.getCurMap();
+        
+        if(map.isModified) {
+            int retVal = JOptionPane.showConfirmDialog(this,"\"" + map.name + "\" has been modified. Save changes?");
+            if(retVal == JOptionPane.CANCEL_OPTION)
+                return JOptionPane.CANCEL_OPTION;
+            if(retVal == JOptionPane.YES_OPTION)
+                saveMap(false);
+        }
+        return JOptionPane.YES_OPTION;
     }
 }
 

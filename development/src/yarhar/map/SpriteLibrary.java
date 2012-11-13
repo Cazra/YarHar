@@ -168,6 +168,19 @@ public class SpriteLibrary {
     }
     
     
+    /** Removes a sprite type from its group and the library. */
+    public void removeSpriteType(String groupName, SpriteType spriteType) {
+        if(!groupNames.contains(groupName))
+            groupName = "default";
+        
+        groups.get(groupName).removeSpriteType(spriteType);
+        sprites.remove(spriteType.name);
+        spriteNames.remove(spriteType.name);
+        
+        updatePeerComponent();
+    }
+    
+    
     /** Checks if this library contains a sprite type. */
     
     /** Renames a SpriteTypeGroup in this library */
