@@ -115,6 +115,7 @@ public class Layer {
     
     /** Adds a sprite to this layer. */
     public void addSprite(SpriteInstance sprite) {
+        sprite.zIndex = sprites.size();
         sprites.add(sprite);
     }
     

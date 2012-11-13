@@ -15,16 +15,16 @@ import pwnee.image.*;
 import pwnee.sprites.*;
 
 
-
+/** Represents an instance of a SpriteType placed in the Yarhar editor area. */
 public class SpriteInstance extends Sprite {
     
     public SpriteType type;
+    public int zIndex = -1;
     public double startDragX = 0;
     public double startDragY = 0;
     
     public boolean isSelected = false;
     
-    public boolean isGhost = false;
     
     public SpriteInstance(double x, double y, SpriteType type) {
         super(x,y);
@@ -37,14 +37,6 @@ public class SpriteInstance extends Sprite {
     
     public SpriteInstance(SpriteType type) {
         this(0,0,type);
-    }
-    
-    public SpriteInstance(double x, double y, SpriteType type, boolean ghost) {
-        this(x,y,type);
-        if(ghost) {
-            isGhost = true;
-            opacity = 0.5;
-        }
     }
     
     public SpriteInstance(JSONObject spriteJ, SpriteLibrary lib) {

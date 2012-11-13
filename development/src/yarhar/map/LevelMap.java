@@ -402,9 +402,25 @@ public class LevelMap extends Level {
         if(selectedSprites.contains(sprite))
             return;
         
-        // TODO : order the selectedSprites by their z-index.
+        System.err.println("selSprite z: " + sprite.zIndex);
         
-        selectedSprites.add(sprite);
+        // order the selectedSprites by their z-index in our selection list.
+        int i;
+        for(i = 0; i < selectedSprites.size(); i++) {
+            SpriteInstance oSprite = selectedSprites.get(i);
+            System.err.println("\toSprite z: " + oSprite.zIndex);
+            if(sprite.zIndex < oSprite.zIndex) {
+                break;
+            }
+            
+        }
+        System.err.println("\tselSprite insert at: " + i);
+
+        selectedSprites.add(i, sprite);
+        
+        System.err.println("\tlist: ");
+        for(int j = 0; j < selectedSprites.size(); j ++)
+            System.err.println("\t\t" + selectedSprites.get(j).zIndex);
     }
     
     /** unselects all sprites in the current layer and empties our list of selected sprites. */
