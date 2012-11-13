@@ -103,8 +103,9 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             yarhar.editorPanel.changeLevel("new");
             undoManager.discardAllEdits();
         }
-        if(source == openItem)
+        if(source == openItem) {
             loadMap();
+        }
         if(source == saveItem)
             saveMap(false);
         if(source == exitItem) {
@@ -140,6 +141,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             new GridDialog(yarhar, curMap);
         }
         
+        yarhar.editorPanel.keyboard.endKeyHolds();
     }
     
     

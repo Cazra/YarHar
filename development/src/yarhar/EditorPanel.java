@@ -40,7 +40,7 @@ public class EditorPanel extends GamePanel {
         super.logic();
         
         // Obtain focus in the panel when it is clicked.
-        if(mouse.justAnyPressed) {
+        if(mouse.isAnyPressed) {
             this.requestFocusInWindow();
         }
         
@@ -50,23 +50,7 @@ public class EditorPanel extends GamePanel {
         // Run the current map's logic.
         curLevel.logic();
         
-        // Pan the camera while the right mouse button is held.
-        if(mouse.isRightPressed) {
-            camera.drag(mouse.position);
-            this.requestFocusInWindow();
-        }
-           
-        // Stop dragging the camera when we release the left or right mouse button.
-        if(mouse.justRightClicked || mouse.justLeftClicked)
-           camera.endDrag();
-            
-        // Zoom in by scrolling the mouse wheel up.
-        if(mouse.wheel < 0)
-           camera.zoomAtScreen(1.25, mouse.position);
-         
-        // Zoom out by scrolling the mouse wheel down.
-        if(mouse.wheel > 0)
-           camera.zoomAtScreen(0.75, mouse.position);
+        
     }
     
     public void paint(Graphics g) {

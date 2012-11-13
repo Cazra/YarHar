@@ -28,7 +28,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         this.add(borderPanel);
         
         toolsPanel = new ToolsPanel(this);
-        borderPanel.add(toolsPanel, BorderLayout.NORTH);
+    //    borderPanel.add(toolsPanel, BorderLayout.NORTH);
         
         spriteLibPanel = new SpriteLibraryPanel(this);
         layersPanel = new LayersPanel(this);

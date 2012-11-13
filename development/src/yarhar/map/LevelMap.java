@@ -212,6 +212,11 @@ public class LevelMap extends Level {
         mouseWorld = getMouseWorld();
         
         
+        
+        
+        
+        // sprite interaction
+        
         // When left click is released, resolve any operations associated with the mouse gesture.
         if(mouse.justLeftClicked) {
             // if we just finished making a selection rectangle, select all the sprites in the selection rectangle.
@@ -269,7 +274,7 @@ public class LevelMap extends Level {
         
         
         // Create a selection rectangle if we drag after clicking in empty space.
-        if(mouse.isLeftPressed && selectedSprite == null) {
+        if(mouse.isLeftPressed && selectedSprite == null && keyboard.isPressed(KeyEvent.VK_SHIFT)) {
             if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
                 isSelRect = true; 
                 
@@ -280,6 +285,27 @@ public class LevelMap extends Level {
         if(keyboard.justPressed(KeyEvent.VK_DELETE) && !selectedSprites.isEmpty()) {
             DeleteSpriteEdit cmd = new DeleteSpriteEdit(this);
         }
+        
+        
+        
+        // general camera controls
+        
+        // Pan the camera while the left mouse button is held (and shift is not held).
+        if(mouse.isLeftPressed && !isSelRect && !isDrag && !isCloning) {
+            camera.drag(mouse.position);
+        }
+           
+        // Stop dragging the camera when we release the left or right mouse button.
+        if(mouse.justLeftClicked)
+           camera.endDrag();
+            
+        // Zoom in by scrolling the mouse wheel up.
+        if(mouse.wheel < 0)
+           camera.zoomAtScreen(1.25, mouse.position);
+         
+        // Zoom out by scrolling the mouse wheel down.
+        if(mouse.wheel > 0)
+           camera.zoomAtScreen(0.75, mouse.position);
         
         
     }
