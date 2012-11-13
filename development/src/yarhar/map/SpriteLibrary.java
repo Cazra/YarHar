@@ -3,6 +3,7 @@ package yarhar.map;
 import yarhar.*;
 import java.awt.*;
 import pwnee.*;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.TreeSet;
 import org.json.*;
@@ -151,7 +152,7 @@ public class SpriteLibrary {
     }
     
     
-    /** Adds a new SpriteType to a group (or replaces any existing SpriteType with the same name). */
+    /** Adds a new SpriteType to a group (or replaces any existing SpriteType with the same name). Returns a list of (layer, instance) tuples for all instances whose type is overwritten by the new type. */
     public void addSpriteType(String groupName, SpriteType spriteType) {
         if(!groupNames.contains(groupName))
             groupName = "default";
@@ -159,6 +160,15 @@ public class SpriteLibrary {
         groups.get(groupName).addSpriteType(spriteType);
         sprites.put(spriteType.name, spriteType);
         spriteNames.add(spriteType.name);
+        
+        // overwrite the type for all instances of the replaced type.
+        for(Layer layer : levelMap.layers) {
+            for(SpriteInstance sprite : layer.sprites) {
+                if(sprite.type.name.equals(spriteType.name)) {
+                    sprite.type = spriteType;
+                }
+            }
+        }
         
         updatePeerComponent();
     }

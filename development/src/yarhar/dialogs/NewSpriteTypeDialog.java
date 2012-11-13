@@ -46,6 +46,8 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     JLabel focalPointLabel = new JLabel("Focal point: 0,0");
     JLabel dimsLabel = new JLabel("Size: 32,32");
     
+    boolean isEdit = false;
+    
     public NewSpriteTypeDialog(YarharMain owner, SpriteLibrary library, String group) {
         super(owner, true);
         constructComponents();
@@ -57,6 +59,42 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         this.libGroup = group;
         System.err.println(library + " " + group);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        show();
+    }
+    
+    
+    public NewSpriteTypeDialog(YarharMain owner, SpriteLibrary library, String group, SpriteType editType) {
+        super(owner, true);
+        constructComponents();
+        this.setSize(new Dimension(500,400));
+        
+        setTitle("New Sprite");
+        
+        this.library = library;
+        this.libGroup = group;
+        System.err.println(library + " " + group);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        nameFld.setText(editType.name);
+        browseFld.setText(editType.imgPath);
+        
+        try {
+            String path = editType.imgPath;
+            curImg = new ImageIcon(path);
+            imgPath = path;
+        }
+        catch (Exception ex) {
+            curImg = loadImageIconFromResource("BadImg.png");
+            imgPath = "";
+        }
+        
+        curImgLabel.setIcon(curImg);
+        curImgLabel.resetCropData();
+        tryCropImage(editType.cropX, editType.cropY, editType.cropW, editType.cropH);
+        imgScrollPane.updateUI();
+        
+        isEdit = true;
         
         show();
     }
@@ -186,7 +224,9 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
     }
     
-    
+    public void tryCropImage(int cx, int cy, int cw, int ch) {   
+        curImgLabel.crop(cx,cy,cw,ch);
+    }
     
     
     
@@ -205,7 +245,14 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         if(source == okBtn) {
             SpriteType result = curImgLabel.toSpriteType(nameFld.getText(), imgPath);
-            //library.addSpriteType(libGroup, result);
+            
+            // If we're about to overwrite a sprite type with the same name, prompt the user if they are sure they want to replace it.
+            if(!isEdit && library.spriteNames.contains(result.name)) {
+                int retVal = JOptionPane.showConfirmDialog(this, "A sprite type with the name \"" + result.name + "\" already exists in this map's sprite library. Are you sure you want to overwrite it?");
+                
+                if(retVal != JOptionPane.YES_OPTION)
+                    return;
+            }
             
             new NewSpriteTypeEdit(library, libGroup, result);
             

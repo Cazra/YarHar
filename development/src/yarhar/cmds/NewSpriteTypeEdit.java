@@ -12,6 +12,7 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
     public SpriteLibrary library;
     public String group;
     public SpriteType type;
+    public SpriteType overwritten;
     
     public NewSpriteTypeEdit(SpriteLibrary library, String group, SpriteType type) {
         super();
@@ -20,6 +21,8 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
         this.type = type;
         this.map = library.levelMap;
         
+        overwritten = library.sprites.get(type.name);
+        
         library.addSpriteType(group, type);
         
         map.flagModified();
@@ -27,6 +30,9 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
     
     public void undo() {
         library.removeSpriteType(group, type);
+        
+        if(overwritten != null)
+            library.addSpriteType(group, overwritten);
         
         map.flagModified();
     }

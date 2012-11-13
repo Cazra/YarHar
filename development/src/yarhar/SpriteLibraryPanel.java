@@ -75,7 +75,6 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
         }
         if(source == newSpriteBtn) {
             String selGroup = (String) groupList.getSelectedItem();
-            System.err.println(spriteLib + " " + selGroup);
             NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selGroup);
         }
     }
@@ -173,6 +172,18 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
     }
     
     
+    /** Edits the currently selected SpriteType. */
+    public void editSelectedSpriteType() {
+        String selGroup = (String) groupList.getSelectedItem();
+        SpriteType selType = (SpriteType) spriteList.getSelectedValue();
+        
+        if(selType == null || selGroup == null)
+            return;
+        
+        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selGroup, selType);
+    }
+    
+    
     /** The SpriteLibrary's TransferHandler for drag and drop into the editor. */
     private TransferHandler transferHandler =  new TransferHandler() {
         
@@ -265,6 +276,9 @@ class SpriteTypeRClickMenu extends JPopupMenu implements ActionListener {
         
         if(source == deleteItem) {
             slpanel.deleteSelectedSpriteType();
+        }
+        if(source == editItem) {
+            slpanel.editSelectedSpriteType();
         }
     }
 }
