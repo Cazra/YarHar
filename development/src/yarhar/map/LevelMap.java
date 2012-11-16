@@ -557,6 +557,14 @@ public class LevelMap extends Level {
         selectedLayer.toFrontSelectedSprites();
     }
     
+    public void fwdOneSelectedSprites() {
+        selectedLayer.fwdOneSelectedSprites();
+    }
+    
+    public void bwdOneSelectedSprites() {
+        selectedLayer.bwdOneSelectedSprites();
+    }
+    
     /** Brings a selection of sprites to the bottom of this layer's z-ordering. */
     public void toBackSelectedSprites() {
         selectedLayer.toBackSelectedSprites();
@@ -648,8 +656,12 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
             toFrontItem.addActionListener(this);
             toFrontItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_QUOTE, ActionEvent.CTRL_MASK));
             
-        //    orderItems.add(fwdOneItem);
-        //    orderItems.add(bwdOneItem);
+            orderItems.add(fwdOneItem);
+            fwdOneItem.addActionListener(this);
+            
+            orderItems.add(bwdOneItem);
+            bwdOneItem.addActionListener(this);
+        
             orderItems.add(toBackItem);
             toBackItem.addActionListener(this);
             toBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK));
@@ -671,6 +683,12 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         if(source == toFrontItem) {
             new ToFrontEdit(map);
+        }
+        if(source == fwdOneItem) {
+            new FwdOneEdit(map);
+        }
+        if(source == bwdOneItem) {
+            new BwdOneEdit(map);
         }
         if(source == toBackItem) {
             new ToBackEdit(map);

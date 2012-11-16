@@ -167,6 +167,49 @@ public class Layer {
         updateZOrdering();
     }
     
+    /** Moves a selection of sprites forward by 1 z index. */
+    public void fwdOneSelectedSprites() {
+        ArrayList<SpriteInstance> result = new ArrayList<SpriteInstance>();
+        ArrayList<SpriteInstance> selSprites = new ArrayList<SpriteInstance>();
+
+        for(SpriteInstance sprite : sprites) {
+            if(sprite.isSelected)
+                selSprites.add(sprite);
+            else {
+                result.add(sprite);
+                result.addAll(selSprites);
+                selSprites = new ArrayList<SpriteInstance>();
+            }
+        }
+        result.addAll(selSprites);
+        
+        sprites = result;
+        updateZOrdering();
+    }
+    
+    /** Moves a selection of sprites backward by 1 z index. */
+    public void bwdOneSelectedSprites() {
+        Collections.reverse(sprites);
+        
+        ArrayList<SpriteInstance> result = new ArrayList<SpriteInstance>();
+        ArrayList<SpriteInstance> selSprites = new ArrayList<SpriteInstance>();
+
+        for(SpriteInstance sprite : sprites) {
+            if(sprite.isSelected)
+                selSprites.add(sprite);
+            else {
+                result.add(sprite);
+                result.addAll(selSprites);
+                selSprites = new ArrayList<SpriteInstance>();
+            }
+        }
+        result.addAll(selSprites);
+        Collections.reverse(result);
+        
+        sprites = result;
+        updateZOrdering();
+    }
+    
     /** Sends a selection of sprites to the bottom of this layer's z-ordering. */
     public void toBackSelectedSprites() {
         ArrayList<SpriteInstance> result = new ArrayList<SpriteInstance>();
