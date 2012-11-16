@@ -2,8 +2,11 @@ package yarhar.map;
 
 import yarhar.*;
 import yarhar.cmds.*;
+import yarhar.dialogs.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import org.json.*;
 import pwnee.*;
@@ -11,6 +14,9 @@ import java.util.LinkedList;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
 
 
 /** The top level object for a map being manipulated with the YarHar UI. */
@@ -92,6 +98,9 @@ public class LevelMap extends Level {
     /** True if sprites are currently being cloned. */
     public boolean isCloning = false;
     
+    /** The sprite right-click menu */
+    public SpriteRClickMenu spriteMenu;
+    
     
     
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
@@ -137,6 +146,8 @@ public class LevelMap extends Level {
         camera = game.camera;
         
         isModified = false;
+        
+        spriteMenu = new SpriteRClickMenu(this);
     }
     
     
@@ -235,7 +246,7 @@ public class LevelMap extends Level {
         }
         
         // Click a sprite.
-        if(mouse.justLeftPressed) {
+        if(mouse.justLeftPressed || mouse.justRightPressed) {
             selectedSprite = selectedLayer.tryClickSprite(mouse.position);
             dragStartX = mouseWorld.x;
             dragStartY = mouseWorld.y;
@@ -284,6 +295,10 @@ public class LevelMap extends Level {
             DeleteSpriteEdit cmd = new DeleteSpriteEdit(this);
         }
         
+        // Right clicking a selection of sprites pops up a menu.
+        if(mouse.justRightPressed && selectedSprite != null) {
+            spriteMenu.show(this.game, mouse.x, mouse.y);
+        }
         
         
         //// general camera controls
@@ -338,7 +353,7 @@ public class LevelMap extends Level {
     
     
     
-    ////
+    //// modify flag
     
     /** Flags this map as modified and puts an asterisk next to the map's name in the window title */
     public void flagModified() {
@@ -581,4 +596,51 @@ public class LevelMap extends Level {
     }
     
 }
+
+
+/** Menu that appears when you right click a sprite selection.*/
+class SpriteRClickMenu extends JPopupMenu implements ActionListener {
+    LevelMap map;
+    
+    JMenuItem editTypeItem = new JMenuItem("Edit type");
+    JMenu orderItems = new JMenu("Order");
+        JMenuItem toFrontItem = new JMenuItem("Send to front");
+        JMenuItem fwdOneItem = new JMenuItem("Forward one");
+        JMenuItem bwdOneItem = new JMenuItem("Backward one");
+        JMenuItem toBackItem = new JMenuItem("Send to back");
+    JMenuItem deleteItem = new JMenuItem("Delete");
+    
+    public SpriteRClickMenu(LevelMap map) {
+        super();
+        this.map = map;
+    
+        add(editTypeItem);
+        editTypeItem.addActionListener(this);
+        
+    //    add(orderItems);
+        orderItems.add(toFrontItem);
+        orderItems.add(fwdOneItem);
+        orderItems.add(bwdOneItem);
+        orderItems.add(toBackItem);
+        
+        add(deleteItem);
+        deleteItem.addActionListener(this);
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
+        
+        if(source == editTypeItem) {
+            EditorPanel editor = (EditorPanel) map.game;
+            NewSpriteTypeDialog cmd = new NewSpriteTypeDialog(editor.frame, map.spriteLib, map.selectedSprite.type);
+        }
+        if(source == deleteItem) {
+            DeleteSpriteEdit cmd = new DeleteSpriteEdit(map);
+        }
+        
+    }
+    
+}
+
+
 

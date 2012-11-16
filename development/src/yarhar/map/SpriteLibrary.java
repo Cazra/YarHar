@@ -173,8 +173,22 @@ public class SpriteLibrary {
         updatePeerComponent();
     }
     
-    public void addSpriteType(SpriteType spriteType) {
-        addSpriteType("default", spriteType);
+    /** Edits a sprite type. This effectively overwrites an existing SpriteType with the same name in this library and in all sprite instances with that type. */
+    public void editSpriteType(SpriteType spriteType) {
+        
+        sprites.put(spriteType.name, spriteType);
+        spriteNames.add(spriteType.name);
+        
+        // overwrite the type for all instances of the replaced type.
+        for(Layer layer : levelMap.layers) {
+            for(SpriteInstance sprite : layer.sprites) {
+                if(sprite.type.name.equals(spriteType.name)) {
+                    sprite.type = spriteType;
+                }
+            }
+        }
+        
+        updatePeerComponent();
     }
     
     

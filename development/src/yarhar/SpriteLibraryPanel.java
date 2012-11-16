@@ -180,7 +180,7 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
         if(selType == null || selGroup == null)
             return;
         
-        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selGroup, selType);
+        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selType);
     }
     
     

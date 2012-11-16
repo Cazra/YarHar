@@ -28,6 +28,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     JMenu viewMenu = new JMenu("View");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
         JMenuItem gridItem = new JMenuItem("Grid Setup");
+        JMenuItem bgColorItem = new JMenuItem("Set Background Color");
         
     JMenu helpMenu = new JMenu("Help");
     
@@ -83,6 +84,10 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             viewMenu.add(gridItem);
             gridItem.addActionListener(this);
             gridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
+            
+            viewMenu.add(bgColorItem);
+            bgColorItem.addActionListener(this);
+            
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -139,6 +144,10 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == gridItem) {
             LevelMap curMap = ((LevelMap) yarhar.editorPanel.curLevel);
             new GridDialog(yarhar, curMap);
+        }
+        if(source == bgColorItem) {
+            LevelMap curMap = ((LevelMap) yarhar.editorPanel.curLevel);
+            new BGColorDialog(yarhar, curMap);
         }
         
         yarhar.editorPanel.keyboard.endKeyHolds();
