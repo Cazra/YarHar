@@ -1,5 +1,6 @@
 package yarhar.cmds;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.awt.Point;
 import yarhar.map.*;
@@ -9,6 +10,7 @@ import yarhar.map.*;
 public class DeleteSpriteEdit extends SimpleUndoableEdit {
     
     public LevelMap map;
+    public LinkedList<SpriteInstance> oldLayerSprites;
     public LinkedList<SpriteInstance> sprites;
     public Layer layer;
     
@@ -19,8 +21,12 @@ public class DeleteSpriteEdit extends SimpleUndoableEdit {
         layer = map.selectedLayer;
         sprites = new LinkedList<SpriteInstance>(map.selectedSprites);
         
+        // save the old ordering of sprites in our layer.
+        oldLayerSprites = new LinkedList<SpriteInstance>(layer.sprites);
+        
         redo();
         
+        // empty our selection.
         map.selectedSprites = new LinkedList<SpriteInstance>();
         map.selectedSprite = null;
         
@@ -28,13 +34,7 @@ public class DeleteSpriteEdit extends SimpleUndoableEdit {
     }
     
     public void undo() {
-        for(SpriteInstance sprite : sprites) {
-            
-            // TODO : insert the sprites at the z-indices they were deleted from.
-            
-            layer.addSprite(sprite);
-            sprite.isSelected = false;
-        }
+        layer.sprites = new ArrayList<SpriteInstance>(oldLayerSprites);
         
         map.flagModified();
     }

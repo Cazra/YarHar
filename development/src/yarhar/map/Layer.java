@@ -1,5 +1,6 @@
 package yarhar.map;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
 import yarhar.*;
@@ -16,7 +17,7 @@ public class Layer {
     public int order = 0;
     
     /** The list of sprites populating this layer. */
-    public LinkedList<SpriteInstance> sprites = new LinkedList<SpriteInstance>();
+    public ArrayList<SpriteInstance> sprites = new ArrayList<SpriteInstance>();
     
     /** The opacity for this layer */
     public double opacity = 1.0;
@@ -121,7 +122,18 @@ public class Layer {
     
     /** Removes a sprite from this layer. Returns true if the sprite was contained in this layer. */
     public boolean removeSprite(SpriteInstance sprite) {
+        boolean result = sprites.remove(sprite);
+        updateZOrdering();
         return sprites.remove(sprite);
+    }
+    
+    
+    /** Updates the zIndex value of all sprites on this layer. */
+    public void updateZOrdering() {
+        for(int i = 0; i < sprites.size(); i++) {
+            SpriteInstance sprite = sprites.get(i);
+            sprite.zIndex = i;
+        }
     }
     
     
@@ -139,7 +151,7 @@ public class Layer {
     
     /** Checks if a sprite in this layer has been clicked, with topmost sprites having priority. If one has, that sprite is returned. Else null is returned. */
     public SpriteInstance tryClickSprite(Point mouseScr) {
-        LinkedList<SpriteInstance> revList = (LinkedList<SpriteInstance>) sprites.clone();
+        LinkedList<SpriteInstance> revList = new LinkedList<SpriteInstance>(sprites);
         Collections.reverse(revList);
         
         for(SpriteInstance sprite : revList) {

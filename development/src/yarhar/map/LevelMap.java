@@ -210,12 +210,8 @@ public class LevelMap extends Level {
     
     public void logic() {
         mouseWorld = getMouseWorld();
-        
-        
-        
-        
-        
-        // sprite interaction
+
+        //// sprite interaction
         
         // When left click is released, resolve any operations associated with the mouse gesture.
         if(mouse.justLeftClicked) {
@@ -245,8 +241,10 @@ public class LevelMap extends Level {
             dragStartY = mouseWorld.y;
             
             // possibly unselect all sprites.
-            if(!keyboard.isPressed(KeyEvent.VK_SHIFT) && !keyboard.isPressed(KeyEvent.VK_CONTROL) && !selectedSprites.contains(selectedSprite))
+            if(!selectedSprites.contains(selectedSprite) && (!keyboard.isPressed(KeyEvent.VK_SHIFT) || keyboard.isPressed(KeyEvent.VK_CONTROL)))
                 unselectAll();
+                
+            
             
             // if a sprite was click, select it!
             if(selectedSprite != null) {
@@ -288,7 +286,7 @@ public class LevelMap extends Level {
         
         
         
-        // general camera controls
+        //// general camera controls
         
         // Pan the camera while the left mouse button is held (and shift is not held).
         if(mouse.isLeftPressed && !isSelRect && !isDrag && !isCloning) {
@@ -401,26 +399,18 @@ public class LevelMap extends Level {
         // prevent duplicates
         if(selectedSprites.contains(sprite))
             return;
-        
-        System.err.println("selSprite z: " + sprite.zIndex);
-        
+
         // order the selectedSprites by their z-index in our selection list.
         int i;
         for(i = 0; i < selectedSprites.size(); i++) {
             SpriteInstance oSprite = selectedSprites.get(i);
-            System.err.println("\toSprite z: " + oSprite.zIndex);
             if(sprite.zIndex < oSprite.zIndex) {
                 break;
             }
             
         }
-        System.err.println("\tselSprite insert at: " + i);
 
         selectedSprites.add(i, sprite);
-        
-        System.err.println("\tlist: ");
-        for(int j = 0; j < selectedSprites.size(); j ++)
-            System.err.println("\t\t" + selectedSprites.get(j).zIndex);
     }
     
     /** unselects all sprites in the current layer and empties our list of selected sprites. */
