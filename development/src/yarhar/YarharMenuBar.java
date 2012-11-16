@@ -4,8 +4,10 @@ import javax.swing.*;
 import javax.swing.undo.*;
 import java.awt.event.*;
 import java.io.*;
+import yarhar.cmds.*;
 import yarhar.dialogs.*;
 import yarhar.map.LevelMap;
+
 
 /** The menu bar for the YarHar application. */
 public class YarharMenuBar extends JMenuBar implements ActionListener {
@@ -21,9 +23,16 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     JMenu editMenu = new JMenu("Edit");
         JMenuItem undoItem = new JMenuItem("Undo");
         JMenuItem redoItem = new JMenuItem("Redo");
+        
         JMenuItem cutItem = new JMenuItem("Cut");
         JMenuItem copyItem = new JMenuItem("Copy");
         JMenuItem pasteItem = new JMenuItem("Paste");
+        
+        JMenu orderMenu = new JMenu("Order");
+            JMenuItem toFrontItem = new JMenuItem("Send to Front");
+            JMenuItem fwdOneItem = new JMenuItem("Forward One");
+            JMenuItem bwdOneItem = new JMenuItem("Backward One");
+            JMenuItem toBackItem = new JMenuItem("Send to Back");
         
     JMenu viewMenu = new JMenu("View");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
@@ -68,12 +77,27 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             redoItem.addActionListener(this);
             redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
             
-            
             editMenu.add(new JSeparator());
+            
             editMenu.add(cutItem);
             cutItem.setEnabled(false);
             editMenu.add(copyItem);
+            copyItem.setEnabled(false);
             editMenu.add(pasteItem);
+            pasteItem.setEnabled(false);
+            
+            editMenu.add(new JSeparator());
+            
+            editMenu.add(orderMenu);
+                orderMenu.add(toFrontItem);
+                toFrontItem.addActionListener(this);
+                toFrontItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_QUOTE, ActionEvent.CTRL_MASK));
+                
+            //    orderMenu.add(fwdOneItem);
+            //    orderMenu.add(bwdOneItem);
+                orderMenu.add(toBackItem);
+                toBackItem.addActionListener(this);
+                toBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK));
         
         this.add(viewMenu);
         viewMenu.setMnemonic(KeyEvent.VK_V);
@@ -96,6 +120,8 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+        
+        LevelMap map = yarhar.editorPanel.getCurMap();
         
         System.err.println("Menu event");
         
@@ -134,6 +160,13 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             catch (Exception ex) {
                 System.err.println("no more redos can be done.");
             }
+        }
+        
+        if(source == toFrontItem) {
+            new ToFrontEdit(map);
+        }
+        if(source == toBackItem) {
+            new ToBackEdit(map);
         }
         
         // View menu

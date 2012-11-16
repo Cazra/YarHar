@@ -143,10 +143,7 @@ class LayerList extends JScrollPane {
     
     /** Sets the map's currently selected layer. */
     public void selectLayer(Layer layer) {
-        if(!map.layers.contains(layer)) {
-            return;
-        }
-        map.selectedLayer = layer;
+        map.selectLayer(layer);
     }
     
     /** Moves a layer to a new index and updates this list. */

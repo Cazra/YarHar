@@ -1,5 +1,6 @@
 package yarhar.map;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -143,6 +144,50 @@ public class Layer {
         addSprite(sprite);
         return sprite;
     }
+    
+    
+    /** Sends a selection of sprites to the top of this layer's z-ordering. */
+    public void toFrontSelectedSprites() {
+        ArrayList<SpriteInstance> result = new ArrayList<SpriteInstance>();
+        ArrayList<SpriteInstance> selSprites = new ArrayList<SpriteInstance>();
+        
+        for(SpriteInstance sprite : sprites) {
+            if(sprite.isSelected)
+                selSprites.add(sprite);
+            else
+                result.add(sprite);
+                
+        }
+        
+        for(SpriteInstance sprite : selSprites) {
+            result.add(sprite);
+        }
+        
+        sprites = result;
+        updateZOrdering();
+    }
+    
+    /** Sends a selection of sprites to the bottom of this layer's z-ordering. */
+    public void toBackSelectedSprites() {
+        ArrayList<SpriteInstance> result = new ArrayList<SpriteInstance>();
+        ArrayList<SpriteInstance> unselSprites = new ArrayList<SpriteInstance>();
+        
+        for(SpriteInstance sprite : sprites) {
+            if(sprite.isSelected)
+                result.add(sprite);
+            else
+                unselSprites.add(sprite);
+                
+        }
+        
+        for(SpriteInstance sprite : unselSprites) {
+            result.add(sprite);
+        }
+        
+        sprites = result;
+        updateZOrdering();
+    }
+    
     
     /** Layers are only equal by address. */
     public boolean equals(Object o) {

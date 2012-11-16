@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
+import javax.swing.KeyStroke;
 
 
 /** The top level object for a map being manipulated with the YarHar UI. */
@@ -380,6 +381,9 @@ public class LevelMap extends Level {
     
     /** Moves a layer to another index */
     public void moveLayer(Layer layer, int destIndex) {
+        if(!layers.contains(layer))
+            return;
+        
         int index = layers.indexOf(layer);
 
         layers.remove(layer);
@@ -387,6 +391,15 @@ public class LevelMap extends Level {
         selectedLayer = layer;
     }
     
+    
+    /** Switches to a different layer and unselects all sprites. */
+    public void selectLayer(Layer layer) {
+        if(!layers.contains(layer))
+            return;
+            
+        selectedLayer = layer;
+        unselectAll();
+    }
     
     
     //// Drop sprites
@@ -538,6 +551,19 @@ public class LevelMap extends Level {
         return delSprites;
     }
     
+    //// Reordering sprites
+    /** Brings a selection of sprites to the top of this layer's z-ordering. */
+    public void toFrontSelectedSprites() {
+        selectedLayer.toFrontSelectedSprites();
+    }
+    
+    /** Brings a selection of sprites to the bottom of this layer's z-ordering. */
+    public void toBackSelectedSprites() {
+        selectedLayer.toBackSelectedSprites();
+    }
+    
+    
+    
     
     //// Rendering
     
@@ -617,11 +643,16 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         add(editTypeItem);
         editTypeItem.addActionListener(this);
         
-    //    add(orderItems);
-        orderItems.add(toFrontItem);
-        orderItems.add(fwdOneItem);
-        orderItems.add(bwdOneItem);
-        orderItems.add(toBackItem);
+        add(orderItems);
+            orderItems.add(toFrontItem);
+            toFrontItem.addActionListener(this);
+            toFrontItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_QUOTE, ActionEvent.CTRL_MASK));
+            
+        //    orderItems.add(fwdOneItem);
+        //    orderItems.add(bwdOneItem);
+            orderItems.add(toBackItem);
+            toBackItem.addActionListener(this);
+            toBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK));
         
         add(deleteItem);
         deleteItem.addActionListener(this);
@@ -632,12 +663,18 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         if(source == editTypeItem) {
             EditorPanel editor = (EditorPanel) map.game;
-            NewSpriteTypeDialog cmd = new NewSpriteTypeDialog(editor.frame, map.spriteLib, map.selectedSprite.type);
+            new NewSpriteTypeDialog(editor.frame, map.spriteLib, map.selectedSprite.type);
         }
         if(source == deleteItem) {
-            DeleteSpriteEdit cmd = new DeleteSpriteEdit(map);
+            new DeleteSpriteEdit(map);
         }
         
+        if(source == toFrontItem) {
+            new ToFrontEdit(map);
+        }
+        if(source == toBackItem) {
+            new ToBackEdit(map);
+        }
     }
     
 }
