@@ -46,6 +46,8 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     JLabel focalPointLabel = new JLabel("Focal point: 0,0");
     JLabel dimsLabel = new JLabel("Size: 32,32");
     
+    ColorField transColorField;
+    
     boolean isEdit = false;
     
     /** Constructor for creating a new SpriteType. */
@@ -68,6 +70,8 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     /** Constructor for editing an existing SpriteType. */
     public NewSpriteTypeDialog(YarharMain owner, SpriteLibrary library, SpriteType editType) {
         super(owner, true);
+        isEdit = true;
+        
         constructComponents();
         this.setSize(new Dimension(500,400));
         
@@ -91,14 +95,20 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         }
         
         curImgLabel.setIcon(curImg);
+        curImgLabel.setTransparentColor(editType.transColor);
+        transColorField.setColor(editType.transColor);
+        
         curImgLabel.resetCropData();
         tryCropImage(editType.cropX, editType.cropY, editType.cropW, editType.cropH);
         imgScrollPane.updateUI();
         
-        isEdit = true;
-        
         show();
     }
+    
+    
+    
+    
+    
     
     /** Constructs the dialog's top JPanel. */
     public void constructComponents() {
@@ -181,6 +191,14 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         result.add(mousePosLabel);
         result.add(focalPointLabel);
         result.add(dimsLabel);
+        
+        if(isEdit)
+            transColorField = new ColorField(curImgLabel.transColor);
+        else
+            transColorField = new ColorField();
+        
+        transColorField.addActionListener(this);
+        result.add(DialogUtils.makeLabelFieldPanel(new JLabel("Transparent color: "), transColorField));
         return result;
     }
     
@@ -297,6 +315,11 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
             }
             
             
+        }
+        if(source == transColorField) {
+            System.err.println("color field");
+            curImgLabel.setTransparentColor(transColorField.color);
+            imgScrollPane.updateUI();
         }
     }
     

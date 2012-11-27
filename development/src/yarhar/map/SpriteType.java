@@ -48,6 +48,8 @@ public class SpriteType implements Transferable {
     public int width = -1;
     public int height = -1;
     
+    public Color transColor = null;
+    
     
     public static DataFlavor flavor = new DataFlavor(SpriteType.class, SpriteType.class.getSimpleName());
     
@@ -67,7 +69,7 @@ public class SpriteType implements Transferable {
     }
     
     /** Creates a SpriteType with the given name, image, and crop data. */
-    public SpriteType(String n, String path, int cx, int cy, int cw, int ch) {
+    public SpriteType(String n, String path, int cx, int cy, int cw, int ch, Color tc) {
         if(cw > 0 && ch > 0)
             isCropped = true;
         cropX = cx;
@@ -75,9 +77,15 @@ public class SpriteType implements Transferable {
         cropW = cw;
         cropH = ch;
         
+        transColor = tc;
+        
         this.name = n;
         this.imgPath = path;
         loadImage();
+    }
+    
+    public SpriteType(String n, String path, int cx, int cy, int cw, int ch) {
+        this(n,path,cx,cy,cw,ch,null);
     }
     
     public SpriteType(JSONObject spriteJ) {
@@ -97,6 +105,8 @@ public class SpriteType implements Transferable {
         result += "\"ch\":" + cropH + ",";
         result += "\"fx\":" + focalX + ",";
         result += "\"fy\":" + focalY;
+        if(transColor != null) 
+            result += ",\"tc\":" + transColor.getRGB();
         
         result += "}";
         return result;
@@ -113,6 +123,9 @@ public class SpriteType implements Transferable {
             cropH = spriteJ.getInt("ch");
             focalX = spriteJ.getInt("fx");
             focalY = spriteJ.getInt("fy");
+            
+            if(spriteJ.has("tc"))
+                transColor = new Color(spriteJ.getInt("tc"));
             
             if(cropW > 0 && cropH > 0)
                 isCropped = true;
@@ -146,12 +159,20 @@ public class SpriteType implements Transferable {
             width = curImg.getWidth(null);
         while(height == -1)
             height = curImg.getHeight(null);
-            
+        
+        // crop if it needs cropping
         if(isCropped) {
             curImg = ImageEffects.crop(curImg, cropX, cropY, cropW, cropH);
             width = cropW;
             height = cropH;
         }
+        
+        // set the transparent color if there is one.
+        if(transColor != null) {
+            curImg = ImageEffects.setTransparentColor(curImg, transColor);
+        }
+        
+        // finish loading the image.
         imgLoader.addImage(curImg);
         imgLoader.waitForAll();
         

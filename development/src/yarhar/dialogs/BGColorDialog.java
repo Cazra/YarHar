@@ -9,12 +9,11 @@ import yarhar.*;
 import yarhar.map.*;
 
 /** A dialog that allows the user to create a new SpriteType. */
-public class BGColorDialog extends JDialog implements ActionListener, MouseListener {
+public class BGColorDialog extends JDialog implements ActionListener {
     
     public LevelMap map;
     
-    public Color bgColor;
-    public JTextField colorFld = new JTextField(7);
+    public ColorField colorFld;
     
     public JButton okBtn = new JButton("OK");
     public JButton cancelBtn = new JButton("Cancel");
@@ -24,7 +23,7 @@ public class BGColorDialog extends JDialog implements ActionListener, MouseListe
         
         this.map = map;
         constructComponents();
-        this.setSize(new Dimension(250,400));
+        this.setSize(new Dimension(250,120));
         
         setTitle("Set Background Color");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -38,10 +37,7 @@ public class BGColorDialog extends JDialog implements ActionListener, MouseListe
     public void constructComponents() {
         JPanel topPanel = DialogUtils.makeVerticalFlowPanel();
         
-        bgColor = new Color(map.bgColor);
-        colorFld.setEditable(false);
-        colorFld.addMouseListener(this);
-        updateColorFld();
+        colorFld = new ColorField(map.bgColor);
         topPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("Background Color: "), colorFld));
         
         JPanel okPanel = new JPanel();
@@ -57,24 +53,11 @@ public class BGColorDialog extends JDialog implements ActionListener, MouseListe
     
     
     
-    /** Updates the color and text of colorFld to reflect bgColor */
-    public void updateColorFld() {
-        colorFld.setText("0x" + Integer.toHexString(bgColor.getRGB() & 0x00FFFFFF).toUpperCase());
-        colorFld.setBackground(bgColor);
-        
-        int brightness = (bgColor.getRed() + bgColor.getBlue() + bgColor.getGreen())/3;
-        if(brightness < 100)
-            colorFld.setForeground(Color.WHITE);
-        else
-            colorFld.setForeground(Color.BLACK);
-    }
-    
-    
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         
         if(source == okBtn) {
-            map.bgColor = bgColor.getRGB();
+            map.bgColor = colorFld.color.getRGB();
             this.dispose();
         }
         if(source == cancelBtn) {
@@ -82,33 +65,5 @@ public class BGColorDialog extends JDialog implements ActionListener, MouseListe
         }
     }
     
-    
-    public void mouseClicked(MouseEvent e) {
-        Object source = e.getSource();
-        
-        if(source == colorFld) {
-            Color color = JColorChooser.showDialog(this, "Choose Background Color", bgColor);
-            if(color != null) {
-                bgColor = color;
-                updateColorFld();
-            }
-        }
-    }
-   
-    public void mouseEntered(MouseEvent e) {
-        // Do nothing
-    }
-   
-    public void mouseExited(MouseEvent e) {
-        // Do nothing
-    }
-   
-    public void mousePressed(MouseEvent e) {
-        // Do nothing
-    }
-   
-    public void mouseReleased(MouseEvent e) {
-        // Do nothing
-    }
 }
 

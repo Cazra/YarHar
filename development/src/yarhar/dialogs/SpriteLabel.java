@@ -39,6 +39,8 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     public int cropW = 0;
     public int cropH = 0;
     
+    public Color transColor = null;
+    
     JLabel mousePosLabel = null;
     JLabel focalPointLabel = null;
     JLabel dimsLabel = null;
@@ -208,6 +210,21 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
         repaint();
     }
     
+    /** Sets the image's transparent color. */
+    public void setTransparentColor(Color color) {
+        ImageIcon curImg = (ImageIcon) getIcon();
+        Image img = curImg.getImage();
+        
+        transColor = color;
+        if(color == null)
+            img = ImageEffects.makeOpaque(img);
+        else
+            img = ImageEffects.setTransparentColor(img, color);
+        
+        setIcon(new ImageIcon(img));
+        repaint();
+    }
+    
     
     public void resetCropData() {
         cropOffX = 0;
@@ -217,7 +234,7 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     
     /** Creates a SpriteType from this */
     public SpriteType toSpriteType(String name, String path) {
-        SpriteType result = new SpriteType(name, path, cropOffX, cropOffY, cropW, cropH);
+        SpriteType result = new SpriteType(name, path, cropOffX, cropOffY, cropW, cropH, transColor);
         result.focalX = focalX;
         result.focalY = focalY;
         return result;
