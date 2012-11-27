@@ -45,6 +45,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     JLabel mousePosLabel = new JLabel("Mouse: 0,0");
     JLabel focalPointLabel = new JLabel("Focal point: 0,0");
     JLabel dimsLabel = new JLabel("Size: 32,32");
+    JLabel colorLabel = new JLabel("Color at mouse: out of bounds");
     
     ColorField transColorField;
     
@@ -182,6 +183,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         curImgLabel.mousePosLabel = mousePosLabel;
         curImgLabel.focalPointLabel = focalPointLabel;
         curImgLabel.dimsLabel = dimsLabel;
+        curImgLabel.colorLabel = colorLabel;
     }
     
     /** Creates a JPanel to house the shiny buttons for the previewPanel. */
@@ -189,8 +191,10 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         JPanel result = DialogUtils.makeVerticalFlowPanel();
         result.add(makeZoomSliderPanel());
         result.add(mousePosLabel);
+        result.add(colorLabel);
         result.add(focalPointLabel);
         result.add(dimsLabel);
+        
         
         if(isEdit)
             transColorField = new ColorField(curImgLabel.transColor);
@@ -317,7 +321,6 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
             
         }
         if(source == transColorField) {
-            System.err.println("color field");
             curImgLabel.setTransparentColor(transColorField.color);
             imgScrollPane.updateUI();
         }

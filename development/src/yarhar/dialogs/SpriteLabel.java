@@ -3,6 +3,7 @@ package yarhar.dialogs;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import javax.swing.border.LineBorder;
@@ -44,6 +45,7 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     JLabel mousePosLabel = null;
     JLabel focalPointLabel = null;
     JLabel dimsLabel = null;
+    JLabel colorLabel = null;
     
     public SpriteLabel(Icon image) {
         super(image);
@@ -114,12 +116,14 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     
     public void mouseMoved(MouseEvent e) {
         updateMouseLabel(e);
+        updateColorLabel(e);
     }
     
     public void mouseDragged(MouseEvent e) {
         int button = e.getButton();
         
         updateMouseLabel(e);
+        updateColorLabel(e);
         Point mouseWorld = mouseImgPos(e);
         
         // Left drag to place focus point
@@ -176,6 +180,29 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
         }
     }
     
+    public void updateColorLabel(MouseEvent e) {
+        if(colorLabel != null) {
+            try {
+                Point mouseWorld = mouseImgPos(e);
+                
+                Icon icon = getIcon();
+                BufferedImage img = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics g = img.createGraphics();
+                icon.paintIcon(null, g, 0,0);
+                g.dispose();
+                
+                int[] pixel = img.getRaster().getPixel(mouseWorld.x, mouseWorld.y, new int[4]);
+                int color = (pixel[0] << 16) + (pixel[1] << 8) + pixel[2];
+                
+                colorLabel.setText("Color at mouse: 0x" + Integer.toHexString(color & 0x00FFFFFF).toUpperCase());
+            }
+            catch(Exception ex) { // Pokemon exception: gotta catch 'em all!
+                // An exception will be thrown if the mouse is outside the image's area.
+                colorLabel.setText("Color at mouse: out of bounds");
+            }
+        }
+    }
+    
     /** Updates the label for displaying the focus point. */
     public void updateFocusLabel() {
         if(focalPointLabel != null) {
@@ -216,9 +243,8 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
         Image img = curImg.getImage();
         
         transColor = color;
-        if(color == null)
-            img = ImageEffects.makeOpaque(img);
-        else
+        img = ImageEffects.makeOpaque(img);
+        if(color != null)
             img = ImageEffects.setTransparentColor(img, color);
         
         setIcon(new ImageIcon(img));
