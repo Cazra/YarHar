@@ -168,7 +168,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         
         LevelMap map = yarhar.editorPanel.getCurMap();
         
-        System.err.println("Menu event");
+        // System.err.println("Menu event");
         
         // File menu
         if(source == newItem) {
@@ -194,16 +194,16 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             try {
                 undoManager.undo();
             }
-            catch (Exception ex) {
-                System.err.println("no more undos can be done.");
+            catch (Exception ex) { // Pokemon exception: Gotta catch 'em all!
+            //    System.err.println("no more undos can be done.");
             }
         }
         if(source == redoItem) {
             try {
                 undoManager.redo();
             }
-            catch (Exception ex) {
-                System.err.println("no more redos can be done.");
+            catch (Exception ex) { // Pokemon exception: Gotta catch 'em all!
+            //    System.err.println("no more redos can be done.");
             }
         }
         
@@ -284,7 +284,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
                 fw.close();
                 map.isModified = false;
             }
-            catch(Exception e) {
+            catch(Exception e) { // Pokemon exception: Gotta catch 'em all!
                 JOptionPane.showMessageDialog(this, "Error writing to file " + selFile.getPath());
             }
             

@@ -304,6 +304,23 @@ public class LevelMap extends Level implements ClipboardOwner {
         }
         
         
+        // Pressing the arrow keys will nudge the current sprite selection 1 pixel at a time.
+        if(selectedSprites.size() > 0) {
+            if(keyboard.justPressedRep(KeyEvent.VK_LEFT)) {
+                nudgeSelectedSprites(-1,0);
+            }
+            if(keyboard.justPressedRep(KeyEvent.VK_RIGHT)) {
+                nudgeSelectedSprites(1,0);
+            }
+            if(keyboard.justPressedRep(KeyEvent.VK_UP)) {
+                nudgeSelectedSprites(0,-1);
+            }
+            if(keyboard.justPressedRep(KeyEvent.VK_DOWN)) {
+                nudgeSelectedSprites(0,1);
+            }
+        }
+        
+        
         //// general camera controls
         
         // Pan the camera while the left mouse button is held (and shift is not held).
@@ -505,7 +522,17 @@ public class LevelMap extends Level implements ClipboardOwner {
         }
     }
     
-
+    
+    /** Moves all currently selected sprites by some defined amount. */
+    public void nudgeSelectedSprites(int x, int y) {
+        for(SpriteInstance sprite : selectedSprites) {
+            sprite.startDragX = sprite.x;
+            sprite.startDragY = sprite.y;
+            sprite.x += x;
+            sprite.y += y;
+        }
+        new MoveSpriteEdit(this);
+    }
     
     
     //// Cloning sprites
