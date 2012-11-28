@@ -3,6 +3,7 @@ package yarhar;
 import javax.swing.*;
 import javax.swing.undo.*;
 import java.awt.event.*;
+import javax.swing.event.MenuKeyEvent;
 import java.io.*;
 import yarhar.cmds.*;
 import yarhar.dialogs.*;
@@ -14,13 +15,20 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     
     YarharMain yarhar;
     
+    public static UndoManager undoManager = new UndoManager();
+    
     JMenu fileMenu = new JMenu("File");
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
         JMenuItem exitItem = new JMenuItem("Exit");
     
-    JMenu editMenu = new JMenu("Edit");
+    JMenu editMenu = new JMenu("Edit") {
+        public void setSelected(boolean b) {
+            updateEnabledItems(b);   
+            super.setSelected(b);
+        }
+    };
         JMenuItem undoItem = new JMenuItem("Undo");
         JMenuItem redoItem = new JMenuItem("Redo");
         
@@ -33,7 +41,9 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             JMenuItem fwdOneItem = new JMenuItem("Forward One");
             JMenuItem bwdOneItem = new JMenuItem("Backward One");
             JMenuItem toBackItem = new JMenuItem("Send to Back");
+    
         
+
     JMenu viewMenu = new JMenu("View");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
         JMenuItem gridItem = new JMenuItem("Grid Setup");
@@ -41,7 +51,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         
     JMenu helpMenu = new JMenu("Help");
     
-    public static UndoManager undoManager = new UndoManager();
+    
     
     public YarharMenuBar(YarharMain yarhar) {
         super();
@@ -80,11 +90,16 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             editMenu.add(new JSeparator());
             
             editMenu.add(cutItem);
-            cutItem.setEnabled(false);
+            cutItem.addActionListener(this);
+            cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+            
             editMenu.add(copyItem);
-            copyItem.setEnabled(false);
+            copyItem.addActionListener(this);
+            copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK));
+            
             editMenu.add(pasteItem);
-            pasteItem.setEnabled(false);
+            pasteItem.addActionListener(this);
+            pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
             
             editMenu.add(new JSeparator());
             
@@ -116,6 +131,36 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
     }
+    
+    
+    /** Updates the enabled state of the menu items. Because a JMenuItem's enabled state messes with its accelerator, 
+    we enable these items when they are no longer visible and let our ActionEvent handler decide whether they should
+    work or not. */
+    public void updateEnabledItems(boolean b) {
+        if(b) {
+            LevelMap map = yarhar.editorPanel.getCurMap();
+            
+            undoItem.setEnabled(undoManager.canUndo());
+            redoItem.setEnabled(undoManager.canRedo());
+            
+            boolean copyEnabled = map.copyEnabled();
+            cutItem.setEnabled(copyEnabled);
+            
+            copyItem.setEnabled(copyEnabled);
+            
+            boolean pasteEnabled = map.pasteEnabled();
+            pasteItem.setEnabled(pasteEnabled);
+        }
+        else {
+            undoItem.setEnabled(true);
+            redoItem.setEnabled(true);
+            
+            cutItem.setEnabled(true);
+            copyItem.setEnabled(true);
+            pasteItem.setEnabled(true);
+        }
+    }
+    
     
     
     public void actionPerformed(ActionEvent e) {
@@ -160,6 +205,16 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             catch (Exception ex) {
                 System.err.println("no more redos can be done.");
             }
+        }
+        
+        if(source == cutItem && map.copyEnabled()) {
+            map.cut();
+        }
+        if(source == copyItem && map.copyEnabled()) {
+            map.copy();
+        }
+        if(source == pasteItem && map.pasteEnabled()) {
+            map.paste();
         }
         
         if(source == toFrontItem) {

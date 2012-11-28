@@ -88,10 +88,23 @@ A: It's a map editor. Pirates use treasure maps. Since you are using this
    So yeah, I really just gave the name "Yarhar" to make a lame pirate joke.
 
 Q: Is it done yet? 
-A: Sort of.. You can make maps and save/load them as json at this point, but there's 
-   still a lot of work that needs to be done.
+A: Yes, but there's a bunch of features I'm still working on for it. Feel free to go ahead and
+   make maps with it though!
 
-
+Q: How do I read my map's json?
+A: I should probably write up a json specification for this. I'll let you know when that's done. 
+   
+   For now, know that a map's json includes its sprite library and its layer list at the top.
+   
+   The sprite library has a list of sprite types which are used to reference the types of sprites 
+   used in your level. All the sprite types for a map are uniquely identified by name.
+   
+   Each of the layers have their own lists of sprite instances. 
+   
+   So, to recreate your map for a level inside your game's code, just iterate through the 
+   layers and iterate through each layer's sprite instance list to create the actual layers and 
+   sprites for your level. 
+   
 
 
 

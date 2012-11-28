@@ -4,6 +4,7 @@ import yarhar.*;
 import yarhar.cmds.*;
 import yarhar.dialogs.*;
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,12 +17,13 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 import javax.swing.JMenu;
 import javax.swing.KeyStroke;
 
 
 /** The top level object for a map being manipulated with the YarHar UI. */
-public class LevelMap extends Level {
+public class LevelMap extends Level implements ClipboardOwner {
     
     /** Same as the filename for this map (just the name, not the whole path or extension). */
     public String name = "New Map";
@@ -293,11 +295,11 @@ public class LevelMap extends Level {
         
         // Press Delete to delete the currently selected sprites.
         if(keyboard.justPressed(KeyEvent.VK_DELETE) && !selectedSprites.isEmpty()) {
-            DeleteSpriteEdit cmd = new DeleteSpriteEdit(this);
+            new DeleteSpriteEdit(this);
         }
         
         // Right clicking a selection of sprites pops up a menu.
-        if(mouse.justRightPressed && selectedSprite != null) {
+        if(mouse.justRightPressed) {
             spriteMenu.show(this.game, mouse.x, mouse.y);
         }
         
@@ -445,6 +447,7 @@ public class LevelMap extends Level {
     public void unselectAll() {
         selectedSprites = new LinkedList<SpriteInstance>();
         selectedLayer.selectAll(false);
+        //selectedSprite = null;
     }
     
     /** Selects all sprites in the selection rectangle. */
@@ -573,6 +576,67 @@ public class LevelMap extends Level {
     
     
     
+    //// Copy-Pasta
+    
+    /** Cuts the current sprite selection to the System clipboard. */
+    public void cut() {
+        copy();
+        new DeleteSpriteEdit(this);
+    }
+    
+    /** Copies the current sprite selection to the System clipboard. */
+    public void copy() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        
+        CopiedSprites copied = new CopiedSprites(selectedSprites);
+        clipboard.setContents(copied, this);
+    }
+    
+    /** Pastes the selection of sprites currently residing on the System clipboard. */
+    public void paste() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        try {
+            if(clipboard.isDataFlavorAvailable(CopiedSprites.flavor)) {
+                CopiedSprites contents = (CopiedSprites) clipboard.getData(CopiedSprites.flavor);
+                
+                // empty our selection
+                unselectAll();
+                
+                // insert the sprites on the clipboard into this layer and select them.
+                LinkedList<SpriteInstance> sprites = contents.getSprites(spriteLib);
+                for(SpriteInstance sprite : sprites) {
+                    selectedLayer.addSprite(sprite);
+                    selectSprite(sprite);
+                }
+                
+                // Create the undo/redo for this paste.
+                new CloneSpriteEdit(this);
+            }
+        }
+        catch(Exception e) {
+            // Pokemon exception: gotta catch 'em all!
+        }
+    }
+    
+    
+    public boolean copyEnabled() {
+        return (selectedSprites.size() > 0);
+    }
+    
+    
+    public boolean pasteEnabled() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        return clipboard.isDataFlavorAvailable(CopiedSprites.flavor);
+    }
+    
+    
+    // required for ClipboardOwner interface.
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        // do nothing.
+    }
+    
+    
+    
     //// Rendering
     
     /** Renders the map */
@@ -637,6 +701,9 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
     LevelMap map;
     
     JMenuItem editTypeItem = new JMenuItem("Edit type");
+    JMenuItem cutItem = new JMenuItem("Cut");
+    JMenuItem copyItem = new JMenuItem("Copy");
+    JMenuItem pasteItem = new JMenuItem("Paste");
     JMenu orderItems = new JMenu("Order");
         JMenuItem toFrontItem = new JMenuItem("Send to front");
         JMenuItem fwdOneItem = new JMenuItem("Forward one");
@@ -650,6 +717,25 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
     
         add(editTypeItem);
         editTypeItem.addActionListener(this);
+        
+        add(new JSeparator());
+        
+        add(cutItem);
+        cutItem.addActionListener(this);
+        cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+        //cutItem.setEnabled(false);
+        
+        add(copyItem);
+        copyItem.addActionListener(this);
+        copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK));
+        //copyItem.setEnabled(false);
+        
+        add(pasteItem);
+        pasteItem.addActionListener(this);
+        pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
+        //pasteItem.setEnabled(false);
+        
+        add(new JSeparator());
         
         add(orderItems);
             orderItems.add(toFrontItem);
@@ -666,6 +752,8 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
             toBackItem.addActionListener(this);
             toBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK));
         
+        add(new JSeparator());
+        
         add(deleteItem);
         deleteItem.addActionListener(this);
     }
@@ -677,8 +765,15 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
             EditorPanel editor = (EditorPanel) map.game;
             new NewSpriteTypeDialog(editor.frame, map.spriteLib, map.selectedSprite.type);
         }
-        if(source == deleteItem) {
-            new DeleteSpriteEdit(map);
+        
+        if(source == cutItem) {
+            map.cut();
+        }
+        if(source == copyItem) {
+            map.copy();
+        }
+        if(source == pasteItem) {
+            map.paste();
         }
         
         if(source == toFrontItem) {
@@ -693,8 +788,25 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         if(source == toBackItem) {
             new ToBackEdit(map);
         }
+        
+        if(source == deleteItem) {
+            new DeleteSpriteEdit(map);
+        }
     }
     
+    
+    /** Updates the enabled state of copy-pasta buttons, then displays the menu. */
+    public void show(Component origin, int x, int y) {
+        boolean copyEnabled = (map.copyEnabled() && map.selectedSprite != null);
+        cutItem.setEnabled(copyEnabled);
+        
+        copyItem.setEnabled(copyEnabled);
+        
+        boolean pasteEnabled = map.pasteEnabled();
+        pasteItem.setEnabled(pasteEnabled);
+        
+        super.show(origin, x, y);
+    }
 }
 
 

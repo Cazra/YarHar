@@ -2,6 +2,7 @@ package yarhar.map;
 
 import yarhar.*;
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -15,8 +16,8 @@ import pwnee.image.*;
 import pwnee.sprites.*;
 
 
-/** Represents an instance of a SpriteType placed in the Yarhar editor area. */
-public class SpriteInstance extends Sprite {
+/** Represents an instance of a SpriteType that resides in a layer in the editor area. */
+public class SpriteInstance extends Sprite implements Transferable {
     
     public SpriteType type;
     public int zIndex = -1;
@@ -25,6 +26,7 @@ public class SpriteInstance extends Sprite {
     
     public boolean isSelected = false;
     
+    public static DataFlavor flavor = new DataFlavor(SpriteInstance.class, SpriteInstance.class.getSimpleName());
     
     public SpriteInstance(double x, double y, SpriteType type) {
         super(x,y);
@@ -131,4 +133,25 @@ public class SpriteInstance extends Sprite {
         
         return (mx >= 0 && my >= 0 && mx < width && my < height);
     }
+    
+    
+    
+    /** Used for copypasta */
+    public Object getTransferData(DataFlavor flavor) {
+        if(flavor.equals(SpriteInstance.flavor))
+            return this;
+        else
+            return null;
+    }
+    
+    /** Used for copypasta */
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[] {SpriteInstance.flavor};
+    }
+    
+    /** Used for copypasta */
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+        return flavor.equals(SpriteInstance.flavor);
+    }
+    
 }

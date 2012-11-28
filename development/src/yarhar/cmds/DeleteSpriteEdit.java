@@ -27,7 +27,7 @@ public class DeleteSpriteEdit extends SimpleUndoableEdit {
         redo();
         
         // empty our selection.
-        map.selectedSprites = new LinkedList<SpriteInstance>();
+        map.unselectAll();
         map.selectedSprite = null;
         
         map.flagModified();
@@ -35,6 +35,8 @@ public class DeleteSpriteEdit extends SimpleUndoableEdit {
     
     public void undo() {
         layer.sprites = new ArrayList<SpriteInstance>(oldLayerSprites);
+        map.unselectAll();
+        map.selectedSprite = null;
         
         map.flagModified();
     }
@@ -44,6 +46,8 @@ public class DeleteSpriteEdit extends SimpleUndoableEdit {
             layer.removeSprite(sprite);
             sprite.isSelected = false;
         }
+        map.unselectAll();
+        map.selectedSprite = null;
         
         map.flagModified();
     }
