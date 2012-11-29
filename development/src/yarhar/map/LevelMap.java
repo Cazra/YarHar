@@ -572,32 +572,45 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     /** scales the selected sprites relative to their current scale values. */
     public void scaleSelectedSprites(double uni, double x, double y) {
-        // compute the center of mass.
-        double cx = 0;
-        double cy = 0;
-        for(SpriteInstance sprite : selectedSprites) {
-            cx += sprite.x/selectedSprites.size();
-            cy += sprite.y/selectedSprites.size();
+        try {
+            // compute the center of mass.
+            double cx = 0;
+            double cy = 0;
+            for(SpriteInstance sprite : selectedSprites) {
+                cx += sprite.x/selectedSprites.size();
+                cy += sprite.y/selectedSprites.size();
+            }
+            
+            
+            // rotate the sprites
+            for(int i = 0; i < selectedSprites.size(); i++) {
+                SpriteInstance sprite = selectedSprites.get(i);
+                
+                // scale and move the sprites about their center of mass.
+                double dx = sprite.x - cx;
+                double dy = sprite.y - cy;
+                AffineTransform rot = AffineTransform.getRotateInstance(GameMath.d2r(0-sprite.angle));
+                AffineTransform rotInv = rot.createInverse();
+                AffineTransform scale = AffineTransform.getScaleInstance(uni*x,uni*y);
+                
+                AffineTransform catTrans = new AffineTransform();
+                catTrans.concatenate(rot);
+                catTrans.concatenate(scale);
+                catTrans.concatenate(rotInv);
+                
+                Point2D scalePt = catTrans.transform(new Point2D.Double(dx,dy), null);
+                
+                sprite.x = cx + scalePt.getX();
+                sprite.y = cy + scalePt.getY();
+                
+                sprite.scaleUni *= uni;
+                sprite.scaleX *= x;
+                sprite.scaleY *= y;
+                sprite.transformChanged = true;
+            }
         }
-        
-        
-        // rotate the sprites
-        for(int i = 0; i < selectedSprites.size(); i++) {
-            SpriteInstance sprite = selectedSprites.get(i);
+        catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
             
-            // scale and move the sprites about their center of mass.
-            double dx = sprite.x - cx;
-            double dy = sprite.y - cy;
-            AffineTransform scale = AffineTransform.getScaleInstance(uni*x,uni*y);
-            Point2D scalePt = scale.transform(new Point2D.Double(dx,dy), null);
-            
-            sprite.x = cx + scalePt.getX();
-            sprite.y = cy + scalePt.getY();
-            
-            sprite.scaleUni *= uni;
-            sprite.scaleX *= x;
-            sprite.scaleY *= y;
-            sprite.transformChanged = true;
         }
     }
     
