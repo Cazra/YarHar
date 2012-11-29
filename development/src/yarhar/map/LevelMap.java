@@ -601,6 +601,14 @@ public class LevelMap extends Level implements ClipboardOwner {
         }
     }
     
+    /** Scales the currently selected sprite to absolute values. */
+    public void scaleSpriteAbs(double uni, double x, double y) {
+        selectedSprite.scaleUni = uni;
+        selectedSprite.scaleX = x;
+        selectedSprite.scaleY = y;
+        selectedSprite.transformChanged = true;
+    }
+    
     //// Cloning sprites
     
     /** clones a sprite (not in the same sense as Object.clone(). */
@@ -900,7 +908,14 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
                 
         }
         if(source == scaleItem) {
+            SpriteInstance selSprite = null;
+            if(map.selectedSprites.size() == 1)
+                selSprite = map.selectedSprite;
             
+            ScaleDialog dialog = new ScaleDialog(editor.frame, selSprite);
+            if(dialog.returnedOK) {
+                new ScaleSpriteEdit(map, dialog.scaleUni, dialog.scaleX, dialog.scaleY, dialog.isRelative);
+            }
         }
         
         if(source == deleteItem) {

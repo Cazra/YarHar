@@ -9,29 +9,36 @@ import yarhar.*;
 import yarhar.map.*;
 
 /** A dialog that allows the user to create a new SpriteType. */
-public class RotateDialog extends JDialog implements ActionListener {
+public class ScaleDialog extends JDialog implements ActionListener {
     
     public ButtonGroup rotateType = new ButtonGroup();
         public JRadioButton relativeRad = new JRadioButton("Relative",true);
         public JRadioButton absoluteRad = new JRadioButton("Absolute",false);
     
-    public JTextField angleFld = new JTextField(8);
+    public JTextField uniFld = new JTextField("1.0", 8);
+    public JTextField xFld = new JTextField("1.0", 8);
+    public JTextField yFld = new JTextField("1.0", 8);
     
     public JButton okBtn = new JButton("OK");
     public JButton cancelBtn = new JButton("Cancel");
     
     public boolean returnedOK = false;
-    public double angle = 0;
+    public double scaleUni = 1.0;
+    public double scaleX = 1.0;
+    public double scaleY = 1.0;
     public boolean isRelative = true;
     
-    public RotateDialog(YarharMain owner, boolean multiRotate) {
+    public SpriteInstance singleSprite;
+    
+    public ScaleDialog(YarharMain owner, SpriteInstance singleSprite) {
         super(owner, true);
         
-        if(multiRotate)
+        this.singleSprite = singleSprite;
+        if(singleSprite == null)
             absoluteRad.setEnabled(false);
         
         constructComponents();
-        this.setSize(new Dimension(250,150));
+        this.setSize(new Dimension(250,250));
         
         setTitle("Rotate Sprite(s)");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -56,7 +63,9 @@ public class RotateDialog extends JDialog implements ActionListener {
         absoluteRad.addActionListener(this);
         topPanel.add(radioPanel);
         
-        topPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("Angle (degrees): "), angleFld));
+        topPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("Uniform scale: "), uniFld));
+        topPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("X scale: "), xFld));
+        topPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("Y scale: "), yFld));
         
         JPanel okPanel = new JPanel();
         okPanel.add(okBtn);
@@ -71,7 +80,9 @@ public class RotateDialog extends JDialog implements ActionListener {
     
     public boolean validateInput() {
         try {
-            angle = (new Double(angleFld.getText())).doubleValue();
+            scaleUni = (new Double(uniFld.getText())).doubleValue();
+            scaleX = (new Double(xFld.getText())).doubleValue();
+            scaleY = (new Double(yFld.getText())).doubleValue();
             return true;
         }
         catch (Exception e) {
@@ -96,8 +107,12 @@ public class RotateDialog extends JDialog implements ActionListener {
         }
         if(source == relativeRad)
             isRelative = true;
-        if(source == absoluteRad)
+        if(source == absoluteRad) {
             isRelative = false;
+            uniFld.setText("" + singleSprite.scaleUni);
+            xFld.setText("" + singleSprite.scaleX);
+            yFld.setText("" + singleSprite.scaleY);
+        }
     }
     
     

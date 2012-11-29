@@ -1,7 +1,7 @@
 package yarhar.cmds;
 
 import java.util.ArrayList;
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import yarhar.map.*;
 
 
@@ -10,8 +10,8 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
     
     public LevelMap map;
     public ArrayList<SpriteInstance> sprites;
-    public ArrayList<Point> oldPoints;
-    public ArrayList<Point> newPoints;
+    public ArrayList<Point2D.Double> oldPoints;
+    public ArrayList<Point2D.Double> newPoints;
     
     public MoveSpriteEdit(LevelMap map) {
         super();
@@ -23,8 +23,8 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
         
         for(int i = 0; i < sprites.size(); i++) {
             SpriteInstance sprite = sprites.get(i);
-            oldPoints.add(new Point((int)sprite.startDragX, (int)sprite.startDragY));
-            newPoints.add(new Point((int)sprite.x, (int)sprite.y));
+            oldPoints.add(new Point2D.Double(sprite.startDragX, sprite.startDragY));
+            newPoints.add(new Point2D.Double(sprite.x, sprite.y));
         }
         
         map.flagModified();
@@ -33,10 +33,10 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
     public void undo() {
         for(int i = 0; i < sprites.size(); i ++) {
             SpriteInstance sprite = sprites.get(i);
-            Point oldPt = oldPoints.get(i);
+            Point2D oldPt = oldPoints.get(i);
             
-            sprite.x = oldPt.x;
-            sprite.y = oldPt.y;
+            sprite.x = oldPt.getX();
+            sprite.y = oldPt.getY();
         }
         
         map.flagModified();
@@ -45,10 +45,10 @@ public class MoveSpriteEdit extends SimpleUndoableEdit {
     public void redo() {
         for(int i = 0; i < sprites.size(); i ++) {
             SpriteInstance sprite = sprites.get(i);
-            Point newPt = newPoints.get(i);
+            Point2D newPt = newPoints.get(i);
             
-            sprite.x = newPt.x;
-            sprite.y = newPt.y;
+            sprite.x = newPt.getX();
+            sprite.y = newPt.getY();
         }
         
         map.flagModified();
