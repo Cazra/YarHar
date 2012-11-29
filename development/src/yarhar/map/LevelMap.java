@@ -825,6 +825,7 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         JMenuItem toBackItem = new JMenuItem("Send to back");
     JMenuItem rotateItem = new JMenuItem("Rotate");
     JMenuItem scaleItem = new JMenuItem("Scale");
+    JMenuItem opacityItem = new JMenuItem("Set opacity");
     JMenuItem deleteItem = new JMenuItem("Delete");
     
     public SpriteRClickMenu(LevelMap map) {
@@ -875,6 +876,9 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         add(scaleItem);
         scaleItem.addActionListener(this);
+        
+        add(opacityItem);
+        opacityItem.addActionListener(this);
         
         add(new JSeparator());
         
@@ -930,6 +934,16 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
                 new ScaleSpriteEdit(map, dialog.scaleUni, dialog.scaleX, dialog.scaleY, dialog.isRelative);
             }
         }
+        if(source == opacityItem) {
+            double initOpac = 1.0;
+            if(map.selectedSprites.size() == 1)
+                initOpac = map.selectedSprite.opacity;
+            
+            OpacityDialog dialog = new OpacityDialog(editor.frame, initOpac);
+            if(dialog.returnedOK) {
+                new OpacitySpriteEdit(map, dialog.opacity, dialog.isRelative);
+            }
+        }
         
         if(source == deleteItem) {
             new DeleteSpriteEdit(map);
@@ -949,6 +963,7 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         rotateItem.setEnabled(copyEnabled);
         scaleItem.setEnabled(copyEnabled);
+        opacityItem.setEnabled(copyEnabled);
         
         super.show(origin, x, y);
     }

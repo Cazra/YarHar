@@ -33,7 +33,7 @@ public class ScaleSpriteEdit extends SimpleUndoableEdit {
             oldScales.add(new Point2D.Double(sprite.scaleX, sprite.scaleY));
         }
         
-        // rotate the sprites about their center of mass.
+        // scale the sprites about their center of mass.
         if(isRelative) {
             map.scaleSelectedSprites(uni,x,y);
         }

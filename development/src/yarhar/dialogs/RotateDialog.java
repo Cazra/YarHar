@@ -8,7 +8,7 @@ import javax.swing.border.LineBorder;
 import yarhar.*;
 import yarhar.map.*;
 
-/** A dialog that allows the user to create a new SpriteType. */
+/** A dialog that allows the user to rotate the selected sprites. */
 public class RotateDialog extends JDialog implements ActionListener {
     
     public ButtonGroup rotateType = new ButtonGroup();
