@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
+import java.awt.geom.AffineTransform;
 import org.json.*;
 import pwnee.*;
 import java.util.LinkedList;
@@ -535,6 +536,71 @@ public class LevelMap extends Level implements ClipboardOwner {
     }
     
     
+    //// Rotating/scaling sprites
+    
+    /** Rotates the selected sprites relative to their current angle in degrees. */
+    public void rotateSelectedSprites(double angle) {
+        // compute the center of mass.
+        double cx = 0;
+        double cy = 0;
+        for(SpriteInstance sprite : selectedSprites) {
+            cx += sprite.x/selectedSprites.size();
+            cy += sprite.y/selectedSprites.size();
+        }
+        
+        
+        // rotate the sprites
+        for(int i = 0; i < selectedSprites.size(); i++) {
+            SpriteInstance sprite = selectedSprites.get(i);
+            
+            // rotate and move the sprites about their center of mass.
+            double dx = sprite.x - cx;
+            double dy = sprite.y - cy;
+            AffineTransform rotation = AffineTransform.getRotateInstance(GameMath.d2r(0-angle));
+            Point2D rotPt = rotation.transform(new Point2D.Double(dx,dy), null);
+            
+            sprite.x = cx + rotPt.getX();
+            sprite.y = cy + rotPt.getY();
+            sprite.rotate(sprite.angle + angle);
+        }
+    }
+    
+    /** Rotates the currently selected sprite to an absolute angle. */
+    public void rotateSpriteAbs(double angle) {
+        selectedSprite.rotate(angle);
+    }
+    
+    /** scales the selected sprites relative to their current scale values. */
+    public void scaleSelectedSprites(double uni, double x, double y) {
+        // compute the center of mass.
+        double cx = 0;
+        double cy = 0;
+        for(SpriteInstance sprite : selectedSprites) {
+            cx += sprite.x/selectedSprites.size();
+            cy += sprite.y/selectedSprites.size();
+        }
+        
+        
+        // rotate the sprites
+        for(int i = 0; i < selectedSprites.size(); i++) {
+            SpriteInstance sprite = selectedSprites.get(i);
+            
+            // scale and move the sprites about their center of mass.
+            double dx = sprite.x - cx;
+            double dy = sprite.y - cy;
+            AffineTransform scale = AffineTransform.getScaleInstance(uni*x,uni*y);
+            Point2D scalePt = scale.transform(new Point2D.Double(dx,dy), null);
+            
+            sprite.x = cx + scalePt.getX();
+            sprite.y = cy + scalePt.getY();
+            
+            sprite.scaleUni *= uni;
+            sprite.scaleX *= x;
+            sprite.scaleY *= y;
+            sprite.transformChanged = true;
+        }
+    }
+    
     //// Cloning sprites
     
     /** clones a sprite (not in the same sense as Object.clone(). */
@@ -736,6 +802,8 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         JMenuItem fwdOneItem = new JMenuItem("Forward one");
         JMenuItem bwdOneItem = new JMenuItem("Backward one");
         JMenuItem toBackItem = new JMenuItem("Send to back");
+    JMenuItem rotateItem = new JMenuItem("Rotate");
+    JMenuItem scaleItem = new JMenuItem("Scale");
     JMenuItem deleteItem = new JMenuItem("Delete");
     
     public SpriteRClickMenu(LevelMap map) {
@@ -781,15 +849,23 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         add(new JSeparator());
         
+        add(rotateItem);
+        rotateItem.addActionListener(this);
+        
+        add(scaleItem);
+        scaleItem.addActionListener(this);
+        
+        add(new JSeparator());
+        
         add(deleteItem);
         deleteItem.addActionListener(this);
     }
     
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+        EditorPanel editor = (EditorPanel) map.game;
         
         if(source == editTypeItem) {
-            EditorPanel editor = (EditorPanel) map.game;
             new NewSpriteTypeDialog(editor.frame, map.spriteLib, map.selectedSprite.type);
         }
         
@@ -816,6 +892,17 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
             new ToBackEdit(map);
         }
         
+        if(source == rotateItem) {
+            RotateDialog dialog = new RotateDialog(editor.frame, (map.selectedSprites.size() > 1));
+            if(dialog.returnedOK) {
+                new RotateSpriteEdit(map, dialog.angle, dialog.isRelative);
+            }
+                
+        }
+        if(source == scaleItem) {
+            
+        }
+        
         if(source == deleteItem) {
             new DeleteSpriteEdit(map);
         }
@@ -831,6 +918,9 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         boolean pasteEnabled = map.pasteEnabled();
         pasteItem.setEnabled(pasteEnabled);
+        
+        rotateItem.setEnabled(copyEnabled);
+        scaleItem.setEnabled(copyEnabled);
         
         super.show(origin, x, y);
     }
