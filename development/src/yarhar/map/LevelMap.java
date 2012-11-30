@@ -102,6 +102,14 @@ public class LevelMap extends Level implements ClipboardOwner {
     /** True if sprites are currently being cloned. */
     public boolean isCloning = false;
     
+    /** True if performing a gesture-based rotate/scale */
+    public boolean isGesturing = false;
+    
+    /** Point used to track the gesture's anchor point. */
+    public Point2D gestureAnchor = new Point2D.Double(0,0);
+    
+    public double gestureStartAngle = 0;
+    
     /** The sprite right-click menu */
     public SpriteRClickMenu spriteMenu;
     
@@ -247,101 +255,138 @@ public class LevelMap extends Level implements ClipboardOwner {
             isDrag = false;
             isSelRect = false;
             isCloning = false;
+            isGesturing = false;
         }
         
-        // Click a sprite.
-        if(mouse.justLeftPressed || mouse.justRightPressed) {
-            selectedSprite = selectedLayer.tryClickSprite(mouse.position);
-            dragStartX = mouseWorld.x;
-            dragStartY = mouseWorld.y;
+        // Have different manipulation modes for performing gestures.
+        if(keyboard.isPressed(KeyEvent.VK_R)) {
+            // Rotation gesture
             
-            // possibly unselect all sprites.
-            if(!selectedSprites.contains(selectedSprite) && (!keyboard.isPressed(KeyEvent.VK_SHIFT) || keyboard.isPressed(KeyEvent.VK_CONTROL)))
-                unselectAll();
+            // Do initial calculations when mouse is just pressed.
+            if(mouse.justLeftPressed) {
+                isGesturing = true;
                 
-            
-            
-            // if a sprite was click, select it!
-            if(selectedSprite != null) {
-                selectSprite(selectedSprite);
-                initDragSprites();
-            }
-        }
-        
-        // Drag the selected sprite(s).
-        if(mouse.isLeftPressed && selectedSprite != null) {
-            if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
-                isDrag = true;
+                // compute the sprite selection's center of mass.
+                gestureAnchor = getSelectionCenter();
                 
-                // clone the sprite if we were holding CTRL and begin dragging the clone instead of the original. 
-                if(keyboard.isPressed(KeyEvent.VK_CONTROL)) {
-                    cloneSelectedSprites();
-                    isCloning = true;
+                // compute the start angle of the gesture relative to the anchor.
+                gestureStartAngle = GameMath.angleTo(gestureAnchor.getX(), gestureAnchor.getY(), mouseWorld.x, mouseWorld.y);
+                
+                // save the original position and angles of all the sprites in the selection.
+                for(SpriteInstance sprite : selectedSprites) {
+                    sprite.startDragX = sprite.x;
+                    sprite.startDragY = sprite.y;
+                    sprite.startAngle = sprite.angle;
                 }
             }
             
-            if(isDrag) {
-                dragSelectedSprites(mouseWorld);
+            // Do the rotation while the mouse is pressed.
+            if(mouse.isLeftPressed) {
+                double angleToMouse = GameMath.angleTo(gestureAnchor.getX(), gestureAnchor.getY(), mouseWorld.x, mouseWorld.y);
+                rotateGesture(angleToMouse);
             }
         }
-        
-        
-        // Create a selection rectangle if we drag after clicking in empty space.
-        if(mouse.isLeftPressed && selectedSprite == null && keyboard.isPressed(KeyEvent.VK_SHIFT)) {
-            if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
-                isSelRect = true; 
-                
-            }
-        }
-        
-        // Press Delete to delete the currently selected sprites.
-        if(keyboard.justPressed(KeyEvent.VK_DELETE) && !selectedSprites.isEmpty()) {
-            new DeleteSpriteEdit(this);
-        }
-        
-        // Right clicking a selection of sprites pops up a menu.
-        if(mouse.justRightPressed) {
-            spriteMenu.show(this.game, mouse.x, mouse.y);
-        }
-        
-        
-        // Pressing the arrow keys will nudge the current sprite selection 1 pixel at a time.
-        if(selectedSprites.size() > 0) {
-            if(keyboard.justPressedRep(KeyEvent.VK_LEFT)) {
-                nudgeSelectedSprites(-1,0);
-            }
-            if(keyboard.justPressedRep(KeyEvent.VK_RIGHT)) {
-                nudgeSelectedSprites(1,0);
-            }
-            if(keyboard.justPressedRep(KeyEvent.VK_UP)) {
-                nudgeSelectedSprites(0,-1);
-            }
-            if(keyboard.justPressedRep(KeyEvent.VK_DOWN)) {
-                nudgeSelectedSprites(0,1);
-            }
-        }
-        
-        
-        //// general camera controls
-        
-        // Pan the camera while the left mouse button is held (and shift is not held).
-        if(mouse.isLeftPressed && !isSelRect && !isDrag && !isCloning) {
-            camera.drag(mouse.position);
-        }
-           
-        // Stop dragging the camera when we release the left or right mouse button.
-        if(mouse.justLeftClicked)
-           camera.endDrag();
+        else if(keyboard.isPressed(KeyEvent.VK_S)) {
+            // Scale gesture
             
-        // Zoom in by scrolling the mouse wheel up.
-        if(mouse.wheel < 0)
-           camera.zoomAtScreen(1.25, mouse.position);
-         
-        // Zoom out by scrolling the mouse wheel down.
-        if(mouse.wheel > 0)
-           camera.zoomAtScreen(0.75, mouse.position);
-        
-        
+            
+        }
+        else if(!isGesturing) { 
+            // No gestures being done. Do normal manipulation logic.
+            
+            // Click a sprite.
+            if(mouse.justLeftPressed || mouse.justRightPressed) {
+                selectedSprite = selectedLayer.tryClickSprite(mouse.position);
+                dragStartX = mouseWorld.x;
+                dragStartY = mouseWorld.y;
+                
+                // possibly unselect all sprites.
+                if(!selectedSprites.contains(selectedSprite) && (!keyboard.isPressed(KeyEvent.VK_SHIFT) || keyboard.isPressed(KeyEvent.VK_CONTROL)))
+                    unselectAll();
+                    
+                
+                
+                // if a sprite was click, select it!
+                if(selectedSprite != null) {
+                    selectSprite(selectedSprite);
+                    initDragSprites();
+                }
+            }
+            
+            // Drag the selected sprite(s).
+            if(mouse.isLeftPressed && selectedSprite != null) {
+                if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
+                    isDrag = true;
+                    
+                    // clone the sprite if we were holding CTRL and begin dragging the clone instead of the original. 
+                    if(keyboard.isPressed(KeyEvent.VK_CONTROL)) {
+                        cloneSelectedSprites();
+                        isCloning = true;
+                    }
+                }
+                
+                if(isDrag) {
+                    dragSelectedSprites(mouseWorld);
+                }
+            }
+            
+            
+            // Create a selection rectangle if we drag after clicking in empty space.
+            if(mouse.isLeftPressed && selectedSprite == null && keyboard.isPressed(KeyEvent.VK_SHIFT)) {
+                if((mouseWorld.x != dragStartX || mouseWorld.y != dragStartY) && !isDrag) {
+                    isSelRect = true; 
+                    
+                }
+            }
+            
+            // Press Delete to delete the currently selected sprites.
+            if(keyboard.justPressed(KeyEvent.VK_DELETE) && !selectedSprites.isEmpty()) {
+                new DeleteSpriteEdit(this);
+            }
+            
+            // Right clicking a selection of sprites pops up a menu.
+            if(mouse.justRightPressed) {
+                spriteMenu.show(this.game, mouse.x, mouse.y);
+            }
+            
+            
+            // Pressing the arrow keys will nudge the current sprite selection 1 pixel at a time.
+            if(selectedSprites.size() > 0) {
+                if(keyboard.justPressedRep(KeyEvent.VK_LEFT)) {
+                    nudgeSelectedSprites(-1,0);
+                }
+                if(keyboard.justPressedRep(KeyEvent.VK_RIGHT)) {
+                    nudgeSelectedSprites(1,0);
+                }
+                if(keyboard.justPressedRep(KeyEvent.VK_UP)) {
+                    nudgeSelectedSprites(0,-1);
+                }
+                if(keyboard.justPressedRep(KeyEvent.VK_DOWN)) {
+                    nudgeSelectedSprites(0,1);
+                }
+            }
+            
+            
+            //// general camera controls
+            
+            // Pan the camera while the left mouse button is held (and shift is not held).
+            if(mouse.isLeftPressed && !isSelRect && !isDrag && !isCloning) {
+                camera.drag(mouse.position);
+            }
+               
+            // Stop dragging the camera when we release the left or right mouse button.
+            if(mouse.justLeftClicked)
+               camera.endDrag();
+                
+            // Zoom in by scrolling the mouse wheel up.
+            if(mouse.wheel < 0)
+               camera.zoomAtScreen(1.25, mouse.position);
+             
+            // Zoom out by scrolling the mouse wheel down.
+            if(mouse.wheel > 0)
+               camera.zoomAtScreen(0.75, mouse.position);
+            
+        }
     }
     
     
@@ -476,11 +521,16 @@ public class LevelMap extends Level implements ClipboardOwner {
         selectedSprites.add(i, sprite);
     }
     
-    /** unselects all sprites in the current layer and empties our list of selected sprites. */
+    /** Selects all sprites in the current layer. */
+    public void selectAll() {
+        selectedSprites = new LinkedList<SpriteInstance>();
+        selectedLayer.selectAll(true);
+    }
+    
+    /** unselects all sprites in the current layer. */
     public void unselectAll() {
         selectedSprites = new LinkedList<SpriteInstance>();
         selectedLayer.selectAll(false);
-        //selectedSprite = null;
     }
     
     /** Selects all sprites in the selection rectangle. */
@@ -558,15 +608,24 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     //// Rotating/scaling sprites
     
-    /** Rotates the selected sprites relative to their current angle in degrees. */
-    public void rotateSelectedSprites(double angle) {
-        // compute the center of mass.
+    /** Obtains the current sprite selection's center of mass. */
+    public Point2D getSelectionCenter() {
         double cx = 0;
         double cy = 0;
         for(SpriteInstance sprite : selectedSprites) {
             cx += sprite.x/selectedSprites.size();
             cy += sprite.y/selectedSprites.size();
         }
+        
+        return new Point2D.Double(cx, cy);
+    }
+    
+    /** Rotates the selected sprites relative to their current angle in degrees. */
+    public void rotateSelectedSprites(double angle) {
+        // compute the center of mass.
+        Point2D center = getSelectionCenter();
+        double cx = center.getX();
+        double cy = center.getY();
         
         
         // rotate the sprites
@@ -585,6 +644,28 @@ public class LevelMap extends Level implements ClipboardOwner {
         }
     }
     
+    /** Performs an iteration of the rotate mouse gesture */
+    public void rotateGesture(double angleToMouse) {
+        for(SpriteInstance sprite : selectedSprites) {
+            // determine the angle to set the sprite to
+            double angle = angleToMouse - gestureStartAngle;
+            
+            // extract coordinates for convenience.
+            double cx = gestureAnchor.getX();
+            double cy = gestureAnchor.getY();
+            
+            // rotate and move the sprites about their center of mass.
+            double dx = sprite.startDragX - cx;
+            double dy = sprite.startDragY - cy;
+            AffineTransform rotation = AffineTransform.getRotateInstance(GameMath.d2r(0-angle));
+            Point2D rotPt = rotation.transform(new Point2D.Double(dx,dy), null);
+            
+            sprite.x = cx + rotPt.getX();
+            sprite.y = cy + rotPt.getY();
+            sprite.rotate(sprite.startAngle + angle);
+        }
+    }
+    
     /** Rotates the currently selected sprite to an absolute angle. */
     public void rotateSpriteAbs(double angle) {
         selectedSprite.rotate(angle);
@@ -594,12 +675,9 @@ public class LevelMap extends Level implements ClipboardOwner {
     public void scaleSelectedSprites(double uni, double x, double y) {
         try {
             // compute the center of mass.
-            double cx = 0;
-            double cy = 0;
-            for(SpriteInstance sprite : selectedSprites) {
-                cx += sprite.x/selectedSprites.size();
-                cy += sprite.y/selectedSprites.size();
-            }
+            Point2D center = getSelectionCenter();
+            double cx = center.getX();
+            double cy = center.getY();
             
             
             // rotate the sprites

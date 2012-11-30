@@ -23,6 +23,9 @@ public class SpriteInstance extends Sprite implements Transferable {
     public int zIndex = -1;
     public double startDragX = 0;
     public double startDragY = 0;
+    public double startAngle = 0;
+    public double startScaleX = 0;
+    public double startScaleY = 0;
     
     public boolean isSelected = false;
     
