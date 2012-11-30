@@ -7,7 +7,7 @@ import javax.swing.event.MenuKeyEvent;
 import java.io.*;
 import yarhar.cmds.*;
 import yarhar.dialogs.*;
-import yarhar.map.LevelMap;
+import yarhar.map.*;
 
 
 /** The menu bar for the YarHar application. */
@@ -34,21 +34,28 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         
         JMenuItem cutItem = new JMenuItem("Cut");
         JMenuItem copyItem = new JMenuItem("Copy");
-        JMenuItem pasteItem = new JMenuItem("Paste");
-        
-        JMenu orderMenu = new JMenu("Order");
-            JMenuItem toFrontItem = new JMenuItem("Send to Front");
-            JMenuItem fwdOneItem = new JMenuItem("Forward One");
-            JMenuItem bwdOneItem = new JMenuItem("Backward One");
-            JMenuItem toBackItem = new JMenuItem("Send to Back");
-    
-        
+        JMenuItem pasteItem = new JMenuItem("Paste"); 
 
     JMenu viewMenu = new JMenu("View");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
         JMenuItem gridItem = new JMenuItem("Grid Setup");
         JMenuItem bgColorItem = new JMenuItem("Set Background Color");
-        
+    
+    JMenu spritesMenu = new JMenu("Sprites") {
+        public void setSelected(boolean b) {
+            updateEnabledItems(b);   
+            super.setSelected(b);
+        }
+    };
+        JMenu orderMenu = new JMenu("Order");
+            JMenuItem toFrontItem = new JMenuItem("Send to Front");
+            JMenuItem fwdOneItem = new JMenuItem("Forward One");
+            JMenuItem bwdOneItem = new JMenuItem("Backward One");
+            JMenuItem toBackItem = new JMenuItem("Send to Back");
+        JMenuItem rotateItem = new JMenuItem("Rotate");
+        JMenuItem scaleItem = new JMenuItem("Scale");
+        JMenuItem opacityItem = new JMenuItem("Set opacity");
+    
     JMenu helpMenu = new JMenu("Help");
     
     
@@ -99,20 +106,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             
             editMenu.add(pasteItem);
             pasteItem.addActionListener(this);
-            pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
-            
-            editMenu.add(new JSeparator());
-            
-            editMenu.add(orderMenu);
-                orderMenu.add(toFrontItem);
-                toFrontItem.addActionListener(this);
-                toFrontItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_QUOTE, ActionEvent.CTRL_MASK));
-                
-            //    orderMenu.add(fwdOneItem);
-            //    orderMenu.add(bwdOneItem);
-                orderMenu.add(toBackItem);
-                toBackItem.addActionListener(this);
-                toBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK));
+            pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));       
         
         this.add(viewMenu);
         viewMenu.setMnemonic(KeyEvent.VK_V);
@@ -126,7 +120,31 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             
             viewMenu.add(bgColorItem);
             bgColorItem.addActionListener(this);
+        
+        this.add(spritesMenu);
+            spritesMenu.add(orderMenu);
+                orderMenu.add(toFrontItem);
+                toFrontItem.addActionListener(this);
+                toFrontItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_QUOTE, ActionEvent.CTRL_MASK));
+                
+                orderMenu.add(fwdOneItem);
+                fwdOneItem.addActionListener(this);
+                
+                orderMenu.add(bwdOneItem);
+                bwdOneItem.addActionListener(this);
+                
+                orderMenu.add(toBackItem);
+                toBackItem.addActionListener(this);
+                toBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, ActionEvent.CTRL_MASK));
             
+            spritesMenu.add(rotateItem);
+            rotateItem.addActionListener(this);
+            
+            spritesMenu.add(scaleItem);
+            scaleItem.addActionListener(this);
+            
+            spritesMenu.add(opacityItem);
+            opacityItem.addActionListener(this);
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -145,11 +163,15 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             
             boolean copyEnabled = map.copyEnabled();
             cutItem.setEnabled(copyEnabled);
-            
             copyItem.setEnabled(copyEnabled);
             
             boolean pasteEnabled = map.pasteEnabled();
             pasteItem.setEnabled(pasteEnabled);
+            
+            orderMenu.setEnabled(copyEnabled);
+            rotateItem.setEnabled(copyEnabled);
+            scaleItem.setEnabled(copyEnabled);
+            opacityItem.setEnabled(copyEnabled);
         }
         else {
             undoItem.setEnabled(true);
@@ -158,6 +180,11 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             cutItem.setEnabled(true);
             copyItem.setEnabled(true);
             pasteItem.setEnabled(true);
+            
+            orderMenu.setEnabled(true);
+            rotateItem.setEnabled(true);
+            scaleItem.setEnabled(true);
+            opacityItem.setEnabled(true);
         }
     }
     
@@ -220,8 +247,40 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == toFrontItem) {
             new ToFrontEdit(map);
         }
+        if(source == fwdOneItem) {
+            new FwdOneEdit(map);
+        }
+        if(source == bwdOneItem) {
+            new BwdOneEdit(map);
+        }
         if(source == toBackItem) {
             new ToBackEdit(map);
+        }
+        if(source == rotateItem) {
+            RotateDialog dialog = new RotateDialog(yarhar, (map.selectedSprites.size() > 1));
+            if(dialog.returnedOK) {
+                new RotateSpriteEdit(map, dialog.angle, dialog.isRelative);
+            }  
+        }
+        if(source == scaleItem) {
+            SpriteInstance selSprite = null;
+            if(map.selectedSprites.size() == 1)
+                selSprite = map.selectedSprite;
+            
+            ScaleDialog dialog = new ScaleDialog(yarhar, selSprite);
+            if(dialog.returnedOK) {
+                new ScaleSpriteEdit(map, dialog.scaleUni, dialog.scaleX, dialog.scaleY, dialog.isRelative);
+            }
+        }
+        if(source == opacityItem) {
+            double initOpac = 1.0;
+            if(map.selectedSprites.size() == 1)
+                initOpac = map.selectedSprite.opacity;
+            
+            OpacityDialog dialog = new OpacityDialog(yarhar, initOpac);
+            if(dialog.returnedOK) {
+                new OpacitySpriteEdit(map, dialog.opacity, dialog.isRelative);
+            }
         }
         
         // View menu

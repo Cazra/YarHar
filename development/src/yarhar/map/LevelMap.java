@@ -941,8 +941,7 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
             RotateDialog dialog = new RotateDialog(editor.frame, (map.selectedSprites.size() > 1));
             if(dialog.returnedOK) {
                 new RotateSpriteEdit(map, dialog.angle, dialog.isRelative);
-            }
-                
+            }  
         }
         if(source == scaleItem) {
             SpriteInstance selSprite = null;
