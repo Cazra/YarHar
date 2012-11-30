@@ -518,8 +518,13 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     /** Drags all currently selected sprites with the mouse. */
     public void dragSelectedSprites(Point mouseWorld) {
+        dragSprite(selectedSprite, mouseWorld);
+        double mdx = selectedSprite.x - selectedSprite.startDragX;
+        double mdy = selectedSprite.y - selectedSprite.startDragY;
+            
         for(SpriteInstance sprite : selectedSprites) {
-            dragSprite(sprite, mouseWorld);
+            sprite.x = sprite.startDragX + mdx;
+            sprite.y = sprite.startDragY + mdy;
         }
     }
     
