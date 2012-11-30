@@ -8,7 +8,7 @@ import yarhar.map.*;
 import yarhar.*;
 
 
-/** Sets the selected sprites' opacity. */
+/** Moves a layer. */
 public class MoveLayerEdit extends SimpleUndoableEdit {
     
     public LayerList layerList;

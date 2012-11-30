@@ -102,6 +102,13 @@ public class LayerList extends JScrollPane {
         new MoveLayerEdit(this, layer, destIndex);
     }
     
+    /** Renames a layer */
+    public void renameLayer(Layer layer) {
+        String name = JOptionPane.showInputDialog(this, "Rename layer", layer.name);
+        if(name != null)
+            new RenameLayerEdit(this, layer, name);
+    }
+    
     /** Starts the custom drag and drop for a layer. */
     public void startDnD(LayerCell layer, int x, int y) {
         if(!isDnD) {
@@ -327,7 +334,7 @@ class LayerRClickMenu extends JPopupMenu implements ActionListener {
         Object source = e.getSource();
         
         if(source == renameItem) {
-            
+            lpanel.renameLayer(lpanel.map.selectedLayer);
         }
         if(source == opacityItem) {
             OpacityDialog dialog = new OpacityDialog(lpanel.frame, lpanel.map.selectedLayer.opacity);

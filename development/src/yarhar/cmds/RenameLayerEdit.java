@@ -8,38 +8,40 @@ import yarhar.map.*;
 import yarhar.*;
 
 
-/** Adds a layer to the top of the layers. */
-public class AddLayerEdit extends SimpleUndoableEdit {
+/** Renames a layer. */
+public class RenameLayerEdit extends SimpleUndoableEdit {
     
     public LayerList layerList;
     public LevelMap map;
-    public LinkedList<Layer> oldLayers;
-    public LinkedList<Layer> newLayers;
+    public Layer layer;
+    public String oldName;
+    public String newName;
     
-    public AddLayerEdit(LayerList list, Layer layer) {
+    public RenameLayerEdit(LayerList list, Layer layer, String name) {
         super();
         this.layerList = list;
         this.map = list.map;
+        this.layer = layer;
         
-        oldLayers = new LinkedList<Layer>(map.layers);
+        oldName = layer.name;
         
-        map.addLayerFirst(layer);
+        layer.name = name;
         layerList.updateList();
         
-        newLayers = new LinkedList<Layer>(map.layers);
+        newName = name;
         
         map.flagModified();
     }
     
     public void undo() {
-        map.layers = new LinkedList<Layer>(oldLayers);
+        layer.name = oldName;
         layerList.updateList();
         
         map.flagModified();
     }
     
     public void redo() {
-        map.layers = new LinkedList<Layer>(newLayers);
+        layer.name = newName;
         layerList.updateList();
         
         map.flagModified();

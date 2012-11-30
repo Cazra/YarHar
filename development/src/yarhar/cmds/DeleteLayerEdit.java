@@ -9,7 +9,7 @@ import yarhar.map.*;
 import yarhar.*;
 
 
-/** Sets the selected sprites' opacity. */
+/** Deletes a layer. */
 public class DeleteLayerEdit extends SimpleUndoableEdit {
     
     public LayerList layerList;
