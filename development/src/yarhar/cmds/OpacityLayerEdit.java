@@ -7,7 +7,7 @@ import pwnee.GameMath;
 import yarhar.map.*;
 
 
-/** Sets the selected sprites' opacity. */
+/** Sets a layer's opacity. */
 public class OpacityLayerEdit extends SimpleUndoableEdit {
     
     public LevelMap map;

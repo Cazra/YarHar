@@ -183,6 +183,24 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
         NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, selType);
     }
     
+    /** Renames the currently selected SpriteType. */
+    public void renameSelectedSpriteType() { 
+        String selGroup = (String) groupList.getSelectedItem();
+        SpriteType selType = (SpriteType) spriteList.getSelectedValue();
+        
+        if(selType == null || selGroup == null)
+            return;
+        
+        String name = JOptionPane.showInputDialog(this, "Rename Sprite Type");
+        if(name == null)
+            return;
+        if(spriteLib.spriteNames.contains(name)) {
+            JOptionPane.showMessageDialog(this, "Another sprite with that name already exists. Try a different name.");
+            return;
+        }
+        new RenameSpriteTypeEdit(spriteLib, selGroup, selType, name);
+    }
+    
     
     /** The SpriteLibrary's TransferHandler for drag and drop into the editor. */
     private TransferHandler transferHandler =  new TransferHandler() {
@@ -257,6 +275,7 @@ class SpriteTypeRClickMenu extends JPopupMenu implements ActionListener {
     public SpriteLibrary library;
     
     public JMenuItem editItem = new JMenuItem("Edit");
+    public JMenuItem renameItem = new JMenuItem("Rename");
     public JMenuItem deleteItem = new JMenuItem("Delete");
     
     public SpriteTypeRClickMenu(SpriteLibraryPanel slpanel) {
@@ -266,6 +285,9 @@ class SpriteTypeRClickMenu extends JPopupMenu implements ActionListener {
         this.add(editItem);
         editItem.addActionListener(this);
         
+        this.add(renameItem);
+        renameItem.addActionListener(this);
+        
         this.add(deleteItem);
         deleteItem.addActionListener(this);
     }    
@@ -274,12 +296,16 @@ class SpriteTypeRClickMenu extends JPopupMenu implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         
-        if(source == deleteItem) {
-            slpanel.deleteSelectedSpriteType();
-        }
         if(source == editItem) {
             slpanel.editSelectedSpriteType();
         }
+        if(source == renameItem) {
+            slpanel.renameSelectedSpriteType();
+        }
+        if(source == deleteItem) {
+            slpanel.deleteSelectedSpriteType();
+        }
+        
     }
 }
 

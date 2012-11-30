@@ -191,6 +191,22 @@ public class SpriteLibrary {
         updatePeerComponent();
     }
     
+    /** Renames a sprite type. This fails if another sprite shares the name that we want to change to. */
+    public void renameSpriteType(String groupName, SpriteType spriteType, String name) {
+        if(spriteNames.contains(name)) {
+            System.err.println("name already exists in library");
+            return;
+        }
+        
+        groups.get(groupName).removeSpriteType(spriteType);
+        spriteNames.remove(spriteType.name);
+        sprites.remove(spriteType.name);
+        
+        spriteType.name = name;
+        
+        addSpriteType(groupName, spriteType);
+    }
+    
     
     /** Removes a sprite type from its group and the library. */
     public void removeSpriteType(String groupName, SpriteType spriteType) {
