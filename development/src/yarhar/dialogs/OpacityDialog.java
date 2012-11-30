@@ -32,7 +32,7 @@ public class OpacityDialog extends JDialog implements ActionListener {
         constructComponents();
         this.setSize(new Dimension(250,150));
         
-        setTitle("Rotate Sprite(s)");
+        setTitle("Set Opacity");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
         show();

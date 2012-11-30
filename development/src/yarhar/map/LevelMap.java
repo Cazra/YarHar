@@ -421,6 +421,21 @@ public class LevelMap extends Level implements ClipboardOwner {
         unselectAll();
     }
     
+    /** Deletes a layer. If it attempts to delete the only layer in the map, it fails and returns false. */
+    public boolean deleteLayer(Layer layer) {
+        if(!layers.contains(layer) || layers.size() == 1)
+            return false;
+        
+        int index = layers.indexOf(layer);
+        
+        layers.remove(layer);
+        
+        if(index >= layers.size())
+            index--;
+        selectedLayer = layers.get(index);
+        return true;
+    }
+    
     
     //// Drop sprites
     

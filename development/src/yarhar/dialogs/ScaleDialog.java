@@ -40,7 +40,7 @@ public class ScaleDialog extends JDialog implements ActionListener {
         constructComponents();
         this.setSize(new Dimension(250,250));
         
-        setTitle("Rotate Sprite(s)");
+        setTitle("Scale Sprite(s)");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
         show();
