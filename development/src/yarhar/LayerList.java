@@ -339,7 +339,7 @@ class LayerRClickMenu extends JPopupMenu implements ActionListener {
         if(source == opacityItem) {
             OpacityDialog dialog = new OpacityDialog(lpanel.frame, lpanel.map.selectedLayer.opacity);
             if(dialog.returnedOK) {
-                // new OpacitySpriteEdit(map, dialog.opacity, dialog.isRelative);
+                new OpacityLayerEdit(lpanel.map, lpanel.map.selectedLayer, dialog.opacity, dialog.isRelative);
             }
         }
         if(source == deleteItem) {
