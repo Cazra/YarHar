@@ -107,6 +107,8 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     /** Point used to track the gesture's anchor point. */
     public Point2D gestureAnchor = new Point2D.Double(0,0);
+    public Point2D gestureAnchor2 = new Point2D.Double(0,0);
+    
     
     public double gestureStartAngle = 0;
     
@@ -252,6 +254,13 @@ public class LevelMap extends Level implements ClipboardOwner {
                 CloneSpriteEdit cmd = new CloneSpriteEdit(this);
             }
             
+            if(isGesturing && keyboard.isPressed(KeyEvent.VK_R)) {
+                new RotateGestureEdit(this);
+            }
+            if(isGesturing && keyboard.isPressed(KeyEvent.VK_S)) {
+                new ScaleGestureEdit(this);
+            }
+            
             isDrag = false;
             isSelRect = false;
             isCloning = false;
@@ -289,7 +298,26 @@ public class LevelMap extends Level implements ClipboardOwner {
         else if(keyboard.isPressed(KeyEvent.VK_S)) {
             // Scale gesture
             
+            if(mouse.justLeftPressed) {
+                isGesturing = true;
+                
+                // save the drag start point
+                gestureAnchor = getSelectionCenter();
+                gestureAnchor2 = new Point(mouseWorld.x, mouseWorld.y);
+                
+                // save the original position and scales of all the sprites in the selection.
+                for(SpriteInstance sprite : selectedSprites) {
+                    sprite.startDragX = sprite.x;
+                    sprite.startDragY = sprite.y;
+                    sprite.startScaleX = sprite.scaleX;
+                    sprite.startScaleY = sprite.scaleY;
+                }
+            }
             
+            // Do the rotation while the mouse is pressed.
+            if(mouse.isLeftPressed) {
+                scaleGesture(mouseWorld);
+            }
         }
         else if(!isGesturing) { 
             // No gestures being done. Do normal manipulation logic.
@@ -646,14 +674,14 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     /** Performs an iteration of the rotate mouse gesture */
     public void rotateGesture(double angleToMouse) {
+        // determine the angle to set the sprite to
+        double angle = angleToMouse - gestureStartAngle;
+        
+        // extract coordinates for convenience.
+        double cx = gestureAnchor.getX();
+        double cy = gestureAnchor.getY();
+        
         for(SpriteInstance sprite : selectedSprites) {
-            // determine the angle to set the sprite to
-            double angle = angleToMouse - gestureStartAngle;
-            
-            // extract coordinates for convenience.
-            double cx = gestureAnchor.getX();
-            double cy = gestureAnchor.getY();
-            
             // rotate and move the sprites about their center of mass.
             double dx = sprite.startDragX - cx;
             double dy = sprite.startDragY - cy;
@@ -706,6 +734,48 @@ public class LevelMap extends Level implements ClipboardOwner {
                 sprite.scaleY *= y;
                 sprite.transformChanged = true;
             }
+        }
+        catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
+            
+        }
+    }
+    
+    /** Performs an iteration for the scale mouse gesture. */
+    public void scaleGesture(Point2D mouseWorld) {
+        try {
+            // compute the center of mass.
+            double cx = gestureAnchor.getX();
+            double cy = gestureAnchor.getY();
+            
+            // Compute the scale values based on the relative positions of the anchor point, 
+            // the center of mass, and the mouse's current world position.
+            double sx = (mouseWorld.getX() - cx)/(gestureAnchor2.getX() - cx);
+            double sy = (mouseWorld.getY() - cy)/(gestureAnchor2.getY() - cy);
+            
+            for(SpriteInstance sprite : selectedSprites) {
+                // scale and move the sprites about their center of mass.
+                double dx = sprite.startDragX - cx;
+                double dy = sprite.startDragY - cy;
+                AffineTransform rot = AffineTransform.getRotateInstance(GameMath.d2r(0-sprite.angle));
+                AffineTransform rotInv = rot.createInverse();
+                AffineTransform scale = AffineTransform.getScaleInstance(sx,sy);
+                
+                AffineTransform catTrans = new AffineTransform();
+                catTrans.concatenate(rot);
+                catTrans.concatenate(scale);
+                catTrans.concatenate(rotInv);
+                
+                Point2D scalePt = catTrans.transform(new Point2D.Double(dx,dy), null);
+                
+                sprite.x = cx + scalePt.getX();
+                sprite.y = cy + scalePt.getY();
+                
+                sprite.scaleX = sprite.startScaleX * sx;
+                sprite.scaleY = sprite.startScaleY * sy;
+                sprite.transformChanged = true;
+            }
+            
+            
         }
         catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
             
