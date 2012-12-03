@@ -322,23 +322,27 @@ public class LevelMap extends Level implements ClipboardOwner {
         else if(!isGesturing) { 
             // No gestures being done. Do normal manipulation logic.
             
-            // Click a sprite.
+            // Click.
             if(mouse.justLeftPressed || mouse.justRightPressed) {
-                selectedSprite = selectedLayer.tryClickSprite(mouse.position);
                 dragStartX = mouseWorld.x;
                 dragStartY = mouseWorld.y;
                 
-                // possibly unselect all sprites.
-                if(!selectedSprites.contains(selectedSprite) && (!keyboard.isPressed(KeyEvent.VK_SHIFT) || keyboard.isPressed(KeyEvent.VK_CONTROL)))
-                    unselectAll();
+                if(!keyboard.isPressed(KeyEvent.VK_SPACE)) {
+                    // Click a sprite.
+                    selectedSprite = selectedLayer.tryClickSprite(mouse.position);
                     
-                
-                
-                // if a sprite was click, select it!
-                if(selectedSprite != null) {
-                    selectSprite(selectedSprite);
-                    initDragSprites();
+                    // possibly unselect all sprites.
+                    if(!selectedSprites.contains(selectedSprite) && (!keyboard.isPressed(KeyEvent.VK_SHIFT) || keyboard.isPressed(KeyEvent.VK_CONTROL)))
+                        unselectAll();
+                    
+                    // if a sprite was click, select it!
+                    if(selectedSprite != null) {
+                        selectSprite(selectedSprite);
+                        initDragSprites();
+                    }
                 }
+                else
+                    selectedSprite = null;
             }
             
             // Drag the selected sprite(s).

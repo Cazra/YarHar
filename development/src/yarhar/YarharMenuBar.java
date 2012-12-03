@@ -37,6 +37,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem pasteItem = new JMenuItem("Paste"); 
 
     JMenu viewMenu = new JMenu("View");
+        JMenuItem resetZoomItem = new JMenuItem("Reset Zoom");
         JMenuItem resetCamItem = new JMenuItem("Reset Camera");
         JMenuItem gridItem = new JMenuItem("Grid Setup");
         JMenuItem bgColorItem = new JMenuItem("Set Background Color");
@@ -110,9 +111,13 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         
         this.add(viewMenu);
         viewMenu.setMnemonic(KeyEvent.VK_V);
+            viewMenu.add(resetZoomItem);
+            resetZoomItem.addActionListener(this);
+            resetZoomItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+            
             viewMenu.add(resetCamItem);
             resetCamItem.addActionListener(this);
-            resetCamItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+            resetCamItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
             
             viewMenu.add(gridItem);
             gridItem.addActionListener(this);
@@ -284,8 +289,11 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         }
         
         // View menu
+        if(source == resetZoomItem) {
+            System.err.println("View -> resetZoomItem fired.");
+            yarhar.editorPanel.camera.updateZoom(1.0);
+        }
         if(source == resetCamItem) {
-            System.err.println("View -> resetCamItem fired.");
             yarhar.editorPanel.resetCamera();
         }
         if(source == gridItem) {
