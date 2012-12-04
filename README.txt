@@ -96,14 +96,15 @@ A: I should probably write up a json specification for this. I'll let you know w
    
    For now, know that a map's json includes its sprite library and its layer list at the top.
    
-   The sprite library has a list of sprite types which are used to reference the types of sprites 
-   used in your level. All the sprite types for a map are uniquely identified by name.
+   The sprite library has a list of sprite types which are used to reference the 
+   types of sprites used in your level. All the sprite types for a map are uniquely 
+   identified by name.
    
    Each of the layers have their own lists of sprite instances. 
    
    So, to recreate your map for a level inside your game's code, just iterate through the 
-   layers and iterate through each layer's sprite instance list to create the actual layers and 
-   sprites for your level. 
+   layers and iterate through each layer's sprite instance list to create the actual layers 
+   and sprites for your level. 
    
 
 

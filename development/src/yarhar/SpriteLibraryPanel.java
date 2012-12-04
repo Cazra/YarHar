@@ -2,7 +2,9 @@ package yarhar;
 
 import java.util.HashMap;
 import javax.swing.*;
+import javax.swing.tree.*;
 import java.awt.datatransfer.*;
+import java.awt.dnd.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.LineBorder;
@@ -29,12 +31,14 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
     /** Our current SpriteTypeGroup's list of SpriteTypes. These can be dragged and dropped onto the editor to place new sprite instances. */
     public JList spriteList = new JList();
     
+    /** A hierarchical list containing our sprite library, divided into groups. */
+    public SpriteLibraryJTree spriteTree;
+    
     /** A reference to our loaded LevelMap's SpriteLibrary. */
     public SpriteLibrary spriteLib = null;
     
     /** The right-click popup menu for the sprite list. */
     public SpriteTypeRClickMenu spriteRMenu;
-    
     
     public SpriteLibraryPanel(YarharMain yarhar) {
         super();
@@ -49,7 +53,7 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
         this.add(newSpriteBtn);
         newSpriteBtn.addActionListener(this);
         
-        this.add(groupList);
+    //    this.add(groupList);
         groupList.setMaximumSize(new Dimension(150, 20)); 
         groupList.addActionListener(this);
         
@@ -59,10 +63,16 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
         spriteList.addMouseListener(this);
         spriteRMenu = new SpriteTypeRClickMenu(this);
         
-        JScrollPane scrollpane = new JScrollPane(spriteList);
+        spriteTree = new SpriteLibraryJTree(null);
+        spriteTree.setTransferHandler(transferHandler);
+        spriteTree.addMouseListener(this);
+        
+        JScrollPane scrollpane = new JScrollPane(spriteTree); // new JScrollPane(spriteList);
         scrollpane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollpane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         this.add(scrollpane);
+
+        
     }
     
     
@@ -115,6 +125,7 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
     /** Sets our spriteLib reference. */
     public void setLibrary(SpriteLibrary spriteLib) {
         this.spriteLib = spriteLib;
+        this.spriteTree.spriteLib = spriteLib;
     }
     
     /** updates groupList to reflect the groups currently contained in our internal SpriteLibrary. */
@@ -159,6 +170,27 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
     }
     
     
+    public void updateSpriteTree() {
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Sprite Library");
+        
+        for(String groupName : spriteLib.groupNames) {
+            SpriteTypeGroup group = spriteLib.groups.get(groupName);
+            
+            DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(groupName);
+            top.add(groupNode);
+            
+            for(String typeName : group.typeNames) {
+                SpriteType sprite = spriteLib.sprites.get(typeName);
+                
+                DefaultMutableTreeNode spriteNode = new DefaultMutableTreeNode(sprite);
+                groupNode.add(spriteNode);
+            }
+        }
+        
+        DefaultTreeModel model = new DefaultTreeModel(top);
+        spriteTree.setModel(model);
+    }
+    
     
     /** Deletes the currently selected SpriteType from our library. */
     public void deleteSelectedSpriteType() {
@@ -169,6 +201,7 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
             
         new DeleteSpriteTypeEdit(spriteLib, selGroup, selType);
         updateSpriteList(selGroup);
+        // TODO : Remove the SpriteType from the tree.
     }
     
     
@@ -205,6 +238,8 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
     /** The SpriteLibrary's TransferHandler for drag and drop into the editor. */
     private TransferHandler transferHandler =  new TransferHandler() {
         
+        DefaultMutableTreeNode oldNode;
+        
         /** I say COPY_OR_MOVE here, but we'll just treat move like copy. */
         public int getSourceActions(JComponent c) {
             return TransferHandler.COPY_OR_MOVE;
@@ -212,13 +247,64 @@ public class SpriteLibraryPanel extends JPanel implements ActionListener, MouseL
         
         /** We just need the name of our exported SpriteType so we can look it up later. */
         public Transferable createTransferable(JComponent c) {
-            Object selected = spriteList.getSelectedValue();
-            if(selected instanceof SpriteType) {
-                SpriteType sprite = (SpriteType) spriteList.getSelectedValue();
-                return sprite;
-            } 
-            else
-                return new StringSelection("");
+            if(c == spriteList) {
+                Object selected = spriteList.getSelectedValue();
+                if(selected instanceof SpriteType) {
+                    SpriteType sprite = (SpriteType) selected;
+                    return sprite;
+                }
+            }
+            else if(c == spriteTree) {
+                DefaultMutableTreeNode dragNode = (DefaultMutableTreeNode) spriteTree.getLastSelectedPathComponent();
+                oldNode = dragNode;
+                
+                Object selected = dragNode.getUserObject();
+                if(selected instanceof SpriteType) {
+                    SpriteType sprite = (SpriteType) selected;
+                    return sprite;
+                }
+            }
+            
+            return new StringSelection("");
+        }
+        
+        public boolean canImport(TransferHandler.TransferSupport info) {
+            return true;
+        }
+        
+        // Drag and drop allows sprite types to be moved to different groups in the tree.
+        public boolean importData(TransferHandler.TransferSupport info) {
+            if(!canImport(info))
+                return false;
+            
+            Transferable t = info.getTransferable();
+            
+            try {
+                SpriteType spriteType = (SpriteType) t.getTransferData(SpriteType.flavor);
+                
+                // TODO : Move the SpriteType to the SpriteTypeGroup in the drop location.
+                TreePath path = spriteTree.getDropLocation().getPath();
+                System.err.println(path.toString());
+                Object[] pathArr = path.getPath();
+                String groupName = "default";
+                if(pathArr.length > 1) {
+                    groupName = pathArr[1].toString(); 
+                }
+                
+                Object[] oldPathArr = oldNode.getUserObjectPath();
+                String oldGroupName = oldPathArr[1].toString();
+                
+                spriteLib.removeSpriteType(oldGroupName, spriteType);
+                spriteLib.addSpriteType(groupName, spriteType);
+                
+                return true;
+            }
+            catch(Exception e) {
+                System.err.println("EditorPanel drag and drop not successful.");
+            }
+            
+            return false;
+            
         }
     };
     
@@ -239,7 +325,7 @@ class SpriteTypeRenderer extends JLabel implements ListCellRenderer {
             this.setText("I am Error.");
             return this;
         }
-        
+
         SpriteType spriteType = (SpriteType) value;
         
         Color background;
@@ -266,6 +352,12 @@ class SpriteTypeRenderer extends JLabel implements ListCellRenderer {
         return this;
     }
 }
+
+
+
+
+
+
 
 
 /** Right-click menu for the sprite type list. */

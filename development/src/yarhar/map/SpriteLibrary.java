@@ -261,6 +261,7 @@ public class SpriteLibrary {
         SpriteLibraryPanel spriteLibPanel = ((EditorPanel) levelMap.game).frame.spriteLibPanel;
         spriteLibPanel.setLibrary(this);
         spriteLibPanel.updateGroupList();
+        spriteLibPanel.updateSpriteTree();
     }
 }
 

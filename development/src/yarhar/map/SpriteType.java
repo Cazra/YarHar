@@ -222,5 +222,10 @@ public class SpriteType implements Transferable {
         return flavor.equals(SpriteType.flavor);
     }
     
+    
+    
+    public String toString() {
+        return name;
+    }
 }
 
