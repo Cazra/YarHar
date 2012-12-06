@@ -21,7 +21,7 @@ public class LayersPanel extends JPanel implements ActionListener {
     public YarharMain frame;
     
     /** Used to create a new layer. */
-    public JButton newBtn = new JButton("New layer");
+  //  public JButton newBtn = new JButton("New layer");
     
     /** The scrollable list of layers. */
     public LayerList layerList;
@@ -35,8 +35,8 @@ public class LayersPanel extends JPanel implements ActionListener {
         this.setBorder(new LineBorder(new Color(0xBBBBBB), 2));
         
         add(new JLabel("Layers"));
-        add(newBtn);
-        newBtn.addActionListener(this);
+      //  add(newBtn);
+      //  newBtn.addActionListener(this);
         
         layerList = new LayerList(yarhar);
         add(layerList);
@@ -62,13 +62,14 @@ public class LayersPanel extends JPanel implements ActionListener {
         Object source = e.getSource();
         
         // Create a new layer.
-        if(source == newBtn) {
+      /*  if(source == newBtn) {
             String layerName = JOptionPane.showInputDialog(this, "New Layer Name");
             if(layerName != "" && layerName != null) {
                 layerList.addLayer(layerName);
                 layerList.updateUI();
             }
         }
+        */
     }
     
 }

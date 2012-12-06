@@ -311,6 +311,7 @@ class LayerRClickMenu extends JPopupMenu implements ActionListener {
     
     public LayerList lpanel;
     
+    public JMenuItem newItem = new JMenuItem("New Layer");
     public JMenuItem renameItem = new JMenuItem("Rename");
     public JMenuItem opacityItem = new JMenuItem("Set opacity");
     public JMenuItem deleteItem = new JMenuItem("Delete");
@@ -318,6 +319,9 @@ class LayerRClickMenu extends JPopupMenu implements ActionListener {
     public LayerRClickMenu(LayerList lpanel) {
         super();
         this.lpanel = lpanel;
+        
+        this.add(newItem);
+        newItem.addActionListener(this);
         
         this.add(renameItem);
         renameItem.addActionListener(this);
@@ -333,6 +337,13 @@ class LayerRClickMenu extends JPopupMenu implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         
+        if(source == newItem) {
+            String layerName = JOptionPane.showInputDialog(this, "New Layer Name");
+            if(layerName != "" && layerName != null) {
+                lpanel.addLayer(layerName);
+                lpanel.updateUI();
+            }
+        }
         if(source == renameItem) {
             lpanel.renameLayer(lpanel.map.selectedLayer);
         }
