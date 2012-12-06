@@ -17,8 +17,8 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
     
     public YarharMain() {
         super("YarHar!");
-        int screenX = 800;    
-        int screenY = 640;
+        int screenX = 1024;    
+        int screenY = 800;
         this.setSize(screenX,screenY);
         this.setJMenuBar(new YarharMenuBar(this));
         
@@ -36,11 +36,12 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         JSplitPane sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, layersPanel, spriteLibPanel);
         sidePane.setContinuousLayout(true);
         sidePane.setResizeWeight(0.5);
-        sidePane.setDividerLocation(0.4);
+        sidePane.setDividerLocation(0.5);
+        
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePane, editorPanel);
         splitPane.setContinuousLayout(true);
         splitPane.setResizeWeight(0.0);
-        splitPane.setDividerLocation(0.2);
+        splitPane.setDividerLocation(0.3);
         borderPanel.add(splitPane, BorderLayout.CENTER);
         
         
