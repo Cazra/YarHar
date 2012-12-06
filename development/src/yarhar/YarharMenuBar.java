@@ -21,6 +21,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
+        JMenuItem saveAsItem = new JMenuItem("Save as");
         JMenuItem exitItem = new JMenuItem("Exit");
     
     JMenu editMenu = new JMenu("Edit") {
@@ -80,6 +81,10 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             fileMenu.add(saveItem);
             saveItem.addActionListener(this);
             saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+            
+            fileMenu.add(saveAsItem);
+            saveAsItem.addActionListener(this);
+            saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK | ActionEvent.ALT_MASK));
             
             fileMenu.add(exitItem);
             exitItem.addActionListener(this);
@@ -216,6 +221,8 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         }
         if(source == saveItem)
             saveMap(false);
+        if(source == saveAsItem)
+            saveMap(true);
         if(source == exitItem) {
             System.err.println("File -> exitItem fired.");
             yarhar.close();
