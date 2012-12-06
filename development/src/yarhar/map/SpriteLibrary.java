@@ -191,6 +191,13 @@ public class SpriteLibrary {
         updatePeerComponent();
     }
     
+    /** Moves a sprite type from one group to another. */
+    public void moveSpriteType(SpriteType spriteType, String oldGroup, String newGroup) {
+        this.removeSpriteType(oldGroup, spriteType);
+        this.addSpriteType(newGroup, spriteType);
+    }
+    
+    
     /** Renames a sprite type. This fails if another sprite shares the name that we want to change to. */
     public void renameSpriteType(String groupName, SpriteType spriteType, String name) {
         if(spriteNames.contains(name)) {
@@ -221,42 +228,57 @@ public class SpriteLibrary {
     }
     
     
-    /** Checks if this library contains a sprite type. */
-    
     /** Renames a SpriteTypeGroup in this library */
     public void renameGroup(String groupName, String newName) {
         // avoid renaming nonexistent groups or the "default" group.
-        if(!groupNames.contains(groupName) || groupName == "default") {
+        if(!groupNames.contains(groupName) || groupName.equals("default")) {
             return;
         }
         SpriteTypeGroup group = groups.get(groupName);
         
-        // If newName is already in our groups, increment our new name to avoid a name collision.
+        // If newName is already in our groups, fail.
         if(groupNames.contains(newName))
-            newName = renameGroupRepeat(newName, 2);
+            return;
         
         // rename the group
         groups.remove(groupName);
+        groupNames.remove(groupName);
         group.name = newName;
         groups.put(newName,group);
+        groupNames.add(newName);
         
         // update the library swing panel.
         this.isModified = true;
         updatePeerComponent();
     }
     
-    /** Generates a new group name that avoids collisions with group names already in this library. */
-    private String renameGroupRepeat(String baseNewName, int index) {
-        String newName = baseNewName + index;
-        if(!groupNames.contains(newName)) {
-            return newName;
+    
+    /** 
+     * Removes a group and its sprites from the library. Does NOT remove 
+     * the instances of those sprites.
+     * Returns the list of SpriteTypes that were in the group. 
+     */
+    public LinkedList<SpriteType> removeGroup(String groupName) {
+        LinkedList<SpriteType> result = new LinkedList<SpriteType>();
+        
+        if(groupName.equals("default"))
+            return result;
+        
+        SpriteTypeGroup group = groups.get(groupName);
+        groups.remove(groupName);
+        groupNames.remove(groupName);
+        
+        for(String typeName : group.typeNames) {
+            result.add(sprites.remove(typeName));
         }
-        else {
-            return renameGroupRepeat(baseNewName, index + 1);
-        }
+        
+        updatePeerComponent();
+        
+        return result;
     }
     
     
+    /** Updates Yarhar's UI intrefaces for this library */
     public void updatePeerComponent() {
         SpriteLibraryPanel spriteLibPanel = ((EditorPanel) levelMap.game).frame.spriteLibPanel;
         spriteLibPanel.setLibrary(this);
