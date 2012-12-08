@@ -335,7 +335,7 @@ public class LevelMap extends Level implements ClipboardOwner {
                     if(!selectedSprites.contains(selectedSprite) && (!keyboard.isPressed(KeyEvent.VK_SHIFT) || keyboard.isPressed(KeyEvent.VK_CONTROL)))
                         unselectAll();
                     
-                    // if a sprite was click, select it!
+                    // if a sprite was clicked, select it!
                     if(selectedSprite != null) {
                         selectSprite(selectedSprite);
                         initDragSprites();
@@ -814,6 +814,7 @@ public class LevelMap extends Level implements ClipboardOwner {
             clone.isSelected = true;
             
             newSelSprites.add(clone);
+            selectedSprite = clone;
         }
         
         selectedSprites = newSelSprites;
