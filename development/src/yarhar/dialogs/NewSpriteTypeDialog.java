@@ -16,6 +16,7 @@ import yarhar.cmds.*;
 /** A dialog that allows the user to create a new SpriteType. */
 public class NewSpriteTypeDialog extends JDialog implements ActionListener, ChangeListener {
     
+    YarharMain yarhar;
     SpriteLibrary library;
     String libGroup;
     
@@ -54,6 +55,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     /** Constructor for creating a new SpriteType. */
     public NewSpriteTypeDialog(YarharMain owner, SpriteLibrary library, String group) {
         super(owner, true);
+        yarhar = owner;
         constructComponents();
         this.setSize(new Dimension(500,400));
         
@@ -71,6 +73,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     /** Constructor for editing an existing SpriteType. */
     public NewSpriteTypeDialog(YarharMain owner, SpriteLibrary library, SpriteType editType) {
         super(owner, true);
+        yarhar = owner;
         isEdit = true;
         
         constructComponents();
@@ -293,7 +296,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
             tryCropImage();
         }
         if(source == browseBtn) {
-            JFileChooser openDia = new JFileChooser();
+            JFileChooser openDia = new JFileChooser(yarhar.config.vars.get("lastOpen"));
             FileNameExtensionFilter filter = new FileNameExtensionFilter ("bmp, gif, jpg, or png file", "bmp", "gif", "jpg", "png");
             openDia.setFileFilter(filter);
             
@@ -306,6 +309,8 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
                     path = openDia.getSelectedFile().getPath();
                     curImg = new ImageIcon(path);
                     imgPath = path;
+                    
+                    yarhar.config.vars.put("lastOpen", path);
                 }
                 catch (Exception ex) {
                     curImg = loadImageIconFromResource("BadImg.png");

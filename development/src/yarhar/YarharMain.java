@@ -14,6 +14,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
     public LayersPanel layersPanel;
     public EditorPanel editorPanel;
     public JSplitPane splitPane;
+    public YarharConfig config;
     
     public YarharMain() {
         super("YarHar!");
@@ -49,6 +50,8 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         
+        config = YarharConfig.load();
+        
         System.err.println("Game Window successfully created!!!");
         
         editorPanel.start();
@@ -65,8 +68,9 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         System.err.println("program terminated. Restoring original display settings.");
     }
     
-    public void    windowClosing(WindowEvent e) {
+    public void windowClosing(WindowEvent e) {
         System.err.println("Window closing");
+        config.save();
     }
     
     public void windowDeactivated(WindowEvent e) {
