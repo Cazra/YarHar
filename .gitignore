@@ -1,4 +1,6 @@
 development/doc
 development/bin
 development/**/yarhar.jar
+development/**/yarhar.dat
+development/yarhar.dat
 

@@ -26,6 +26,11 @@ public class SpriteInstance extends Sprite implements Transferable {
     public double startAngle = 0;
     public double startScaleX = 0;
     public double startScaleY = 0;
+    public double startRepeatX = 0;
+    public double startRepeatY = 0;
+    
+    public double repeatX = 1.0;
+    public double repeatY = 1.0;
     
     public boolean isSelected = false;
     
@@ -110,14 +115,45 @@ public class SpriteInstance extends Sprite implements Transferable {
         this.focalX = type.focalX;
         this.focalY = type.focalY;
         
-        type.render(g);
+        // draw the sprite's image, repeating if necessary.
+        if(repeatX != 1.0 || repeatY != 1.0) {
+          Shape origClip = g.getClip();
+          g.clipRect(0,0,(int) getWidth(), (int) getHeight());
+          
+          AffineTransform origTrans = g.getTransform();
+        
+          for(double i = 0; i < getWidth(); i+=type.width) {
+            for(double j = 0; j < getHeight(); j+= type.height) {
+              g.translate(i,j);
+              type.render(g);
+              g.setTransform(origTrans);
+            }
+          }
+          
+          g.setClip(origClip);
+        }
+        else {
+          type.render(g);
+        }
+        
+        
         
         if(isSelected) {
             g.setColor(new Color(0x00DDDD));
-            g.drawRect(0, 0, type.width, type.height);
+            g.drawRect(0, 0, (int) getWidth(), (int) getHeight());
         }
     }
     
+    
+    /** Returns the calculated width of this instance. */
+    public double getWidth() {
+      return type.width*repeatX;
+    }
+    
+    /** Returns the calculated height of this instance. */
+    public double getHeight() {
+      return type.height*repeatY;
+    }
     
     /** Returns true if the mouse is over this sprite's bounding box. */
     public boolean isClicked(Point mouseScr) {
@@ -134,7 +170,7 @@ public class SpriteInstance extends Sprite implements Transferable {
         double mx = mouseRel.getX();
         double my = mouseRel.getY();
         
-        return (mx >= 0 && my >= 0 && mx < width && my < height);
+        return (mx >= 0 && my >= 0 && mx < getWidth() && my < getHeight());
     }
     
     

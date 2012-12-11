@@ -260,6 +260,9 @@ public class LevelMap extends Level implements ClipboardOwner {
             if(isGesturing && keyboard.isPressed(KeyEvent.VK_S)) {
                 new ScaleGestureEdit(this);
             }
+            if(isGesturing && keyboard.isPressed(KeyEvent.VK_T)) {
+                new TileGestureEdit(this);
+            }
             
             isDrag = false;
             isSelRect = false;
@@ -317,6 +320,28 @@ public class LevelMap extends Level implements ClipboardOwner {
             // Do the rotation while the mouse is pressed.
             if(mouse.isLeftPressed) {
                 scaleGesture(mouseWorld);
+            }
+        }
+        else if(keyboard.isPressed(KeyEvent.VK_T)) {
+            // Tile gesture
+            
+            if(mouse.justLeftPressed) {
+                isGesturing = true;
+                
+                // save the drag start point
+                gestureAnchor = getSelectionCenter();
+                gestureAnchor2 = new Point(mouseWorld.x, mouseWorld.y);
+                
+                // save the original tile repeat values of all the sprites in the selection.
+                for(SpriteInstance sprite : selectedSprites) {
+                    sprite.startRepeatX = sprite.repeatX;
+                    sprite.startRepeatY = sprite.repeatY;
+                }
+            }
+            
+            // Do the rotation while the mouse is pressed.
+            if(mouse.isLeftPressed) {
+                tileGesture(mouseWorld);
             }
         }
         else if(!isGesturing) { 
@@ -792,6 +817,35 @@ public class LevelMap extends Level implements ClipboardOwner {
         selectedSprite.scaleX = x;
         selectedSprite.scaleY = y;
         selectedSprite.transformChanged = true;
+    }
+    
+    /** Performs an iteration for the tile mouse gesture. */
+    public void tileGesture(Point2D mouseWorld) {
+        try {
+            // compute the center of mass.
+            double cx = gestureAnchor.getX();
+            double cy = gestureAnchor.getY();
+            
+            // Compute the scale values based on the relative positions of the anchor point, 
+            // the center of mass, and the mouse's current world position.
+            double sx = (mouseWorld.getX() - cx)/(gestureAnchor2.getX() - cx);
+            double sy = (mouseWorld.getY() - cy)/(gestureAnchor2.getY() - cy);
+            
+            if(sx <= 0)
+              sx = 0.1;
+            if(sy <= 0)
+              sy = 0.1;
+            
+            for(SpriteInstance sprite : selectedSprites) {
+                sprite.repeatX = sprite.startRepeatX * sx;
+                sprite.repeatY = sprite.startRepeatY * sy;
+            }
+            
+            
+        }
+        catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
+            
+        }
     }
     
     //// Cloning sprites
