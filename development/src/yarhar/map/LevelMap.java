@@ -249,9 +249,10 @@ public class LevelMap extends Level implements ClipboardOwner {
         
         if(selectedSprites.size() == 0) 
           statusText += "No sprites selected. ";
-        else if(selectedSprites.size() == 1) {
-          statusText += "1 sprite selected: " + selectedSprite.type.name + " ";
-          statusText += "(" + selectedSprite.x + "," + selectedSprite.y + ") ";
+        else if(selectedSprites.size() == 1 && selectedSprite != null) {
+          statusText += "1 sprite selected: " + selectedSprite.type.name + " - ";
+          statusText += "position: (" + selectedSprite.x + "," + selectedSprite.y + ") ";
+          statusText += "z-index: " + selectedSprite.zIndex + " ";
         }
         else
           statusText += selectedSprites.size() + " sprites selected. ";
@@ -319,7 +320,7 @@ public class LevelMap extends Level implements ClipboardOwner {
             }
             
             // status text
-            statusText += "- (R)otation ";
+            statusText += "- Rotation ";
             if(selectedSprites.size() == 1) {
               statusText += selectedSprite.angle + " degrees ";
             }
@@ -350,7 +351,7 @@ public class LevelMap extends Level implements ClipboardOwner {
             }
             
             // status text
-            statusText += "- (S)cale ";
+            statusText += "- Scale ";
             if(selectedSprites.size() == 1) {
               statusText += "(" + selectedSprite.scaleX + ", " + selectedSprite.scaleY + ") ";
             }
@@ -378,7 +379,7 @@ public class LevelMap extends Level implements ClipboardOwner {
             }
             
             // status text
-            statusText += "- (T)ile ";
+            statusText += "- Tile ";
             if(selectedSprites.size() == 1) {
               statusText += "(" + selectedSprite.repeatX + ", " + selectedSprite.repeatY + ") ";
             }
