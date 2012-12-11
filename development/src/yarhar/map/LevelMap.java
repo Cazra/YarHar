@@ -736,8 +736,7 @@ public class LevelMap extends Level implements ClipboardOwner {
             double cx = center.getX();
             double cy = center.getY();
             
-            
-            // rotate the sprites
+            // scale the sprites
             for(int i = 0; i < selectedSprites.size(); i++) {
                 SpriteInstance sprite = selectedSprites.get(i);
                 
@@ -803,8 +802,6 @@ public class LevelMap extends Level implements ClipboardOwner {
                 sprite.scaleY = sprite.startScaleY * sy;
                 sprite.transformChanged = true;
             }
-            
-            
         }
         catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
             
@@ -817,6 +814,24 @@ public class LevelMap extends Level implements ClipboardOwner {
         selectedSprite.scaleX = x;
         selectedSprite.scaleY = y;
         selectedSprite.transformChanged = true;
+    }
+    
+    
+    /** Tiles the selected sprites relative to their current tiling values. */
+    public void tileSelectedSprites(double x, double y) {
+        try {
+            // tile the sprites
+            for(int i = 0; i < selectedSprites.size(); i++) {
+                SpriteInstance sprite = selectedSprites.get(i);
+                
+                sprite.repeatX *= x;
+                sprite.repeatY *= y;
+                sprite.transformChanged = true;
+            }
+        }
+        catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
+            
+        }
     }
     
     /** Performs an iteration for the tile mouse gesture. */
@@ -846,6 +861,12 @@ public class LevelMap extends Level implements ClipboardOwner {
         catch (Exception e) { // Pokemon exception: Gotta catch 'em all!
             
         }
+    }
+    
+    /** Tiles the currently selected sprite to absolute values. */
+    public void tileSpriteAbs(double x, double y) {
+        selectedSprite.repeatX = x;
+        selectedSprite.repeatY = y;
     }
     
     //// Cloning sprites
@@ -1052,6 +1073,7 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         JMenuItem toBackItem = new JMenuItem("Send to back");
     JMenuItem rotateItem = new JMenuItem("Rotate");
     JMenuItem scaleItem = new JMenuItem("Scale");
+    JMenuItem tileItem = new JMenuItem("Tile");
     JMenuItem opacityItem = new JMenuItem("Set opacity");
     JMenuItem deleteItem = new JMenuItem("Delete");
     
@@ -1103,6 +1125,9 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         
         add(scaleItem);
         scaleItem.addActionListener(this);
+        
+        add(tileItem);
+        tileItem.addActionListener(this);
         
         add(opacityItem);
         opacityItem.addActionListener(this);
@@ -1158,6 +1183,16 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
             ScaleDialog dialog = new ScaleDialog(editor.frame, selSprite);
             if(dialog.returnedOK) {
                 new ScaleSpriteEdit(map, dialog.scaleUni, dialog.scaleX, dialog.scaleY, dialog.isRelative);
+            }
+        }
+        if(source == tileItem) {
+            SpriteInstance selSprite = null;
+            if(map.selectedSprites.size() == 1)
+                selSprite = map.selectedSprite;
+                
+            TileDialog dialog = new TileDialog(editor.frame, selSprite);
+            if(dialog.returnedOK) {
+                new TileSpriteEdit(map, dialog.tileX, dialog.tileY, dialog.isRelative);
             }
         }
         if(source == opacityItem) {
