@@ -109,12 +109,17 @@ public class LevelMap extends Level implements ClipboardOwner {
     public Point2D gestureAnchor = new Point2D.Double(0,0);
     public Point2D gestureAnchor2 = new Point2D.Double(0,0);
     
-    
+    /** Stores the starting angle for a rotate gesture. */
     public double gestureStartAngle = 0;
     
     /** The sprite right-click menu */
     public SpriteRClickMenu spriteMenu;
     
+    /** A reference to Yarhar's status footer. */
+    public StatusFooterPanel footer;
+    
+    /** A string containing the status text that will be sent to the footer. */
+    public String statusText = "";
     
     
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
@@ -125,6 +130,7 @@ public class LevelMap extends Level implements ClipboardOwner {
     /** Load the map from a JSON text file */
     public LevelMap(EditorPanel game, File file) {
         super(game);
+        footer = game.frame.footer;
         
         if(file == null) {
             spriteLib = new SpriteLibrary(this);
@@ -235,7 +241,21 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     public void logic() {
         mouseWorld = getMouseWorld();
-
+        
+        // basic status text
+        statusText = "Mouse: (" + mouseWorld.x + ", " + mouseWorld.y + ") ";
+        
+        statusText += "Layer: " + selectedLayer.name + " - ";
+        
+        if(selectedSprites.size() == 0) 
+          statusText += "No sprites selected. ";
+        else if(selectedSprites.size() == 1) {
+          statusText += "1 sprite selected: " + selectedSprite.type.name + " ";
+          statusText += "(" + selectedSprite.x + "," + selectedSprite.y + ") ";
+        }
+        else
+          statusText += selectedSprites.size() + " sprites selected. ";
+        
         //// sprite interaction
         
         // When left click is released, resolve any operations associated with the mouse gesture.
@@ -297,6 +317,13 @@ public class LevelMap extends Level implements ClipboardOwner {
                 double angleToMouse = GameMath.angleTo(gestureAnchor.getX(), gestureAnchor.getY(), mouseWorld.x, mouseWorld.y);
                 rotateGesture(angleToMouse);
             }
+            
+            // status text
+            statusText += "- (R)otation ";
+            if(selectedSprites.size() == 1) {
+              statusText += selectedSprite.angle + " degrees ";
+            }
+            
         }
         else if(keyboard.isPressed(KeyEvent.VK_S)) {
             // Scale gesture
@@ -321,6 +348,12 @@ public class LevelMap extends Level implements ClipboardOwner {
             if(mouse.isLeftPressed) {
                 scaleGesture(mouseWorld);
             }
+            
+            // status text
+            statusText += "- (S)cale ";
+            if(selectedSprites.size() == 1) {
+              statusText += "(" + selectedSprite.scaleX + ", " + selectedSprite.scaleY + ") ";
+            }
         }
         else if(keyboard.isPressed(KeyEvent.VK_T)) {
             // Tile gesture
@@ -342,6 +375,12 @@ public class LevelMap extends Level implements ClipboardOwner {
             // Do the rotation while the mouse is pressed.
             if(mouse.isLeftPressed) {
                 tileGesture(mouseWorld);
+            }
+            
+            // status text
+            statusText += "- (T)ile ";
+            if(selectedSprites.size() == 1) {
+              statusText += "(" + selectedSprite.repeatX + ", " + selectedSprite.repeatY + ") ";
             }
         }
         else if(!isGesturing) { 
@@ -444,6 +483,8 @@ public class LevelMap extends Level implements ClipboardOwner {
                camera.zoomAtScreen(0.75, mouse.position);
             
         }
+        
+        footer.setText(statusText);
     }
     
     

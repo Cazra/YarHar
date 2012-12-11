@@ -13,6 +13,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
     public SpriteLibraryPanel spriteLibPanel;
     public LayersPanel layersPanel;
     public EditorPanel editorPanel;
+    public StatusFooterPanel footer;
     public JSplitPane splitPane;
     public YarharConfig config;
     
@@ -45,6 +46,8 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         splitPane.setDividerLocation(0.3);
         borderPanel.add(splitPane, BorderLayout.CENTER);
         
+        footer = new StatusFooterPanel(this);
+        borderPanel.add(footer, BorderLayout.SOUTH);
         
         // finishing touches on Game window
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
