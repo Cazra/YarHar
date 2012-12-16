@@ -90,7 +90,8 @@ public class SpriteInstance extends Sprite implements Transferable {
         result += "\"sx\":" + scaleX + ",";
         result += "\"sy\":" + scaleY + ",";
         result += "\"tx\":" + repeatX + ",";
-        result += "\"ty\":" + repeatY;
+        result += "\"ty\":" + repeatY + ",";
+        result += "\"l\":" + isLocked;
         
         result += "}";
         return result;
@@ -108,6 +109,7 @@ public class SpriteInstance extends Sprite implements Transferable {
             scaleY = spriteJ.getDouble("sy");
             repeatX = spriteJ.getDouble("tx");
             repeatY = spriteJ.getDouble("ty");
+            isLocked = spriteJ.getBoolean("l");
         }
         catch(Exception e) {
             System.err.println("Error reading JSON for sprite instance");

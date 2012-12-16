@@ -57,6 +57,8 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem rotateItem = new JMenuItem("Rotate");
         JMenuItem scaleItem = new JMenuItem("Scale");
         JMenuItem opacityItem = new JMenuItem("Set opacity");
+        JMenuItem lockItem = new JMenuItem("Lock selected");
+        JMenuItem unlockItem = new JMenuItem("Unlock all");
     
     JMenu helpMenu = new JMenu("Help");
     
@@ -155,6 +157,16 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             
             spritesMenu.add(opacityItem);
             opacityItem.addActionListener(this);
+            
+            spritesMenu.add(new JSeparator());
+            
+            spritesMenu.add(lockItem);
+            lockItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK));
+            lockItem.addActionListener(this);
+            
+            spritesMenu.add(unlockItem);
+            unlockItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+            unlockItem.addActionListener(this);
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -182,6 +194,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             rotateItem.setEnabled(copyEnabled);
             scaleItem.setEnabled(copyEnabled);
             opacityItem.setEnabled(copyEnabled);
+            lockItem.setEnabled(copyEnabled);
         }
         else {
             undoItem.setEnabled(true);
@@ -195,6 +208,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             rotateItem.setEnabled(true);
             scaleItem.setEnabled(true);
             opacityItem.setEnabled(true);
+            lockItem.setEnabled(true);
         }
     }
     
@@ -293,6 +307,12 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             if(dialog.returnedOK) {
                 new OpacitySpriteEdit(map, dialog.opacity, dialog.isRelative);
             }
+        }
+        if(source == lockItem) {
+          new LockSpriteEdit(map);
+        }
+        if(source == unlockItem) {
+          new UnlockSpriteEdit(map);
         }
         
         // View menu
