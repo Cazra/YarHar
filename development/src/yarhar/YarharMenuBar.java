@@ -61,6 +61,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem unlockItem = new JMenuItem("Unlock all");
     
     JMenu helpMenu = new JMenu("Help");
+      JMenuItem helpItem = new JMenuItem("Help");
     
     
     
@@ -170,6 +171,8 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         
         this.add(helpMenu);
         helpMenu.setMnemonic(KeyEvent.VK_H);
+          helpMenu.add(helpItem);
+          helpItem.addActionListener(this);
     }
     
     
@@ -330,6 +333,12 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         if(source == bgColorItem) {
             LevelMap curMap = ((LevelMap) yarhar.editorPanel.curLevel);
             new BGColorDialog(yarhar, curMap);
+        }
+        
+        // Help menu
+        
+        if(source == helpItem) {
+            new HelpDialog(yarhar);
         }
         
         yarhar.editorPanel.keyboard.endKeyHolds();
