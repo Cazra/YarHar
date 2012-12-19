@@ -3,7 +3,7 @@ README
 
 /*======================================================================
  * 
- * Yarhar : A 2D map editor made in Java
+ * Yarhar v1.0 : A 2D map editor made in Java
  * 
  * Copyright (c) 2012 by Stephen Lindberg (sllindberg21@students.tntech.edu)
  * All rights reserved.
@@ -64,14 +64,40 @@ This will create the yarhar.jar in the "latest" directory and it will also creat
 for Yarhar in the "docs" directory.
 
 
+Controls:
+-------------------
+The following are the available mouse controls for using the editor area.
 
-Building the examples from source:
----------------------
-In the root directory for the each example, just open a terminal and enter
-"ant all"
+Click and drag from empty space : 	pan the camera.
 
-The executable jar file for the example will be created in its "latest" directory.
+Mouse wheel : 				zoom the camera in or out from 
+					the mouse pointer.
 
+Click a sprite : 			Select a sprite
+
+Shift + click a sprite : 		Add another sprite to the selection.
+
+Drag sprite(s) : 			Moves all the currently selected 
+					sprites with the mouse.
+
+Shift + drag : 				Add all sprites in rectangle to 
+					the selection.
+
+Ctrl + drag sprite(s) : 		Clones the currently selected sprites and 
+					moves the clones with the mouse.
+
+Space + drag : 				Pan the camera, even if you're 
+					clicking on a sprite.
+
+r + drag : 				rotate the currently selected sprites.
+
+s + drag :				scale the currently selected sprites.
+
+t + drag : 				tile the currently selected sprites.
+
+Right-click :				Opens up the right click menu.
+
+Several menu options also have keyboard shortcuts available.
 
 
 Frequently Asked Questions:
@@ -88,23 +114,17 @@ A: It's a map editor. Pirates use treasure maps. Since you are using this
    So yeah, I really just gave the name "Yarhar" to make a lame pirate joke.
 
 Q: Is it done yet? 
-A: Yes, but there's a bunch of features I'm still working on for it. Feel free to go ahead and
-   make maps with it though!
+A: Yes it is! Go make some maps, ye scurvy landlubber, you! :D
 
 Q: How do I read my map's json?
-A: I should probably write up a json specification for this. I'll let you know when that's done. 
-   
-   For now, know that a map's json includes its sprite library and its layer list at the top.
-   
-   The sprite library has a list of sprite types which are used to reference the 
-   types of sprites used in your level. All the sprite types for a map are uniquely 
-   identified by name.
-   
-   Each of the layers have their own lists of sprite instances. 
-   
-   So, to recreate your map for a level inside your game's code, just iterate through the 
-   layers and iterate through each layer's sprite instance list to create the actual layers 
-   and sprites for your level. 
+A: See the jsonSpecification.docx/pdf file for documentation on 
+   how the maps' json is structured. 
+
+   How these maps are interpretted into actual game levels is very 
+   dependent on the game and the language it is written with. So
+   it is up to you to implement your own algorithms for interpretting
+   the json into levels! It's not hard as long as you have code ready 
+   for your sprite objects and layers.
    
 
 

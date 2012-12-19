@@ -626,6 +626,9 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     /** Selects a sprite and adds it to the list of currently selected sprites */
     public void selectSprite(SpriteInstance sprite) {
+        if(sprite.isLocked)
+          return;
+        
         sprite.isSelected = true;
         
         // prevent duplicates
@@ -962,6 +965,20 @@ public class LevelMap extends Level implements ClipboardOwner {
         selectedSprites = newSelSprites;
     }
     
+    //// Locking/Unlocking sprites
+    
+    /** Makes the selected sprites become unselected and unselectable. */
+    public void lockSelectedSprites() {
+      for(SpriteInstance sprite : selectedSprites) {
+        sprite.isLocked = true;
+      }
+      unselectAll();
+    }
+    
+    /** Unlocks all sprites in the currently selected layer. */
+    public void unlockAll() {
+      selectedLayer.unlockAll();
+    }
     
     //// Deleting sprites
     
@@ -1142,6 +1159,8 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
     JMenuItem scaleItem = new JMenuItem("Scale");
     JMenuItem tileItem = new JMenuItem("Tile");
     JMenuItem opacityItem = new JMenuItem("Set opacity");
+    JMenuItem lockItem = new JMenuItem("Lock selected");
+    JMenuItem unlockItem = new JMenuItem("Unlock all");
     JMenuItem deleteItem = new JMenuItem("Delete");
     
     public SpriteRClickMenu(LevelMap map) {
@@ -1200,6 +1219,16 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         opacityItem.addActionListener(this);
         
         add(new JSeparator());
+        
+        add(lockItem);
+        lockItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK));
+        lockItem.addActionListener(this);
+        
+        add(unlockItem);
+        unlockItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+        unlockItem.addActionListener(this);
+        
+        add(new JSeparator()); 
         
         add(deleteItem);
         deleteItem.addActionListener(this);
@@ -1272,6 +1301,12 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
                 new OpacitySpriteEdit(map, dialog.opacity, dialog.isRelative);
             }
         }
+        if(source == lockItem) {
+          new LockSpriteEdit(map);
+        }
+        if(source == unlockItem) {
+          new UnlockSpriteEdit(map);
+        }
         
         if(source == deleteItem) {
             new DeleteSpriteEdit(map);
@@ -1292,6 +1327,7 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         rotateItem.setEnabled(copyEnabled);
         scaleItem.setEnabled(copyEnabled);
         opacityItem.setEnabled(copyEnabled);
+        lockItem.setEnabled(copyEnabled);
         
         super.show(origin, x, y);
     }

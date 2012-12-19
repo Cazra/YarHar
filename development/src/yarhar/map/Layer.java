@@ -255,5 +255,12 @@ public class Layer {
         for(SpriteInstance sprite : sprites)
             sprite.isSelected = flag;
     }
+    
+    /** Unlocks all sprites in this layer. */
+    public void unlockAll() {
+      for(SpriteInstance sprite : sprites) {
+        sprite.isLocked = false;
+      }
+    }
 }
 

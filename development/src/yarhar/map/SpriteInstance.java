@@ -33,6 +33,7 @@ public class SpriteInstance extends Sprite implements Transferable {
     public double repeatY = 1.0;
     
     public boolean isSelected = false;
+    public boolean isLocked = false;
     
     public static DataFlavor flavor = new DataFlavor(SpriteInstance.class, SpriteInstance.class.getSimpleName());
     
@@ -87,7 +88,10 @@ public class SpriteInstance extends Sprite implements Transferable {
         result += "\"o\":" + opacity + ",";
         result += "\"s\":" + scaleUni + ",";
         result += "\"sx\":" + scaleX + ",";
-        result += "\"sy\":" + scaleY;
+        result += "\"sy\":" + scaleY + ",";
+        result += "\"tx\":" + repeatX + ",";
+        result += "\"ty\":" + repeatY + ",";
+        result += "\"l\":" + isLocked;
         
         result += "}";
         return result;
@@ -103,7 +107,9 @@ public class SpriteInstance extends Sprite implements Transferable {
             scaleUni = spriteJ.getDouble("s");
             scaleX = spriteJ.getDouble("sx");
             scaleY = spriteJ.getDouble("sy");
-            
+            repeatX = spriteJ.getDouble("tx");
+            repeatY = spriteJ.getDouble("ty");
+            isLocked = spriteJ.getBoolean("l");
         }
         catch(Exception e) {
             System.err.println("Error reading JSON for sprite instance");
@@ -157,6 +163,9 @@ public class SpriteInstance extends Sprite implements Transferable {
     
     /** Returns true if the mouse is over this sprite's bounding box. */
     public boolean isClicked(Point mouseScr) {
+        if(isLocked)
+          return false;
+        
         AffineTransform curInv;
         try {
             curInv = curTrans.createInverse();
