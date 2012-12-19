@@ -1,7 +1,10 @@
 package yarhar;
 
+import java.util.LinkedList;
 import java.util.HashMap;
 import javax.swing.*;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
@@ -14,7 +17,7 @@ import yarhar.map.*;
 import yarhar.dialogs.*;
 import yarhar.cmds.*;
 
-public class SpriteLibraryJTree extends JTree implements TreeSelectionListener, MouseListener {
+public class SpriteLibraryJTree extends JTree implements TreeExpansionListener, TreeSelectionListener, MouseListener {
     /** A reference back to our YarharMain */
     public YarharMain frame;
     
@@ -23,6 +26,9 @@ public class SpriteLibraryJTree extends JTree implements TreeSelectionListener, 
     
     public SpriteType lastType = null;
     public String lastGroupName = "";
+    
+    /** Maintain a list of expanded groups. */
+    public LinkedList<String> expPaths = new LinkedList<String>();
     
     public LibraryRClickMenu rClickMenu;
     
@@ -35,6 +41,7 @@ public class SpriteLibraryJTree extends JTree implements TreeSelectionListener, 
         getSelectionModel().setSelectionMode
             (TreeSelectionModel.SINGLE_TREE_SELECTION);
         
+        this.addTreeExpansionListener(this);
         this.addTreeSelectionListener(this);
         this.addMouseListener(this);
         rClickMenu = new LibraryRClickMenu(this);
@@ -55,6 +62,31 @@ public class SpriteLibraryJTree extends JTree implements TreeSelectionListener, 
             System.err.print("/" + lastType.toString());
         }
         System.err.println();
+    }
+    
+    
+    public void treeCollapsed(TreeExpansionEvent e) {
+      Object source = e.getSource();
+      
+      if(source == this) {
+        String gName = e.getPath().getLastPathComponent().toString();
+        System.err.println("Collapsed: " + gName);
+        
+        if(expPaths.contains(gName))
+          expPaths.remove(gName);
+      }
+    }
+    
+    public void treeExpanded(TreeExpansionEvent e) {
+      Object source = e.getSource();
+      
+      if(source == this) {
+        String gName = e.getPath().getLastPathComponent().toString();
+        System.err.println("Expanded: " + gName);
+        
+        if(!expPaths.contains(gName))
+          expPaths.add(gName);
+      }
     }
     
     public void mouseClicked(MouseEvent e) {
@@ -106,6 +138,19 @@ public class SpriteLibraryJTree extends JTree implements TreeSelectionListener, 
         
         DefaultTreeModel model = new DefaultTreeModel(top);
         this.setModel(model);
+        
+        // reexpand the opened groups.
+        for(String group : expPaths) {
+          try {
+            TreePath path = this.getNextMatch(group, 1, javax.swing.text.Position.Bias.Forward);
+            if(path != null) {
+              this.fireTreeExpanded(path);
+            }
+          }
+          catch (Exception e) {
+            // pokemon exception - gotta catch em all!
+          }
+        }
     }
     
     
