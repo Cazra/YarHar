@@ -233,6 +233,31 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     
     
+    public void importLibrary(File file) {
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            
+            // read the json text from the file.
+            String jsonStr = "";
+            String line = br.readLine();
+            while(line != null) {
+                jsonStr += line;
+                line = br.readLine();
+            }
+            
+            // convert the json text into a json object and then construct this map from it.
+            JSONObject json = new JSONObject(jsonStr);
+            JSONObject yarmap = json.getJSONObject("yarmap");
+            
+            // import the library from the json.
+            SpriteLibrary importLib = new SpriteLibrary(this, yarmap.getJSONObject("spriteLib"));
+            new ImportLibraryEdit(spriteLib, importLib);
+        }
+        catch(Exception e) {
+            System.err.println("Error reading JSON for map.");
+        }
+    }
     
     
     

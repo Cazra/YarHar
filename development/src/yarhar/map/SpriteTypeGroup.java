@@ -66,6 +66,13 @@ public class SpriteTypeGroup {
         }
     }
     
+    /** Creates a shallow clone of this group. */
+    public SpriteTypeGroup makeClone() {
+      SpriteTypeGroup clone = new SpriteTypeGroup(this.name);
+      clone.typeNames = new TreeSet<String>(this.typeNames);
+      return clone;
+    }
+    
     
     /** Adds a new SpriteType to this group (or replaces any existing SpriteType with the same name). */
     public void addSpriteType(SpriteType spriteType) {

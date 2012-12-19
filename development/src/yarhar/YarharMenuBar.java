@@ -22,6 +22,7 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
         JMenuItem saveAsItem = new JMenuItem("Save as");
+        JMenuItem importItem = new JMenuItem("Import sprite library");
         JMenuItem exitItem = new JMenuItem("Exit");
     
     JMenu editMenu = new JMenu("Edit") {
@@ -85,6 +86,10 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             fileMenu.add(saveAsItem);
             saveAsItem.addActionListener(this);
             saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK | ActionEvent.ALT_MASK));
+            
+            fileMenu.add(importItem);
+            importItem.addActionListener(this);
+            importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
             
             fileMenu.add(exitItem);
             exitItem.addActionListener(this);
@@ -223,6 +228,9 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             saveMap(false);
         if(source == saveAsItem)
             saveMap(true);
+        if(source == importItem) {
+            importLib();
+        }
         if(source == exitItem) {
             System.err.println("File -> exitItem fired.");
             yarhar.close();
@@ -373,8 +381,6 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     
     /** Loads a map from a file. */
     public void loadMap() {
-        LevelMap map = yarhar.editorPanel.getCurMap();
-        
         // if our map has been modified since its last save, give the user the option to save it before opening a map.
         if(promptModified() == JOptionPane.CANCEL_OPTION)
             return;
@@ -396,6 +402,26 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         }
         
         undoManager.discardAllEdits();
+    }
+    
+    
+    /** Imports a sprite library from another yarhar map file into our current library. */
+    public void importLib() {
+      JFileChooser chooser = new JFileChooser(yarhar.config.vars.get("lastOpen"));
+      chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
+
+      int retVal = chooser.showOpenDialog(this);
+      
+      // load the file.
+      if(retVal == JFileChooser.APPROVE_OPTION) {
+        File selFile = chooser.getSelectedFile();
+        
+        yarhar.editorPanel.isLoading = true;
+        yarhar.editorPanel.getCurMap().importLibrary(selFile);
+        yarhar.editorPanel.isLoading = false;
+        
+        yarhar.config.vars.put("lastOpen", selFile.getPath());
+      }
     }
     
     

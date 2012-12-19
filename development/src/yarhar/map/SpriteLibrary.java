@@ -31,6 +31,9 @@ public class SpriteLibrary {
     /** True if this SpriteLibrary's Swing component peer needs to be updated. */
     public boolean isModified = false;
     
+    public SpriteLibrary() {
+    }
+    
     public SpriteLibrary(LevelMap parent) {
         levelMap = parent;
         
@@ -122,6 +125,24 @@ public class SpriteLibrary {
         catch(Exception e) {
             System.err.println("Error reading JSON for sprite library.");
         }
+    }
+    
+    /** Produces a shallow clone of this sprite library. */
+    public SpriteLibrary makeClone() {
+      SpriteLibrary clone = new SpriteLibrary();
+      clone.levelMap = this.levelMap;
+      clone.sprites = new HashMap<String, SpriteType>(this.sprites);
+      
+      clone.spriteNames = new TreeSet<String>(this.spriteNames);
+      clone.groupNames = new TreeSet<String>(this.groupNames);
+      
+      clone.groups = new HashMap<String, SpriteTypeGroup>();
+      for(String gName : groupNames) {
+        SpriteTypeGroup group = groups.get(gName);
+        clone.groups.put(gName, group.makeClone());
+      }
+      
+      return clone;
     }
     
     
