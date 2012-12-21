@@ -9,7 +9,6 @@ import yarhar.images.ImageLibrary;
  * It contains only two parts: 
  * - The ImageLibrary associated with the map.
  * - The complete json String for the map.
- * 
  */
 public class YarharFile implements Serializable {
   /** The map's library of images. */

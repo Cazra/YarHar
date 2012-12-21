@@ -1,18 +1,22 @@
 package yarhar.map;
 
-import yarhar.*;
 import java.awt.*;
 import pwnee.*;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.TreeSet;
 import org.json.*;
+import yarhar.*;
+import yarhar.images.ImageLibrary;
 
 /** Stores all the SpriteTypes used by the map that uses this. */
 public class SpriteLibrary {
     
     /** The map to which this belongs. */
     public LevelMap levelMap;
+    
+    /** The image library associated with this map used to render all its SpriteTypes. */
+    public ImageLibrary imgLib;
     
     /** Our library is actually divided into groups of SpriteTypes indexed by name. 
     Inside these groups, the SpriteTypes themselves are then indexed by name. */
@@ -31,11 +35,14 @@ public class SpriteLibrary {
     /** True if this SpriteLibrary's Swing component peer needs to be updated. */
     public boolean isModified = false;
     
+    /** Blank constructor. */
     public SpriteLibrary() {
     }
     
     public SpriteLibrary(LevelMap parent) {
         levelMap = parent;
+        
+        setImgLib(new ImageLibrary());
         
     //    testPopulation();
         addGroup("default");
@@ -45,7 +52,10 @@ public class SpriteLibrary {
     
     public SpriteLibrary(LevelMap parent, JSONObject json) {
         levelMap = parent;
+        
         loadJSON(json);
+        setImgLib(new ImageLibrary());
+        
         updatePeerComponent();
     }
     
@@ -144,6 +154,26 @@ public class SpriteLibrary {
       
       return clone;
     }
+    
+    
+    
+    
+    /** Sets the ImageLibrary associated with this SpriteLibrary and its SpriteTypes. */
+    public void setImgLib(ImageLibrary imgLib) {
+      this.imgLib = imgLib;
+      
+      for(String tName : spriteNames) {
+        SpriteType type = sprites.get(tName);
+        type.imgLib = imgLib;
+      }
+    }
+    
+    
+    
+    
+    
+    
+    
     
     
     /** Creates a new blank group in our library, unless a group with the name already exists. */

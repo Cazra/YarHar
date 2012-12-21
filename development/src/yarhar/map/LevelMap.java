@@ -137,11 +137,14 @@ public class LevelMap extends Level implements ClipboardOwner {
         if(file == null) {
             spriteLib = new SpriteLibrary(this);
             addLayer(new Layer());
+            filePath = FileUtils.getWorkingPath();
         }
         else {
             try {
                 FileReader fr = new FileReader(file);
                 BufferedReader br = new BufferedReader(fr);
+                
+                filePath = file.getAbsolutePath();
                 
                 // read the json text from the file.
                 String jsonStr = "";
@@ -160,9 +163,7 @@ public class LevelMap extends Level implements ClipboardOwner {
                 System.err.println("Error reading JSON for map.");
             }
         }
-        
-        filePath = file.getAbsolutePath();
-        
+
         game.frame.updateTitle(name);
         game.frame.layersPanel.setMap(this);
         game.frame.spriteLibPanel.setLibrary(this.spriteLib);

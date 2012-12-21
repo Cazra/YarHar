@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import pwnee.image.ImageLoader;
 import pwnee.image.ImageEffects;
 import yarhar.*;
+import yarhar.images.ImageLibrary;
 import yarhar.map.*;
 import yarhar.cmds.*;
 
@@ -94,7 +95,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
             imgPath = path;
         }
         catch (Exception ex) {
-            curImg = loadImageIconFromResource("BadImg.png");
+            curImg = new ImageIcon(ImageLibrary.getBadImg());
             imgPath = "";
         }
         
@@ -181,7 +182,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     /** Initializes our SpriteLabel. */
     public void initSpriteLabel() {
-        curImg = loadImageIconFromResource("BadImg.png");
+        curImg = new ImageIcon(ImageLibrary.getBadImg());
         curImgLabel = new SpriteLabel(curImg);
         curImgLabel.mousePosLabel = mousePosLabel;
         curImgLabel.focalPointLabel = focalPointLabel;
@@ -256,15 +257,6 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     
     
-    /** Loads an ImageIcon from a file or URL. */
-    public ImageIcon loadImageIconFromResource(String path) {
-        ImageLoader imgLoader = new ImageLoader();
-        Image img = imgLoader.loadFromFile(path);
-        ImageIcon result = new ImageIcon(img);
-        return result;
-    }
-    
-    
     /** Event listener for buttons */
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -313,7 +305,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
                     yarhar.config.vars.put("lastOpen", path);
                 }
                 catch (Exception ex) {
-                    curImg = loadImageIconFromResource("BadImg.png");
+                    curImg = new ImageIcon(ImageLibrary.getBadImg());
                     imgPath = "";
                 }
                 

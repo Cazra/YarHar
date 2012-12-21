@@ -1,6 +1,5 @@
 package yarhar.map;
 
-import yarhar.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.image.BufferedImage;
@@ -11,10 +10,15 @@ import java.io.File;
 import org.json.*;
 import pwnee.*;
 import pwnee.image.*;
+import yarhar.*;
+import yarhar.images.ImageLibrary;
 
 public class SpriteType implements Transferable {
     /** The unique name given to this SpriteType. */
     public String name = "Untitled";
+    
+    /** The ImageLibrary used to render this. */
+    public ImageLibrary imgLib;
     
     /** The file path to the image used to represent this SpriteType in the editor. */
     public String imgPath = "";
