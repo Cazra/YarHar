@@ -3,6 +3,7 @@ package yarhar.map;
 import yarhar.*;
 import yarhar.cmds.*;
 import yarhar.dialogs.*;
+import yarhar.utils.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.KeyEvent;
@@ -125,6 +126,7 @@ public class LevelMap extends Level implements ClipboardOwner {
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
     public LevelMap(EditorPanel game) {
         this(game,null);
+        filePath = FileUtils.getWorkingPath();
     }
     
     /** Load the map from a JSON text file */
@@ -158,6 +160,8 @@ public class LevelMap extends Level implements ClipboardOwner {
                 System.err.println("Error reading JSON for map.");
             }
         }
+        
+        filePath = file.getAbsolutePath();
         
         game.frame.updateTitle(name);
         game.frame.layersPanel.setMap(this);
