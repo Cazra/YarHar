@@ -260,7 +260,7 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     
     /** Creates a SpriteType from this */
     public SpriteType toSpriteType(String name, String path) {
-        SpriteType result = new SpriteType(name, path, cropOffX, cropOffY, cropW, cropH, transColor);
+        SpriteType result = new SpriteType(name, path);
         result.focalX = focalX;
         result.focalY = focalY;
         return result;

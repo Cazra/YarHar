@@ -87,24 +87,12 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         nameFld.setText(editType.name);
         nameFld.setEditable(false);
-        browseFld.setText(editType.imgPath);
         
-        try {
-            String path = editType.imgPath;
-            curImg = new ImageIcon(path);
-            imgPath = path;
-        }
-        catch (Exception ex) {
-            curImg = new ImageIcon(ImageLibrary.getBadImg());
-            imgPath = "";
-        }
+        curImg = new ImageIcon(library.imgLib.get(editType.name));
         
         curImgLabel.setIcon(curImg);
-        curImgLabel.setTransparentColor(editType.transColor);
-        transColorField.setColor(editType.transColor);
         
         curImgLabel.resetCropData();
-        tryCropImage(editType.cropX, editType.cropY, editType.cropW, editType.cropH);
         imgScrollPane.updateUI();
         
         show();

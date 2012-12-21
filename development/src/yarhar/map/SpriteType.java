@@ -18,29 +18,11 @@ public class SpriteType implements Transferable {
     public String name = "Untitled";
     
     /** The ImageLibrary used to render this. */
-    public ImageLibrary imgLib;
-    
-    /** The file path to the image used to represent this SpriteType in the editor. */
-    public String imgPath = "";
-    
+    public ImageLibrary imgLib = null;
+
     public Image curImg = null;
     
     public ImageIcon icon = null;
-    
-    /** If true, then the image for this SpriteType will be cropped when it is loaded. */
-    public boolean isCropped = false;
-    
-    /** The x of the upperLeft corner of the image's cropping rectangle. */
-    public int cropX = 0;
-    
-    /** The y of the upperLeft corner of the image's cropping rectangle. */
-    public int cropY = 0;
-    
-    /** The width of the image's cropping rectangle. */
-    public int cropW = -1;
-    
-    /** The height of the image's cropping rectangle. */
-    public int cropH = -1;
     
     /** The offset of the SpriteType's world x relative to its image's upperleft corner. */
     public double focalX = 0;
@@ -48,11 +30,11 @@ public class SpriteType implements Transferable {
     /** The offset of the SpriteType's world y relative to its image's upperLeft corner. */
     public double focalY = 0;
     
-    
+    /** The image's width. */
     public int width = -1;
-    public int height = -1;
     
-    public Color transColor = null;
+    /** The image's height. */
+    public int height = -1;
     
     
     public static DataFlavor flavor = new DataFlavor(SpriteType.class, SpriteType.class.getSimpleName());
@@ -69,27 +51,8 @@ public class SpriteType implements Transferable {
     
     /** Creates a SpriteType with the given name and image. */
     public SpriteType(String n, String path) {
-        this(n, path, 0, 0, -1, -1);
-    }
-    
-    /** Creates a SpriteType with the given name, image, and crop data. */
-    public SpriteType(String n, String path, int cx, int cy, int cw, int ch, Color tc) {
-        if(cw > 0 && ch > 0)
-            isCropped = true;
-        cropX = cx;
-        cropY = cy;
-        cropW = cw;
-        cropH = ch;
-        
-        transColor = tc;
-        
         this.name = n;
-        this.imgPath = path;
         loadImage();
-    }
-    
-    public SpriteType(String n, String path, int cx, int cy, int cw, int ch) {
-        this(n,path,cx,cy,cw,ch,null);
     }
     
     public SpriteType(JSONObject spriteJ) {
@@ -102,15 +65,8 @@ public class SpriteType implements Transferable {
         String result = "{";
         
         result += "\"name\":\"" + name + "\",";
-        result += "\"img\":\"" + imgPath.replaceAll("\\\\","\\\\\\\\") + "\",";
-        result += "\"cx\":" + cropX + ",";
-        result += "\"cy\":" + cropY + ",";
-        result += "\"cw\":" + cropW + ",";
-        result += "\"ch\":" + cropH + ",";
         result += "\"fx\":" + focalX + ",";
         result += "\"fy\":" + focalY;
-        if(transColor != null) 
-            result += ",\"tc\":" + transColor.getRGB();
         
         result += "}";
         return result;
@@ -120,19 +76,8 @@ public class SpriteType implements Transferable {
     public void loadJSON(JSONObject spriteJ) {
         try {
             name = spriteJ.getString("name");
-            imgPath = spriteJ.getString("img");
-            cropX = spriteJ.getInt("cx");
-            cropY = spriteJ.getInt("cy");
-            cropW = spriteJ.getInt("cw");
-            cropH = spriteJ.getInt("ch");
             focalX = spriteJ.getInt("fx");
             focalY = spriteJ.getInt("fy");
-            
-            if(spriteJ.has("tc"))
-                transColor = new Color(spriteJ.getInt("tc"));
-            
-            if(cropW > 0 && cropH > 0)
-                isCropped = true;
             
             loadImage();
         }
@@ -146,16 +91,14 @@ public class SpriteType implements Transferable {
     public void loadImage() {
         
         ImageLoader imgLoader = new ImageLoader(new JPanel());
-        if(imgPath == "") {
-            curImg = imgLoader.loadFromFile("BadImg.png");
+        
+        // try to obtain the image of this sprite type from the ImageLibrary it is currently using.
+        // Use a default bad image if it can't get its image.
+        if(imgLib == null) {
+          curImg = ImageLibrary.getBadImg();
         }
         else {
-            try {
-                curImg = ImageIO.read(new File(imgPath));
-            }
-            catch (Exception e) {
-                curImg = imgLoader.loadFromFile("BadImg.png");
-            }
+          curImg = imgLib.get(this.name);
         }
 
         // wait for the image's dimensions to become available.
@@ -164,17 +107,6 @@ public class SpriteType implements Transferable {
         while(height == -1)
             height = curImg.getHeight(null);
         
-        // crop if it needs cropping
-        if(isCropped) {
-            curImg = ImageEffects.crop(curImg, cropX, cropY, cropW, cropH);
-            width = cropW;
-            height = cropH;
-        }
-        
-        // set the transparent color if there is one.
-        if(transColor != null) {
-            curImg = ImageEffects.setTransparentColor(curImg, transColor);
-        }
         
         // finish loading the image.
         imgLoader.addImage(curImg);
