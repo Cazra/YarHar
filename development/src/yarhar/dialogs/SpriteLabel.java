@@ -77,6 +77,7 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
             // Left button: set the focus point
             
             isSettingFocus = true;
+            System.err.println("Set focus from press left");
             setFocus(mouseWorld.x, mouseWorld.y);
         }
         else if(button == MouseEvent.BUTTON3) {
@@ -166,6 +167,7 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     }
     
     public void setFocus(int x, int y) {
+        System.err.println("setFocus " + x + "," + y);
         focalX = x;
         focalY = y;
         updateFocusLabel();
@@ -214,7 +216,6 @@ public class SpriteLabel extends JLabel implements MouseListener, MouseMotionLis
     public void setIcon(Icon icon) {
         super.setIcon(icon);
         updateSize();
-        setFocus(0,0);
     }
     
     

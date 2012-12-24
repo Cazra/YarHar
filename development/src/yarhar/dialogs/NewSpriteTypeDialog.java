@@ -166,6 +166,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
             transColorField = new ColorField(curImgLabel.transColor);
         else
             transColorField = new ColorField();
+        transColorField.setColor(new Color(0xFF00FF));
         
         transColorField.addActionListener(this);
         result.add(DialogUtils.makeLabelFieldPanel(new JLabel("Transparent color: "), transColorField));
@@ -266,6 +267,9 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
                 browseFld.setText(path);
                 curImgLabel.setIcon(imgIcon);
                 curImgLabel.resetCropData();
+                curImgLabel.setFocus(0,0);
+                transColorField.setColor(new Color(0xFF00FF));
+                curImgLabel.setTransparentColor(transColorField.color);
                 imgScrollPane.updateUI();
             }
             
