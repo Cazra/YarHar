@@ -233,7 +233,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
                   return;
             }
             
-            new NewSpriteTypeEdit(library, libGroup, tName, curImgLabel.getImage());
+            new NewSpriteTypeEdit(library, libGroup, tName, curImgLabel.getImage(), curImgLabel.focalX, curImgLabel.focalY);
             
             this.dispose();
         }

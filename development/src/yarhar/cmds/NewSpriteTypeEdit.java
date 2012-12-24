@@ -15,13 +15,14 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
     public SpriteType type;
     public Image oldImg;
     public Image newImg;
+    public Point oldFocus;
+    public Point newFocus;
     public boolean isEdit;
     
-    public NewSpriteTypeEdit(SpriteLibrary library, String group, String tName, Image img) {
+    public NewSpriteTypeEdit(SpriteLibrary library, String group, String tName, Image img, int fx, int fy) {
         super();
         this.library = library;
         this.group = group;
-        this.type = type;
         this.newImg = img;
         
         this.map = library.levelMap;
@@ -32,6 +33,7 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
           // We're just editing the image of an existing sprite.
           type = library.sprites.get(tName);
           oldImg = library.imgLib.get(tName);
+          oldFocus = new Point((int) type.focalX, (int) type.focalY);
           type.setImage(newImg);
           library.updatePeerComponent();
         }
@@ -42,12 +44,18 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
           library.addSpriteType(group, type);
         }
         
+        newFocus = new Point(fx,fy);
+        type.focalX = fx;
+        type.focalY = fy;
+        
         map.flagModified();
     }
     
     public void undo() {
         if(isEdit) {
           type.setImage(oldImg);
+          type.focalX = oldFocus.x;
+          type.focalY = oldFocus.y;
         }
         else {
           library.removeSpriteType(group, type);
@@ -66,6 +74,8 @@ public class NewSpriteTypeEdit extends SimpleUndoableEdit {
         else {
           type.setImage(newImg);
           library.updatePeerComponent();
+          type.focalX = newFocus.x;
+          type.focalY = newFocus.y;
         }
         library.updatePeerComponent();
         
