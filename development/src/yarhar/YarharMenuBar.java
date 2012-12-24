@@ -7,6 +7,8 @@ import javax.swing.event.MenuKeyEvent;
 import java.io.*;
 import yarhar.cmds.*;
 import yarhar.dialogs.*;
+import yarhar.fileio.YarharFile;
+import yarhar.images.ImageLibrary;
 import yarhar.map.*;
 
 
@@ -22,7 +24,11 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
         JMenuItem saveAsItem = new JMenuItem("Save as");
-        JMenuItem importItem = new JMenuItem("Import sprite library");
+        JMenu importMenu = new JMenu("Import");
+            JMenuItem openOldItem = new JMenuItem("Open json (no images)");
+            JMenuItem importItem = new JMenuItem("Import sprite library");
+        JMenu exportMenu = new JMenu("Export");
+            JMenuItem exportItem = new JMenuItem("Export map as json");
         JMenuItem exitItem = new JMenuItem("Exit");
     
     JMenu editMenu = new JMenu("Edit") {
@@ -90,9 +96,19 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             saveAsItem.addActionListener(this);
             saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK | ActionEvent.ALT_MASK));
             
-            fileMenu.add(importItem);
-            importItem.addActionListener(this);
-            importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
+            fileMenu.add(importMenu);
+              importMenu.add(openOldItem);
+              openOldItem.addActionListener(this);
+              openOldItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK | ActionEvent.ALT_MASK));
+              
+              importMenu.add(importItem);
+              importItem.addActionListener(this);
+              importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
+            
+            fileMenu.add(exportMenu);
+              exportMenu.add(exportItem);
+              exportItem.addActionListener(this);
+              exportItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
             
             fileMenu.add(exitItem);
             exitItem.addActionListener(this);
@@ -245,6 +261,11 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
             saveMap(false);
         if(source == saveAsItem)
             saveMap(true);
+        if(source == exportItem)
+            saveMapAsJson();
+        if(source == openOldItem) {
+            loadOldMap();
+        }
         if(source == importItem) {
             importLib();
         }
@@ -354,11 +375,10 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     
     
     
-    /** Saves the currently opened map to a JSON file selected/created with a "save as" dialog. */
+    /** Saves the currently opened map and its image librarty to a YarharFile file. */
     public void saveMap(boolean saveAs) {
         JFileChooser chooser = new JFileChooser(yarhar.config.vars.get("lastOpen"));
-        
-        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".ymap files", "ymap"));
         
         LevelMap map = yarhar.editorPanel.getCurMap();
         
@@ -368,11 +388,11 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
         System.err.println(map.filePath);
         
         // Prompt the user with a save dialog if this map has not ever been saved or if "Save As" was chosen.
-        if(map.filePath == "" || saveAs) {
+        if(!map.isSaved || saveAs) {
             retVal = chooser.showSaveDialog(this);
             selFile = chooser.getSelectedFile();
-            if(selFile != null && !selFile.getName().endsWith(".yarmap")) {
-                selFile = new File(selFile.getPath() + ".yarmap");
+            if(selFile != null && !selFile.getName().endsWith(".ymap")) {
+                selFile = new File(selFile.getPath() + ".ymap");
             }
         }
         else {
@@ -389,12 +409,13 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
                 map.name = selFile.getName();
                 map.filePath = selFile.getPath();
                 String jsonStr = "{\"yarmap\":" + map.toJSON() + "}";
-            
-                // save the map to our selected file.
-                FileWriter fw = new FileWriter(selFile);
-                fw.write(jsonStr);
-                fw.close();
+
+                ImageLibrary imgLib = map.spriteLib.imgLib;
+                YarharFile yhFile = new YarharFile(imgLib, jsonStr);
+                yhFile.saveCompressed(selFile.getPath());
+                
                 map.isModified = false;
+                map.isSaved = true;
             }
             catch(Exception e) { // Pokemon exception: Gotta catch 'em all!
                 JOptionPane.showMessageDialog(this, "Error writing to file " + selFile.getPath());
@@ -408,14 +429,60 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     }
     
     
-    /** Loads a map from a file. */
+    /** Saves the currently opened map to a JSON file selected/created with a "save as" dialog. */
+    public void saveMapAsJson() {
+        JFileChooser chooser = new JFileChooser(yarhar.config.vars.get("lastOpen"));
+        
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".jmap json files", "jmap"));
+        
+        LevelMap map = yarhar.editorPanel.getCurMap();
+        
+        int retVal;
+        File selFile;
+        
+        System.err.println(map.filePath);
+        
+        // Prompt the user with a save dialog if this map has not ever been saved or if "Save As" was chosen.
+        retVal = chooser.showSaveDialog(this);
+        selFile = chooser.getSelectedFile();
+        if(selFile != null && !selFile.getName().endsWith(".jmap")) {
+            selFile = new File(selFile.getPath() + ".jmap");
+        }
+        
+        
+        // Proceed to save the map.
+        if(retVal == JFileChooser.APPROVE_OPTION) {
+            yarhar.editorPanel.isLoading = true;
+            try {
+                // convert our map to a JSON string
+                map.name = selFile.getName();
+                map.filePath = selFile.getPath();
+                String jsonStr = "{\"yarmap\":" + map.toJSON() + "}";
+                
+                // save the map to our selected file.
+                FileWriter fw = new FileWriter(selFile);
+                fw.write(jsonStr);
+                fw.close();
+            }
+            catch(Exception e) { // Pokemon exception: Gotta catch 'em all!
+                JOptionPane.showMessageDialog(this, "Error writing to file " + selFile.getPath());
+            }
+            
+            yarhar.editorPanel.isLoading = false;
+            yarhar.updateTitle(map.name);
+            
+            yarhar.config.vars.put("lastOpen", selFile.getPath());
+        }
+    }
+    
+    /** Load a map from a YarharFile file. */
     public void loadMap() {
         // if our map has been modified since its last save, give the user the option to save it before opening a map.
         if(promptModified() == JOptionPane.CANCEL_OPTION)
             return;
         
         JFileChooser chooser = new JFileChooser(yarhar.config.vars.get("lastOpen"));
-        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".ymap map files", "ymap"));
 
         int retVal = chooser.showOpenDialog(this);
         
@@ -434,10 +501,36 @@ public class YarharMenuBar extends JMenuBar implements ActionListener {
     }
     
     
+    /** Loads a map from a json-only file. */
+    public void loadOldMap() {
+        // if our map has been modified since its last save, give the user the option to save it before opening a map.
+        if(promptModified() == JOptionPane.CANCEL_OPTION)
+            return;
+        
+        JFileChooser chooser = new JFileChooser(yarhar.config.vars.get("lastOpen"));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".jmap json files", "jmap"));
+
+        int retVal = chooser.showOpenDialog(this);
+        
+        // load the file.
+        if(retVal == JFileChooser.APPROVE_OPTION) {
+            File selFile = chooser.getSelectedFile();
+            
+            yarhar.editorPanel.isLoading = true;
+            yarhar.editorPanel.changeLevel("LOAD_OLD:" + selFile.getPath());
+            yarhar.editorPanel.isLoading = false;
+            
+            yarhar.config.vars.put("lastOpen", selFile.getPath());
+        }
+        
+        undoManager.discardAllEdits();
+    }
+    
+    
     /** Imports a sprite library from another yarhar map file into our current library. */
     public void importLib() {
       JFileChooser chooser = new JFileChooser(yarhar.config.vars.get("lastOpen"));
-      chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".yarmap json files", "yarmap"));
+      chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".ymap files", "ymap"));
 
       int retVal = chooser.showOpenDialog(this);
       

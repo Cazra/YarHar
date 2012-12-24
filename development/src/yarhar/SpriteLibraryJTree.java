@@ -157,7 +157,7 @@ public class SpriteLibraryJTree extends JTree implements TreeExpansionListener, 
     
     /** Adds a new SpriteType to the library. */
     public void addSpriteType() {
-        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, lastGroupName);
+        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, lastGroupName, null);
     }
     
     
@@ -174,7 +174,7 @@ public class SpriteLibraryJTree extends JTree implements TreeExpansionListener, 
         if(lastType == null || lastGroupName.equals(""))
             return;
         
-        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, lastType);
+        NewSpriteTypeDialog dia = new NewSpriteTypeDialog(frame, spriteLib, lastGroupName, lastType);
     }
     
     

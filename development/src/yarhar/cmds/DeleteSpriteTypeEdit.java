@@ -1,6 +1,7 @@
 package yarhar.cmds;
 
 import java.util.LinkedList;
+import java.awt.Image;
 import java.awt.Point;
 import yarhar.map.*;
 
@@ -12,6 +13,7 @@ public class DeleteSpriteTypeEdit extends SimpleUndoableEdit {
     public SpriteLibrary library;
     public String group;
     public SpriteType type;
+    public Image oldImg;
     
     public LinkedList<LayerInstTuple> tuples;
     
@@ -23,6 +25,7 @@ public class DeleteSpriteTypeEdit extends SimpleUndoableEdit {
         this.map = library.levelMap;
         
         library.removeSpriteType(group, type);
+        this.oldImg = library.imgLib.remove(type.name);
         tuples = map.deleteAllInstances(type);
         
         map.flagModified();
@@ -30,6 +33,8 @@ public class DeleteSpriteTypeEdit extends SimpleUndoableEdit {
     
     public void undo() {
         library.addSpriteType(group, type);
+        type.setImage(oldImg);
+        
         for(LayerInstTuple tuple : tuples) {
             Layer layer = tuple.layer;
             SpriteInstance instance = tuple.instance;
@@ -44,6 +49,8 @@ public class DeleteSpriteTypeEdit extends SimpleUndoableEdit {
     
     public void redo() {
         library.removeSpriteType(group, type);
+        library.imgLib.remove(type.name);
+        
         map.deleteAllInstances(type);
         
         map.flagModified();

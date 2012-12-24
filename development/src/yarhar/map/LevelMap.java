@@ -1,9 +1,5 @@
 package yarhar.map;
 
-import yarhar.*;
-import yarhar.cmds.*;
-import yarhar.dialogs.*;
-import yarhar.utils.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.KeyEvent;
@@ -11,17 +7,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
-import org.json.*;
-import pwnee.*;
-import java.util.LinkedList;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.util.LinkedList;
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JMenu;
 import javax.swing.KeyStroke;
+import org.json.*;
+import pwnee.*;
+import yarhar.*;
+import yarhar.cmds.*;
+import yarhar.fileio.YarharFile;
+import yarhar.images.ImageLibrary;
+import yarhar.dialogs.*;
+import yarhar.utils.*;
 
 
 /** The top level object for a map being manipulated with the YarHar UI. */
@@ -74,6 +76,8 @@ public class LevelMap extends Level implements ClipboardOwner {
     /** Flag to tell if the map has been modified. */
     public boolean isModified = false;
     
+    /** Flag to tell if the map has been saved. */
+    public boolean isSaved = false;
     
     /** A list of sprites currently selected. */  
     public LinkedList<SpriteInstance> selectedSprites = new LinkedList<SpriteInstance>();
@@ -126,25 +130,26 @@ public class LevelMap extends Level implements ClipboardOwner {
     /** Creates a blank map With an unpopulated sprite library and just one layer. */
     public LevelMap(EditorPanel game) {
         this(game,null);
-        filePath = FileUtils.getWorkingPath();
+        isSaved = false;
     }
     
-    /** Load the map from a JSON text file */
-    public LevelMap(EditorPanel game, File file) {
+    
+    /** Load the map from a ymap file */
+    public LevelMap(EditorPanel game, String path) {
         super(game);
         footer = game.frame.footer;
         
-        if(file == null) {
+        if(path == null) {
             spriteLib = new SpriteLibrary(this);
             addLayer(new Layer());
             filePath = FileUtils.getWorkingPath();
         }
-        else {
-            try {
-                FileReader fr = new FileReader(file);
+        else if(path.startsWith("LOAD_OLD:")) {
+          path = path.substring(9);
+          
+          try {
+                FileReader fr = new FileReader(path);
                 BufferedReader br = new BufferedReader(fr);
-                
-                filePath = file.getAbsolutePath();
                 
                 // read the json text from the file.
                 String jsonStr = "";
@@ -163,6 +168,21 @@ public class LevelMap extends Level implements ClipboardOwner {
                 System.err.println("Error reading JSON for map.");
             }
         }
+        else {
+            try {
+                YarharFile yhFile = YarharFile.loadCompressed(path);
+                String jsonStr = yhFile.jsonStr;
+                
+                // convert the json text into a json object and then construct this map from it.
+                JSONObject json = new JSONObject(jsonStr);
+                JSONObject yarmap = json.getJSONObject("yarmap");
+                loadJSON(yarmap);
+                spriteLib.setImgLib(yhFile.imgLib);
+            }
+            catch(Exception e) {
+                System.err.println("Error reading JSON for map.");
+            }
+        }
 
         game.frame.updateTitle(name);
         game.frame.layersPanel.setMap(this);
@@ -171,6 +191,7 @@ public class LevelMap extends Level implements ClipboardOwner {
         camera = game.camera;
         
         isModified = false;
+        isSaved = true;
         
         spriteMenu = new SpriteRClickMenu(this);
     }
@@ -240,24 +261,16 @@ public class LevelMap extends Level implements ClipboardOwner {
     
     public void importLibrary(File file) {
         try {
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            
-            // read the json text from the file.
-            String jsonStr = "";
-            String line = br.readLine();
-            while(line != null) {
-                jsonStr += line;
-                line = br.readLine();
-            }
+            YarharFile yhFile = YarharFile.loadCompressed(file.getPath());
             
             // convert the json text into a json object and then construct this map from it.
-            JSONObject json = new JSONObject(jsonStr);
+            JSONObject json = new JSONObject(yhFile.jsonStr);
             JSONObject yarmap = json.getJSONObject("yarmap");
+            ImageLibrary il = yhFile.imgLib;
             
             // import the library from the json.
             SpriteLibrary importLib = new SpriteLibrary(this, yarmap.getJSONObject("spriteLib"));
-            new ImportLibraryEdit(spriteLib, importLib);
+            new ImportLibraryEdit(spriteLib, importLib, il);
         }
         catch(Exception e) {
             System.err.println("Error reading JSON for map.");
@@ -1244,7 +1257,8 @@ class SpriteRClickMenu extends JPopupMenu implements ActionListener {
         EditorPanel editor = (EditorPanel) map.game;
         
         if(source == editTypeItem) {
-            new NewSpriteTypeDialog(editor.frame, map.spriteLib, map.selectedSprite.type);
+            SpriteType type = map.selectedSprite.type;
+            new NewSpriteTypeDialog(editor.frame, map.spriteLib, null, type);
         }
         
         if(source == cutItem) {

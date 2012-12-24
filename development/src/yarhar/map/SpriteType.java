@@ -20,8 +20,10 @@ public class SpriteType implements Transferable {
     /** The ImageLibrary used to render this. */
     public ImageLibrary imgLib = null;
 
+    /** The image used to render this, obtained from imbLib. */
     public Image curImg = null;
     
+    /** An 32x32 icon version of curImg. */
     public ImageIcon icon = null;
     
     /** The offset of the SpriteType's world x relative to its image's upperleft corner. */
@@ -41,17 +43,20 @@ public class SpriteType implements Transferable {
     
     /** Creates an Untitled sprite type with an undefined image. */
     public SpriteType() {
-        this("Untitled","");
+        this("Untitled",new ImageLibrary(), null);
     }
     
     /** Creates a SpriteType with the given name, but an undefined image. */
     public SpriteType(String n) {
-        this(n,"");
+        this(n,new ImageLibrary(), null);
     }
     
     /** Creates a SpriteType with the given name and image. */
-    public SpriteType(String n, String path) {
+    public SpriteType(String n, ImageLibrary imgLib, Image img) {
         this.name = n;
+        this.imgLib = imgLib;
+        if(img != null) 
+          imgLib.put(name, img);
         loadImage();
     }
     
@@ -92,6 +97,9 @@ public class SpriteType implements Transferable {
         
         ImageLoader imgLoader = new ImageLoader(new JPanel());
         
+        width = -1;
+        height = -1;
+        
         // try to obtain the image of this sprite type from the ImageLibrary it is currently using.
         // Use a default bad image if it can't get its image.
         if(imgLib == null) {
@@ -115,11 +123,6 @@ public class SpriteType implements Transferable {
         createIcon();
     }
     
-    
-    public void render(Graphics2D g) {
-        g.drawImage(curImg,0,0, null);
-    }
-    
     /** Creates the 32x32 icon for this Sprite . */
     public void createIcon() {
         BufferedImage iconImg = new BufferedImage(32,32, BufferedImage.TYPE_INT_ARGB);
@@ -131,6 +134,25 @@ public class SpriteType implements Transferable {
         g.drawImage(curImg,0,0,null);
         
         icon = new ImageIcon(iconImg);
+    }
+    
+    
+    /** Sets this sprite's ImageLibrary and updates its image. */
+    public void setImgLib(ImageLibrary lib) {
+      imgLib = lib;
+      loadImage();
+    }
+    
+    
+    /** Updates this sprite's image. */
+    public void setImage(Image img) {
+      imgLib.put(name, img);
+      loadImage();
+    }
+    
+    
+    public void render(Graphics2D g) {
+        g.drawImage(curImg,0,0, null);
     }
     
     

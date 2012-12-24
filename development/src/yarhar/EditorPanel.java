@@ -113,8 +113,9 @@ public class EditorPanel extends GamePanel {
         if(levelName == "new")
             return new LevelMap(this);
         else {
-            File file = new File(levelName);
-            LevelMap level = new LevelMap(this, file);
+            // levelName is the path to a ymap file. 
+            LevelMap level = new LevelMap(this, levelName);
+            
             level.filePath = levelName;
             return level;
         }

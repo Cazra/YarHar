@@ -59,7 +59,7 @@ public class SpriteLibrary {
         updatePeerComponent();
     }
     
-    
+    /*
     public void testPopulation() {
         addGroup("default");
         addSpriteType("default", new SpriteType());
@@ -76,7 +76,7 @@ public class SpriteLibrary {
         addSpriteType("characters", new SpriteType("Yoshi"));
         addSpriteType("characters", new SpriteType("Bowser"));
     }
-    
+    */
     
     
     /** Creates a JSON string representing this library. */
@@ -141,6 +141,7 @@ public class SpriteLibrary {
     public SpriteLibrary makeClone() {
       SpriteLibrary clone = new SpriteLibrary();
       clone.levelMap = this.levelMap;
+      clone.imgLib = new ImageLibrary(this.imgLib);
       clone.sprites = new HashMap<String, SpriteType>(this.sprites);
       
       clone.spriteNames = new TreeSet<String>(this.spriteNames);
@@ -164,7 +165,7 @@ public class SpriteLibrary {
       
       for(String tName : spriteNames) {
         SpriteType type = sprites.get(tName);
-        type.imgLib = imgLib;
+        type.setImgLib(imgLib);
       }
     }
     
@@ -209,24 +210,6 @@ public class SpriteLibrary {
             groupName = "default";
         
         groups.get(groupName).addSpriteType(spriteType);
-        sprites.put(spriteType.name, spriteType);
-        spriteNames.add(spriteType.name);
-        
-        // overwrite the type for all instances of the replaced type.
-        for(Layer layer : levelMap.layers) {
-            for(SpriteInstance sprite : layer.sprites) {
-                if(sprite.type.name.equals(spriteType.name)) {
-                    sprite.type = spriteType;
-                }
-            }
-        }
-        
-        updatePeerComponent();
-    }
-    
-    /** Edits a sprite type. This effectively overwrites an existing SpriteType with the same name in this library and in all sprite instances with that type. */
-    public void editSpriteType(SpriteType spriteType) {
-        
         sprites.put(spriteType.name, spriteType);
         spriteNames.add(spriteType.name);
         
@@ -327,6 +310,8 @@ public class SpriteLibrary {
         
         return result;
     }
+    
+    
     
     
     /** Updates Yarhar's UI intrefaces for this library */
