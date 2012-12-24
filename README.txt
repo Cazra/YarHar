@@ -3,7 +3,7 @@ README
 
 /*======================================================================
  * 
- * Yarhar v1.0 : A 2D map editor made in Java
+ * Yarhar v2.0 : A 2D map editor made in Java
  * 
  * Copyright (c) 2012 by Stephen Lindberg (sllindberg21@students.tntech.edu)
  * All rights reserved.
@@ -34,17 +34,15 @@ any language. This is possible because all maps created with Yarhar are saved as
 Yarhar supports multiple layers, tiled sprites, grouped sprite libraries, and layer opacity. 
 Yarhar is powered by the Pwnee2D Java game engine.
 
-This project is still undergoing a lot of development, but it is now in a state where it
-is possible to make maps and save/load them as json. If you don't mind the current 
-incompleteness of this application, then feel free to use it.
+Yarhar was been developed and tested on a 64-bit computer running Windows 7, but it should 
+also be able to run on any computer with at least Java 6 properly installed.
 
-I'll eventually get around to expanding this README and creating some example applications. 
-Hang in there until then!
 
-All components and examples of Yarhar unless otherwise specified, have been developed and 
-tested on a 64-bit computer running Windows 7, but it should also be able to run on any 
-computer with at least Java 6 properly installed.
+Version info:
+----------------
+v2.0 : Map and image data are now stored in one file.
 
+v1.0 : Original completed release. Saved maps as json data. Didn't save image data.
 
 
 Requirements:
