@@ -233,6 +233,25 @@ public class SpriteLibraryJTree extends JTree implements TreeExpansionListener, 
         
         new RenameSpriteTypeGroupEdit(spriteLib, lastGroupName, name);
     }
+    
+    /** Imports a sprite library from another yarhar map file into our current library. */
+    public void importLib() {
+      JFileChooser chooser = new JFileChooser(frame.config.vars.get("lastOpen"));
+      chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(".ymap files", "ymap"));
+
+      int retVal = chooser.showOpenDialog(this);
+      
+      // load the file.
+      if(retVal == JFileChooser.APPROVE_OPTION) {
+        java.io.File selFile = chooser.getSelectedFile();
+        
+        frame.editorPanel.isLoading = true;
+        frame.editorPanel.getCurMap().importLibrary(selFile);
+        frame.editorPanel.isLoading = false;
+        
+        frame.config.vars.put("lastOpen", selFile.getPath());
+      }
+    }
 }
 
 
@@ -274,9 +293,11 @@ class LibraryRClickMenu extends JPopupMenu implements ActionListener {
     
     public SpriteLibraryJTree slpanel;
     
+    public JMenuItem editItem = new JMenuItem("Edit");
     public JMenuItem newSpriteItem = new JMenuItem("New Sprite");
     public JMenuItem newGroupItem = new JMenuItem("New Group");
-    public JMenuItem editItem = new JMenuItem("Edit");
+    public JMenuItem importLibItem = new JMenuItem("Import Library");
+    
     public JMenuItem renameItem = new JMenuItem("Rename");
     public JMenuItem deleteItem = new JMenuItem("Delete");
     
@@ -284,14 +305,17 @@ class LibraryRClickMenu extends JPopupMenu implements ActionListener {
         super();
         this.slpanel = slpanel;
         
+        this.add(editItem);
+        editItem.addActionListener(this);
+        
         this.add(newSpriteItem);
         newSpriteItem.addActionListener(this);
         
         this.add(newGroupItem);
         newGroupItem.addActionListener(this);
         
-        this.add(editItem);
-        editItem.addActionListener(this);
+        this.add(importLibItem);
+        importLibItem.addActionListener(this);
         
         this.add(renameItem);
         renameItem.addActionListener(this);
@@ -317,6 +341,10 @@ class LibraryRClickMenu extends JPopupMenu implements ActionListener {
         // Edit an existing SpriteType.
         if(source == editItem) {
             slpanel.editSelectedSpriteType();
+        }
+        
+        if(source == importLibItem) {
+            slpanel.importLib();
         }
         
         // Rename an existing group or SpriteType.
