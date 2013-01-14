@@ -242,9 +242,11 @@ public class SpriteLibrary {
         groups.get(groupName).removeSpriteType(spriteType);
         spriteNames.remove(spriteType.name);
         sprites.remove(spriteType.name);
+        Image img = imgLib.remove(spriteType.name);
         
         spriteType.name = name;
         
+        imgLib.put(name, img);
         addSpriteType(groupName, spriteType);
     }
     
