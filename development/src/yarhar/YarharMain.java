@@ -14,6 +14,7 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
     public LayersPanel layersPanel;
     public EditorPanel editorPanel;
     public StatusFooterPanel footer;
+    public JSplitPane sidePane;
     public JSplitPane splitPane;
     public YarharConfig config;
     
@@ -35,19 +36,21 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         spriteLibPanel = new SpriteLibraryPanel(this);
         layersPanel = new LayersPanel(this);
         editorPanel = new EditorPanel(this);
-        JSplitPane sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, layersPanel, spriteLibPanel);
+        sidePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, layersPanel, spriteLibPanel);
         sidePane.setContinuousLayout(true);
         sidePane.setResizeWeight(0.5);
-        sidePane.setDividerLocation(0.5);
+        
         
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePane, editorPanel);
         splitPane.setContinuousLayout(true);
         splitPane.setResizeWeight(0.0);
-        splitPane.setDividerLocation(0.3);
+        
         borderPanel.add(splitPane, BorderLayout.CENTER);
         
         footer = new StatusFooterPanel(this);
         borderPanel.add(footer, BorderLayout.SOUTH);
+        
+        
         
         // finishing touches on Game window
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,8 +61,22 @@ public class YarharMain extends JFrame implements WindowListener, WindowFocusLis
         System.err.println("Game Window successfully created!!!");
         
         editorPanel.start();
+        
+        // Swing can't correctly place divider locations on startup. So we must 
+        // set their locations later when everything else is initialized.
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            setDividerLocations();
+          }
+        });
     }
-     
+    
+    
+    /** Sets JSplitPane divider locations */
+    public void setDividerLocations() {
+      sidePane.setDividerLocation(0.5);
+      splitPane.setDividerLocation(0.25);
+    }
     
     // WindowListener interface stuff
     

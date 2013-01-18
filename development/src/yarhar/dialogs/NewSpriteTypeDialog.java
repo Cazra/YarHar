@@ -24,6 +24,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     
     JPanel fieldsPanel;
     JPanel previewPanel;
+    JSplitPane splitPane;
     JScrollPane imgScrollPane;
     
     JButton okBtn = new JButton("OK");
@@ -58,7 +59,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         
         constructComponents();
         setTitle("New Sprite");
-        this.setSize(new Dimension(500,400));
+        this.setSize(new Dimension(500,420));
 
         this.library = library;
         this.libGroup = group;
@@ -77,12 +78,12 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
     }
     
     
-    
     /** Constructs the dialog's top JPanel. */
     public void constructComponents() {
         JPanel topPanel = new JPanel(new BorderLayout());
         
         fieldsPanel = DialogUtils.makeVerticalFlowPanel();
+        fieldsPanel.setPreferredSize(new Dimension(250,400));
         fieldsPanel.add(DialogUtils.makeLabelFieldPanel(new JLabel("Name: "), nameFld));
         fieldsPanel.add(constructBrowsePanel());
         fieldsPanel.add(constructCroppingPanel());
@@ -94,10 +95,9 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
         previewPanel.add(imgScrollPane, BorderLayout.CENTER);
         previewPanel.add(makePreviewUtilsPanel(), BorderLayout.SOUTH);
         
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fieldsPanel, previewPanel);
-        splitPane.setContinuousLayout(true);
-        splitPane.setResizeWeight(0.0);
-        splitPane.setDividerLocation(0.5);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fieldsPanel, previewPanel);
+      //  splitPane.setContinuousLayout(true);
+        splitPane.setResizeWeight(0.5);
         topPanel.add(splitPane, BorderLayout.CENTER);
         
         
