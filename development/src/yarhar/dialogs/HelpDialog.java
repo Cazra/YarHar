@@ -37,7 +37,14 @@ public class HelpDialog extends JDialog {
 "\n" +
 "Right-click :                Opens up the right click menu.\n" +
 "\n" +
-"Several menu options also have keyboard shortcuts available.";
+"Several menu options also have keyboard shortcuts available.\n" +
+"\n" +
+"\n-------------------------------------------\n" +
+"In the Sprite Editor: the preview image has some interactive controls:\n" + 
+"\n" +
+"Left-clicking on the preview image sets the focal point for the sprite.\n" + 
+"\n" +
+"Right-dragging on the preview image crops the sprite.\n\n";
     
     
     public HelpDialog(JFrame owner) {
