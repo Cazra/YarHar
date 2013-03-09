@@ -5,6 +5,7 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
+import java.io.File;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import pwnee.image.ImageLoader;
@@ -257,12 +258,14 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
                 try {
                     path = openDia.getSelectedFile().getPath();
                     imgIcon = new ImageIcon(path);
+                    nameFld.setText(path.substring(path.lastIndexOf(File.separator) + 1, path.lastIndexOf(".")));
                     
                     yarhar.config.vars.put("lastOpen", path);
                 }
                 catch (Exception ex) {
                     imgIcon = new ImageIcon(ImageLibrary.getBadImg());
                 }
+                
                 
                 browseFld.setText(path);
                 curImgLabel.setIcon(imgIcon);
