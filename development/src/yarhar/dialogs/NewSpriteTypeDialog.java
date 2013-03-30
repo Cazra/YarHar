@@ -245,7 +245,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
             tryCropImage();
         }
         if(source == browseBtn) {
-            JFileChooser openDia = new JFileChooser(yarhar.config.vars.get("lastOpen"));
+            JFileChooser openDia = new JFileChooser(yarhar.config.vars.get("lastImgOpen"));
             FileNameExtensionFilter filter = new FileNameExtensionFilter ("bmp, gif, jpg, or png file", "bmp", "gif", "jpg", "png");
             openDia.setFileFilter(filter);
             
@@ -260,7 +260,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
                     imgIcon = new ImageIcon(path);
                     nameFld.setText(path.substring(path.lastIndexOf(File.separator) + 1, path.lastIndexOf(".")));
                     
-                    yarhar.config.vars.put("lastOpen", path);
+                    yarhar.config.vars.put("lastImgOpen", path);
                 }
                 catch (Exception ex) {
                     imgIcon = new ImageIcon(ImageLibrary.getBadImg());
