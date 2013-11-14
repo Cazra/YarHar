@@ -69,6 +69,7 @@ public class NewSpriteTypeDialog extends JDialog implements ActionListener, Chan
           isEdit = true;
           nameFld.setText(editType.name);
           nameFld.setEditable(false);
+          curImgLabel.setFocus((int) editType.focalX, (int) editType.focalY);
           
           curImgLabel.setIcon(new ImageIcon(library.imgLib.get(editType.name)));
         }
